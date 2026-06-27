@@ -44,7 +44,7 @@ public class RobotContainer
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
 
-  private VisionSubsystem m_visionRear;
+  private VisionSubsystem m_visionFront;
                                                                                 
   // Establish a Sendable Chooser that will be able to be sent to the SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
@@ -106,7 +106,7 @@ public class RobotContainer
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_visionRear = new VisionSubsystem(m_drivebase, "limelight", "Rear");
+    m_visionFront = new VisionSubsystem(m_drivebase, "limelight", "Front");
 
     // Configure the trigger bindings
     configureBindings();
@@ -222,15 +222,15 @@ public class RobotContainer
   }
 
   public void switchPipelines(int num) {
-    m_visionRear.switchPipeline(num);
+    m_visionFront.switchPipeline(num);
   }
 
   public void setVisionThrottle(int throttle) {
-    m_visionRear.setThrottle(throttle);
+    m_visionFront.setThrottle(throttle);
   }
 
   private void logPoses() {
-    logf("******* Pose: %s %s %s Robot:%s", m_visionRear.getVisionResult());
+    logf("******* Pose: %s %s %s Robot:%s", m_visionFront.getVisionResult());
   }
 
   /**

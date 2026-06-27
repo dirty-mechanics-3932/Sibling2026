@@ -84,17 +84,17 @@ public class VisionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     try {
-      // Pose2d robotPose = m_swerveDrive.getPose();
+      Pose2d robotPose = m_swerveDrive.getPose();
 
-      // LimelightHelpers.SetRobotOrientation(
-      //     m_cameraName,
-      //     robotPose.getRotation().getDegrees(),
-      //     0.0,
-      //     0.0,
-      //     0.0,
-      //     0.0,
-      //     0.0
-      // );
+      LimelightHelpers.SetRobotOrientation(
+          m_cameraName,
+          robotPose.getRotation().getDegrees(),
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+      );
       // Fetch once per loop — reuse m_mt1 everywhere below.
       m_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
       m_mt1_yaw = m_mt1.pose.getRotation().getDegrees();
