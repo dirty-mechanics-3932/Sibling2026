@@ -46,8 +46,8 @@ public class VisionSubsystem extends SubsystemBase {
   // --- Cached state (refreshed every periodic) ---
   private boolean       m_tv   = false;
   private Pose2d        m_pose = new Pose2d();
-  private PoseEstimate  m_mt1  = null;
-  private double m_mt1_yaw;
+  private PoseEstimate  m_mt2  = null;
+  private double m_mt2_yaw;
 
   // Initialize with the CAN ID configured in Phoenix Tuner X
   Pigeon2 pigeon = new Pigeon2(14, "canivore"); 
@@ -96,24 +96,27 @@ public class VisionSubsystem extends SubsystemBase {
           0.0
       );
       // Fetch once per loop — reuse m_mt1 everywhere below.
-      m_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
-      m_mt1_yaw = m_mt1.pose.getRotation().getDegrees();
+      // m_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
+      
+      m_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(m_cameraName);
+
+      m_mt2_yaw = m_mt2.pose.getRotation().getDegrees();
       m_tv  = LimelightHelpers.getTV(m_cameraName);
 
       SmartDashboard.putBoolean(m_shortName + "-TV", m_tv);
       SmartDashboard.putNumber(m_shortName + "-TagCount",
-           m_mt1 != null ? m_mt1.tagCount : 0);
+           m_mt2 != null ? m_mt2.tagCount : 0);
 
-      if (m_mt1 != null) {
+      if (m_mt2 != null) {
         SmartDashboard.putNumber("Swerve Heading", m_swerveDrive.getPose().getRotation().getDegrees());
         // SmartDashboard.putNumber("Pigeon Heading", pigeon.getYaw().getValueAsDouble());
-        SmartDashboard.putNumber(m_shortName + " VHead", m_mt1_yaw);
+        SmartDashboard.putNumber(m_shortName + " VHead", m_mt2_yaw);
       }
 
-      if (m_tv && m_mt1 != null && m_mt1.tagCount > 0) {
+      if (m_tv && m_mt2 != null && m_mt2.tagCount > 0) {
         // Cache pose once so all helpers share the same snapshot.
-        m_pose = m_mt1.pose;
-        updateSwerveOdometry(m_mt1);
+        m_pose = m_mt2.pose;
+        updateSwerveOdometry(m_mt2);
         updateSmartDashboard();
       }
 
@@ -135,31 +138,36 @@ public class VisionSubsystem extends SubsystemBase {
    *   3. Tag not too far away
    *   4. Multi-tag span not too narrow (if 2+ tags)
    */
-  private void updateSwerveOdometry(PoseEstimate mt1) {
-    Pose2d pose = mt1.pose;
+  private void updateSwerveOdometry(PoseEstimate mt2) {
+    Pose2d pose = mt2.pose;
 
     // Gate 1 – origin guard
     if (pose.getX() == 0.0 && pose.getY() == 0.0) return;
 
     // Gate 2 – distance
-    if (mt1.avgTagDist > MAX_TAG_DISTANCE_METERS) return;
+    if (mt2.avgTagDist > MAX_TAG_DISTANCE_METERS) return;
 
     // Gate 3 – multi-tag span (skip for single-tag; span is 0)
-    if (mt1.tagCount >= 2 && mt1.tagSpan < MIN_TAG_SPAN_METERS) return;
+    if (mt2.tagCount >= 2 && mt2.tagSpan < MIN_TAG_SPAN_METERS) return;
 
     // Use the timestamp that comes directly from the PoseEstimate — it is
     // already the FPGA-adjusted capture time (pipeline + capture latency baked in).
-    double captureTimestamp = mt1.timestampSeconds;
+    double captureTimestamp = mt2.timestampSeconds;
 
     // Scale std devs by distance: further = less trust.
-    double distScale = 1.0 + mt1.avgTagDist * 0.3;
-    double xyStdDev = (mt1.tagCount >= 2 ? MULTI_TAG_XY_STDDEV : SINGLE_TAG_XY_STDDEV)
+    double distScale = 1.0 + mt2.avgTagDist * 0.3;
+    double xyStdDev = (mt2.tagCount >= 2 ? MULTI_TAG_XY_STDDEV : SINGLE_TAG_XY_STDDEV)
                       * distScale;
     Matrix<N3, N1> stdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(),
         xyStdDev, xyStdDev, ROT_STDDEV);
+    
+    double gyroRate = pigeon.getAngularVelocityZWorld().getValueAsDouble();
 
-    m_swerveDrive.getM_swerveDrive()
-        .addVisionMeasurement(pose, captureTimestamp, stdDevs);
+    if (Math.abs(gyroRate) > 360) {
+        return;
+    }
+
+    m_swerveDrive.getM_swerveDrive().addVisionMeasurement(pose, captureTimestamp, stdDevs);
   }
 
   // ---------------------------------------------------------------------------
@@ -185,8 +193,8 @@ public class VisionSubsystem extends SubsystemBase {
    * Uses the cached PoseEstimate; never triggers a new NT read.
    */
   public Optional<Pose2d> getRobotPose() {
-    if (m_mt1 == null || !m_tv || m_mt1.tagCount == 0) return Optional.empty();
-    Pose2d p = m_mt1.pose;
+    if (m_mt2 == null || !m_tv || m_mt2.tagCount == 0) return Optional.empty();
+    Pose2d p = m_mt2.pose;
     if (p.getX() == 0.0 && p.getY() == 0.0) return Optional.empty();
     return Optional.of(p);
   }
@@ -253,7 +261,7 @@ public class VisionSubsystem extends SubsystemBase {
       SmartDashboard.putNumber(m_shortName + ":PoseY", m_pose.getY());
       SmartDashboard.putNumber(m_shortName + ":PoseR", m_pose.getRotation().getDegrees());
       SmartDashboard.putNumber(m_shortName + ":AvgTagDist",
-          m_mt1 != null ? m_mt1.avgTagDist : -1);
+          m_mt2 != null ? m_mt2.avgTagDist : -1);
     }
 
     if (m_tv && Robot.count % 250 == 100) {
@@ -274,14 +282,14 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public void resetGyroYaw() {
-    if (m_mt1 == null || !m_tv || m_mt1.tagCount == 0) {
+    if (m_mt2 == null || !m_tv || m_mt2.tagCount == 0) {
       logf("Cannot reset gyro yaw from %s: no valid pose", m_shortName);
       return;
     }
-    m_swerveDrive.resetYaw(m_mt1_yaw);
+    m_swerveDrive.resetYaw(m_mt2_yaw);
   }
 
   public double getVisionYaw() {
-    return m_mt1_yaw;
+    return m_mt2_yaw;
   }
 }
