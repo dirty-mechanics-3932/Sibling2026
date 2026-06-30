@@ -70,7 +70,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     setName(cameraName);
 
-    LimelightHelpers.SetIMUMode(m_cameraName, 3);
+    LimelightHelpers.SetIMUMode(m_cameraName, 0);
 
     m_publisher = NetworkTableInstance.getDefault()
         .getStructTopic(m_shortName + ":MyPose", Pose2d.struct)
@@ -84,12 +84,14 @@ public class VisionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     try {
-      Pose2d robotPose = m_swerveDrive.getPose();
+      //Pose2d robotPose = m_swerveDrive.getPose();
+      double yaw = pigeon.getYaw().getValueAsDouble();
+      double yawRate = pigeon.getAngularVelocityZWorld().getValueAsDouble();
 
       LimelightHelpers.SetRobotOrientation(
           m_cameraName,
-          robotPose.getRotation().getDegrees(),
-          0.0,
+          yaw,
+          yawRate,
           0.0,
           0.0,
           0.0,
