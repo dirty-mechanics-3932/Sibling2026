@@ -17,6 +17,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.vision.FieldConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.io.File;
@@ -55,9 +57,9 @@ public class RobotContainer
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getM_swerveDrive(),
                                                                 () -> m_driverController.getLeftY() * -1,
                                                                 () -> m_driverController.getLeftX() * -1)
-                                                            .withControllerRotationAxis(m_driverController::getRightX)
+                                                            .withControllerRotationAxis(() -> m_driverController.getRightX() * -1)
                                                             .deadband(OperatorConstants.DEADBAND)
-                                                            .scaleTranslation(0.8)
+                                                            .scaleTranslation(0.4)
                                                             .allianceRelativeControl(true);
 
   /**
@@ -79,7 +81,7 @@ public class RobotContainer
                                                                     .withControllerRotationAxis(() -> m_driverController.getRawAxis(
                                                                         2))
                                                                     .deadband(OperatorConstants.DEADBAND)
-                                                                    .scaleTranslation(0.8)
+                                                                    .scaleTranslation(0.4)
                                                                     .allianceRelativeControl(true);
   // Derive the heading axis with math!
   SwerveInputStream driveDirectAngleKeyboard     = driveAngularVelocityKeyboard.copy()
@@ -154,6 +156,7 @@ public class RobotContainer
     } else
     {
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      // m_drivebase.aimAtPoseCommand(() -> -m_driverController.getLeftY(), () -> -m_driverController.getLeftX(), () -> FieldConstants.HUB_POSE_RED);
     }
 
     if (Robot.isSimulation())
@@ -211,13 +214,26 @@ public class RobotContainer
                 .andThen(myLogf("Reset Pose to 1.2,1.2,180")));
     m_driverController.y().onTrue(new InstantCommand(() -> logPoses()));
     m_driverController.x().onTrue(new InstantCommand(() -> m_drivebase.resetYaw(0)));
+
+    m_driverController.rightTrigger().whileTrue(
+        m_drivebase.aimAtPoseCommand(
+          () -> -m_driverController.getLeftY(),
+          () -> -m_driverController.getLeftX(),
+          () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+              ? FieldConstants.HUB_POSE_BLUE
+              : FieldConstants.HUB_POSE_RED)
+        .alongWith(myLogf("Aiming at hub pose:" + 
+            (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+            ? "Blue Hub"
+            : "Red Hub")))
+    );
   }
 
   private Pose2d getInitPose() {
     if (Robot.isAllianceBlue()) {
-      return new Pose2d(new Translation2d(1.2, 1.2), Rotation2d.fromDegrees(180));
+      return new Pose2d(new Translation2d(1.2, 1.2), Rotation2d.fromDegrees(-180));
     } else {
-      return new Pose2d(new Translation2d(15.341, 1.2), Rotation2d.fromDegrees(0));
+      return new Pose2d(new Translation2d(15.341, 1.2), Rotation2d.fromDegrees(180));
     }
   }
 

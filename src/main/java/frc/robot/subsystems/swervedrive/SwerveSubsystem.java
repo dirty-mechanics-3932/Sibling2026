@@ -5,6 +5,7 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
+import static frc.robot.utilities.Util.logf;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -17,6 +18,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -58,8 +61,10 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive m_swerveDrive;
+  private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
   
   Pose2d m_currentRobotPose;
+  Pose2d robotPose = new Pose2d();
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -99,6 +104,7 @@ public class SwerveSubsystem extends SubsystemBase
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
 
     setupPathPlanner();
+    headingPID.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   /**
@@ -119,6 +125,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    robotPose = getPose();
     m_currentRobotPose = m_swerveDrive.field.getRobotPose();
     publisher.set(m_currentRobotPose);
   }
@@ -683,5 +690,66 @@ public class SwerveSubsystem extends SubsystemBase
     );
 
     m_swerveDrive.resetOdometry(newPose);
+  }
+
+  public Rotation2d getHeadingToPose(Pose2d targetPose) {
+    return targetPose.getTranslation()
+                     .minus(getPose().getTranslation())
+                     .getAngle();
+  }
+
+  public Command aimAtPoseCommand(
+    DoubleSupplier translationX,
+    DoubleSupplier translationY,
+    Supplier<Pose2d> targetPose) {
+
+    logf("Command starting");
+
+    return Commands.run(() -> {
+      Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+
+      Rotation2d targetHeading = delta.getAngle();
+      logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
+      logf("Translations: %,2f", delta);
+
+      double omega = headingPID.calculate(
+        robotPose.getRotation().getRadians(),
+        targetHeading.getRadians());
+
+      logf("Omega: %.2f", omega);
+
+      drive(
+        SwerveMath.scaleTranslation(
+          new Translation2d(
+            translationX.getAsDouble() * m_swerveDrive.getMaximumChassisVelocity(),
+            translationY.getAsDouble() * m_swerveDrive.getMaximumChassisVelocity()),
+            0.4),
+            omega,
+            true);
+    },
+    this
+);
+
+    // return run(() -> {
+    //   Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+
+    //   Rotation2d targetHeading = delta.getAngle();
+    //   logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
+
+    //   double omega = headingPID.calculate(
+    //     robotPose.getRotation().getRadians(),
+    //     targetHeading.getRadians());
+
+    //   logf("Omega: %.2f", omega);
+
+    //   drive(
+    //     SwerveMath.scaleTranslation(
+    //       new Translation2d(
+    //         translationX.getAsDouble() * m_swerveDrive.getMaximumChassisVelocity(),
+    //         translationY.getAsDouble() * m_swerveDrive.getMaximumChassisVelocity()),
+    //         0.4),
+    //         omega,
+    //         true);
+    // });
   }
 }

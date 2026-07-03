@@ -50,7 +50,7 @@ public class VisionSubsystem extends SubsystemBase {
   private double m_mt2_yaw;
 
   // Initialize with the CAN ID configured in Phoenix Tuner X
-  Pigeon2 pigeon = new Pigeon2(14, "canivore"); 
+  Pigeon2 pigeon = new Pigeon2(14); 
 
   // --- Field layout (shared across all instances) ---
   private static final AprilTagFieldLayout FIELD_LAYOUT =
@@ -70,7 +70,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     setName(cameraName);
 
-    LimelightHelpers.SetIMUMode(m_cameraName, 0);
+    LimelightHelpers.SetIMUMode(m_cameraName, 3);
 
     m_publisher = NetworkTableInstance.getDefault()
         .getStructTopic(m_shortName + ":MyPose", Pose2d.struct)
@@ -84,23 +84,24 @@ public class VisionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     try {
-      //Pose2d robotPose = m_swerveDrive.getPose();
+      Pose2d robotPose = m_swerveDrive.getPose();
       double yaw = pigeon.getYaw().getValueAsDouble();
       double yawRate = pigeon.getAngularVelocityZWorld().getValueAsDouble();
 
-      LimelightHelpers.SetRobotOrientation(
-          m_cameraName,
-          yaw,
-          yawRate,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-      );
+      // LimelightHelpers.SetRobotOrientation(
+      //     m_cameraName,
+      //     m_swerveDrive.getPose().getRotation().getDegrees(),
+      //     0,
+      //     0.0,
+      //     0.0,
+      //     0.0,
+      //     0.0
+      // );
+
       // Fetch once per loop — reuse m_mt1 everywhere below.
       // m_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
       
-      m_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(m_cameraName);
+      m_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
 
       m_mt2_yaw = m_mt2.pose.getRotation().getDegrees();
       m_tv  = LimelightHelpers.getTV(m_cameraName);
