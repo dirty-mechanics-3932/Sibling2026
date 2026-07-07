@@ -5,8 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -18,8 +20,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot
 {
 
-  private static Robot   instance;
-  private        Command m_autonomousCommand;
+  public static long count = 0;
+  public static Alliance alliance = Alliance.Red;
+  private static Robot instance;
+  private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -27,7 +31,11 @@ public class Robot extends TimedRobot
 
   public Robot()
   {
+    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+    // autonomous chooser on the dashboard.
+    m_robotContainer = new RobotContainer();
     instance = this;
+    SmartDashboard.putString("Alliance", alliance.toString());
   }
 
   public static Robot getInstance()
@@ -41,10 +49,6 @@ public class Robot extends TimedRobot
   @Override
   public void robotInit()
   {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
-
     // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
     // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
@@ -53,6 +57,10 @@ public class Robot extends TimedRobot
     {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
+  }
+
+  public static boolean isAllianceBlue() {
+    return alliance == Alliance.Blue;
   }
 
   /**
@@ -65,6 +73,7 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic()
   {
+    count++;
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -81,6 +90,7 @@ public class Robot extends TimedRobot
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
+    m_robotContainer.setVisionThrottle(200);
   }
   
   @Override
@@ -111,6 +121,7 @@ public class Robot extends TimedRobot
     {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.setVisionThrottle(0);
   }
 
   /**
@@ -135,6 +146,7 @@ public class Robot extends TimedRobot
     {
       CommandScheduler.getInstance().cancelAll();
     }
+    m_robotContainer.setVisionThrottle(0);
   }
 
   /**
