@@ -728,28 +728,6 @@ public class SwerveSubsystem extends SubsystemBase
             true);
     },
     this
-);
-
-    // return run(() -> {
-    //   Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
-
-    //   Rotation2d targetHeading = delta.getAngle();
-    //   logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
-
-    //   double omega = headingPID.calculate(
-    //     robotPose.getRotation().getRadians(),
-    //     targetHeading.getRadians());
-
-    //   logf("Omega: %.2f", omega);
-
-    //   drive(
-    //     SwerveMath.scaleTranslation(
-    //       new Translation2d(
-    //         translationX.getAsDouble() * m_swerveDrive.getMaximumChassisVelocity(),
-    //         translationY.getAsDouble() * m_swerveDrive.getMaximumChassisVelocity()),
-    //         0.4),
-    //         omega,
-    //         true);
-    // });
+    );
   }
 }

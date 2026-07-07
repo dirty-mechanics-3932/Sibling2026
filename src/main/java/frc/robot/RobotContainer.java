@@ -156,7 +156,6 @@ public class RobotContainer
     } else
     {
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-      // m_drivebase.aimAtPoseCommand(() -> -m_driverController.getLeftY(), () -> -m_driverController.getLeftX(), () -> FieldConstants.HUB_POSE_RED);
     }
 
     if (Robot.isSimulation())
