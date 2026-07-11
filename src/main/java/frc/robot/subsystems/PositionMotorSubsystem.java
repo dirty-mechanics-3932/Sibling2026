@@ -19,7 +19,7 @@ public class PositionMotorSubsystem extends SubsystemBase {
     private final SparkClosedLoopController m_positionPID;
 
     public PositionMotorSubsystem() {
-        m_positionMotor = new SparkMax(0, MotorType.kBrushless); // Remember to set the motor IDs
+        m_positionMotor = new SparkMax(21, MotorType.kBrushless); // Remember to set the motor IDs
         m_positionEncoder = (SparkRelativeEncoder) m_positionMotor.getEncoder();
         m_positionPID = m_positionMotor.getClosedLoopController();
 
