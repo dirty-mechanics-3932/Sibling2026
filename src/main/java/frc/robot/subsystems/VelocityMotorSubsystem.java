@@ -10,17 +10,17 @@ public class VelocityMotorSubsystem extends SubsystemBase {
     
     public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
-private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
+    private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
 
     public VelocityMotorSubsystem() {
         m_velocityMotor = new TalonFX(20); // Remember to set the motor IDs
-configs.Slot0.kP = 0.01;
-configs.Slot0.kI = 0.00;
-configs.Slot0.kD = 0.00;
-configs.Slot0.kS = 0.25;
-configs.Slot0.kV = 0.12;
+        configs.Slot0.kP = 0.01;
+        configs.Slot0.kI = 0.00;
+        configs.Slot0.kD = 0.00;
+        configs.Slot0.kS = 0.25;
+        configs.Slot0.kV = 0.12;
 
-m_velocityMotor.getConfigurator().apply(configs);
+        m_velocityMotor.getConfigurator().apply(configs);
     }
 
     public void setVelocitySetpoint(double value) {

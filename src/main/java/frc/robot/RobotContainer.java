@@ -218,7 +218,7 @@ public class RobotContainer {
       m_driverController.rightBumper().onTrue(Commands.none());
       m_driverController.leftTrigger().whileTrue(new InstantCommand(()->intakeSpin.setVelocitySetpoint(50)))
       .whileFalse(new InstantCommand(() -> intakeSpin.stop()));
-      m_driverController.b().whileTrue(new InstantCommand(()->intakeTilt.setPositionSetpoint(50)));
+      m_driverController.b().whileTrue(new InstantCommand(()->intakeTilt.setPositionSetpoint(1)));
       m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(0)));
 
     }
