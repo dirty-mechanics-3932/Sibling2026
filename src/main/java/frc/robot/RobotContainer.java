@@ -26,8 +26,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.PositionMotorSubsystem;
-import frc.robot.subsystems.VelocityMotorSubsystem;
+import frc.robot.subsystems.intake.IntakeTilt;
+import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.vision.FieldConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -56,8 +56,8 @@ public class RobotContainer {
   // Establish a Sendable Chooser that will be able to be sent to the
   // SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
-  private final PositionMotorSubsystem intakeTilt;
-  private final VelocityMotorSubsystem intakeSpin;
+  private final IntakeTilt intakeTilt;
+  private final IntakeSpin intakeSpin;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -121,8 +121,8 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_visionFront = new VisionSubsystem(m_drivebase, "limelight", "Front");
-    intakeSpin = new VelocityMotorSubsystem();
-    intakeTilt = new PositionMotorSubsystem();
+    intakeSpin = new IntakeSpin();
+    intakeTilt = new IntakeTilt();
 
     // Configure the trigger bindings
     configureBindings();

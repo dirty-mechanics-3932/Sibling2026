@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 
-public class PositionMotorSubsystem extends SubsystemBase {
+public class IntakeTilt extends SubsystemBase {
 
     public final SparkMax m_positionMotor;
     private final SparkRelativeEncoder m_positionEncoder;
@@ -21,7 +21,7 @@ public class PositionMotorSubsystem extends SubsystemBase {
     private final SparkMaxConfig positionConfig;
     double gearRatio = 1.0;
 
-    public PositionMotorSubsystem() {
+    public IntakeTilt() {
         m_positionMotor = new SparkMax(21, MotorType.kBrushless); // Remember to set the motor IDs
         m_positionEncoder = (SparkRelativeEncoder) m_positionMotor.getEncoder();
         m_positionPID = m_positionMotor.getClosedLoopController();

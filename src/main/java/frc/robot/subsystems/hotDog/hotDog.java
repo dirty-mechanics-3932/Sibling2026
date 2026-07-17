@@ -1,18 +1,19 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.hotDog;
+
+import java.time.Period;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class VelocityMotorSubsystem extends SubsystemBase {
-    
-    public final  TalonFX m_velocityMotor;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+public class hotDog {
+     public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
 
-    public VelocityMotorSubsystem() {
+    public hotDog() {
         m_velocityMotor = new TalonFX(20); // Remember to set the motor IDs
         configs.Slot0.kP = 0.01;
         configs.Slot0.kI = 0.00;
@@ -33,10 +34,5 @@ public class VelocityMotorSubsystem extends SubsystemBase {
 
     public void stop() {
         m_velocityMotor.stopMotor();
-    }
-
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Velocity Motor", getVelocityMotor());
     }
 }
