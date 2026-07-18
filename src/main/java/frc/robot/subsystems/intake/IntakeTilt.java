@@ -1,5 +1,8 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -15,38 +18,33 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 
 public class IntakeTilt extends SubsystemBase {
 
-    public final SparkMax m_positionMotor;
-    private final SparkRelativeEncoder m_positionEncoder;
-    private final SparkClosedLoopController m_positionPID;
-    private final SparkMaxConfig positionConfig;
+    public final TalonFX m_positionMotor;
+    private final TalonFXConfiguration posConfiguration;
+    
     double gearRatio = 1.0;
 
     public IntakeTilt() {
-        m_positionMotor = new SparkMax(21, MotorType.kBrushless); // Remember to set the motor IDs
-        m_positionEncoder = (SparkRelativeEncoder) m_positionMotor.getEncoder();
-        m_positionPID = m_positionMotor.getClosedLoopController();
-        positionConfig = new SparkMaxConfig();
+        m_positionMotor = new TalonFX(21); // Remember to set the motor IDs
+        posConfiguration = new TalonFXConfiguration();
 
-        positionConfig.closedLoop.pid(1, 0.0, 0); //feedForward.kS(.1).kV(0.002).kA(0);    
-        positionConfig.closedLoop.maxMotion.maxAcceleration(3000)
-        .cruiseVelocity(6000)
-        .allowedProfileError(.05);
-        // positionConfig.closedLoop.feedForward
-        //     .kS(0.2)
-        //     .kV(0.0)
-        //     .kA(0.0)
-        //     .kCos(0.8)
-        //     .kCosRatio(1.0/gearRatio);
-        m_positionMotor.configure(positionConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        posConfiguration.Slot0.kP = 0.01;
+        posConfiguration.Slot0.kI = 0.00;
+        posConfiguration.Slot0.kD = 0.00;
+        posConfiguration.Slot0.kS = 0.25;
+        posConfiguration.Slot0.kV = 0.12;
+        
+        m_positionMotor.getConfigurator().apply(posConfiguration);
+
     }
 
    
     public void setPositionSetpoint(double value) {
-        m_positionPID.setSetpoint(value, SparkMax.ControlType.kMAXMotionPositionControl);
+  MotionMagicVoltage request = new MotionMagicVoltage(value);
+  m_positionMotor.setControl(request);
     }
 
     public double getPositionMotor() {
-        return m_positionEncoder.getPosition();
+        return m_positionMotor.getPosition().getValueAsDouble();
     }
 
     @Override
