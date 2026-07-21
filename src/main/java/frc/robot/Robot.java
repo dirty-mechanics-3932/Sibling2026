@@ -147,6 +147,8 @@ public class Robot extends TimedRobot
       CommandScheduler.getInstance().cancelAll();
     }
     m_robotContainer.setVisionThrottle(0);
+
+    m_robotContainer.homing();
   }
 
   /**

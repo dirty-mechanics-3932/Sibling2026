@@ -285,4 +285,8 @@ public class RobotContainer {
   public void setMotorBrake(boolean brake) {
     m_drivebase.setMotorBrake(brake);
   }
+
+  public void homing(){
+    intakeTilt.zeroEncoder();
+  }
 }
