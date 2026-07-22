@@ -210,29 +210,28 @@ public class RobotContainer {
       m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
       m_driverController.leftBumper().onTrue(Commands.none());
       m_driverController.rightBumper().onTrue(Commands.none());
-    } else {
-      m_driverController.a().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
-      m_driverController.start().whileTrue(Commands.none());
-      m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
-      m_driverController.leftBumper().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-      m_driverController.rightBumper().onTrue(Commands.none());
-      m_driverController.leftTrigger().whileTrue(new InstantCommand(()->intakeSpin.setVelocitySetpoint(50)))
-      .whileFalse(new InstantCommand(() -> intakeSpin.stop()));
-      m_driverController.b().whileTrue(new InstantCommand(()->intakeTilt.setPositionSetpoint(1)));
-      m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(0)));
 
     }
 
   }
 
   private void driverBindings() {
+    m_driverController.a().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+    m_driverController.start().whileTrue(Commands.none());
+    m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
+    m_driverController.leftBumper().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
+    m_driverController.leftTrigger().whileTrue(new InstantCommand(() -> intakeSpin.setVelocitySetpoint(50)))
+        .whileFalse(new InstantCommand(() -> intakeSpin.stop()));
+    m_driverController.b().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(1)));
+    m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(0)));
     m_driverController
         .start()
         .onTrue(
             Commands.runOnce(() -> m_drivebase.resetOdometry(getInitPose()))
                 .andThen(myLogf("Reset Pose to 1.2,1.2,180")));
-    m_driverController.y().onTrue(new InstantCommand(() -> logPoses()));
-    m_driverController.x().onTrue(new InstantCommand(() -> m_drivebase.resetYaw(0)));
+    m_driverController.y().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
+    //m_driverController.y().onTrue(new InstantCommand(() -> logPoses()));
+   
 
     m_driverController.rightTrigger().whileTrue(
         m_drivebase.aimAtPoseCommand(
@@ -286,7 +285,7 @@ public class RobotContainer {
     m_drivebase.setMotorBrake(brake);
   }
 
-  public void homing(){
+  public void homing() {
     intakeTilt.zeroEncoder();
   }
 }

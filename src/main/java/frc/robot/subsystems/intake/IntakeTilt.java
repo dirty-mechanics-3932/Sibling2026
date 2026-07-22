@@ -8,7 +8,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -17,6 +17,7 @@ public class IntakeTilt extends SubsystemBase {
     public final TalonFX m_positionMotor;
     private final TalonFXConfiguration posConfiguration;
     private final PositionVoltage positionVoltage;
+    private final DigitalInput limitSwitch = new DigitalInput(0);
     
     double gearRatio = 1.0;
 
@@ -45,8 +46,18 @@ public class IntakeTilt extends SubsystemBase {
         return m_positionMotor.getPosition().getValueAsDouble();
     }
 
+    public void homeIntake(){
+        while (limitSwitch.get()) {
+         m_positionMotor.set(.1);   
+        }
+        m_positionMotor.set(0); 
+        m_positionMotor.setPosition(0);
+    }
+
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Position Motor", getPositionMotor());
+        SmartDashboard.putBoolean("Intake Limit", limitSwitch.get());
     }
 }
