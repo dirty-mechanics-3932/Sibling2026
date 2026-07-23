@@ -1,17 +1,16 @@
-package frc.robot.subsystems.catchup;
+package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class CatchupSubsystem extends SubsystemBase {
+public class DrumstickSubsystem extends SubsystemBase {
 
     public final TalonFX m_velocityLeader;
     public final TalonFX m_velocityFollower1;
@@ -20,7 +19,7 @@ public class CatchupSubsystem extends SubsystemBase {
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
 
-    public CatchupSubsystem() {
+    public DrumstickSubsystem() {
         // Remember to set the motor IDs
         m_velocityLeader = new TalonFX(1); 
         m_velocityFollower1 = new TalonFX(2);
@@ -59,6 +58,6 @@ public class CatchupSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Catchup Velocity", getVelocityMotor());
+        SmartDashboard.putNumber("Drumstick Velocity", getVelocityMotor());
     }
 }
