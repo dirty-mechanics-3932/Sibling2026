@@ -210,9 +210,7 @@ public class RobotContainer {
       m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
       m_driverController.leftBumper().onTrue(Commands.none());
       m_driverController.rightBumper().onTrue(Commands.none());
-
     }
-
   }
 
   private void driverBindings() {
@@ -220,18 +218,19 @@ public class RobotContainer {
     m_driverController.start().whileTrue(Commands.none());
     m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
     m_driverController.leftBumper().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-    m_driverController.leftTrigger().whileTrue(new InstantCommand(() -> intakeSpin.setVelocitySetpoint(50)))
+
+    m_driverController.leftTrigger().whileTrue(new InstantCommand(() -> intakeSpin.setVelocitySetpoint(-40)))
         .whileFalse(new InstantCommand(() -> intakeSpin.stop()));
-    m_driverController.b().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(1)));
+
+    m_driverController.b().whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
+    m_driverController.y().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));   
     m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(0)));
+
     m_driverController
         .start()
         .onTrue(
             Commands.runOnce(() -> m_drivebase.resetOdometry(getInitPose()))
                 .andThen(myLogf("Reset Pose to 1.2,1.2,180")));
-    m_driverController.y().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
-    //m_driverController.y().onTrue(new InstantCommand(() -> logPoses()));
-   
 
     m_driverController.rightTrigger().whileTrue(
         m_drivebase.aimAtPoseCommand(

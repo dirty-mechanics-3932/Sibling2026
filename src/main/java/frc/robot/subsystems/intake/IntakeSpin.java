@@ -3,6 +3,8 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -23,11 +25,13 @@ public class IntakeSpin extends SubsystemBase {
         configs.Slot0.kS = 0.25;
         configs.Slot0.kV = 0.12;
 
+        // configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
         m_velocityMotor.getConfigurator().apply(configs);
     }
 
     public void setVelocitySetpoint(double value) {
-        m_velocityMotor.setControl(velocityRequest.withVelocity(50).withEnableFOC(true));
+        m_velocityMotor.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
     }
 
     public double getVelocityMotor() {

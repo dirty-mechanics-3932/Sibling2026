@@ -48,12 +48,19 @@ public class IntakeTilt extends SubsystemBase {
 
     public void homeIntake(){
         while (limitSwitch.get()) {
-         m_positionMotor.set(.1);   
+            m_positionMotor.set(-.1);   
         }
         m_positionMotor.set(0); 
         m_positionMotor.setPosition(0);
     }
 
+    public void extendIntake() {
+        setPositionSetpoint(60); // TODO: input value later
+    }
+
+    public void bounceIntake() {
+        setPositionSetpoint(60); // TODO: input value later
+    }
 
     @Override
     public void periodic() {
