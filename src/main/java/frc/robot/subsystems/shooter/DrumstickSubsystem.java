@@ -52,6 +52,11 @@ public class DrumstickSubsystem extends SubsystemBase {
         return m_velocityLeader.getVelocity().getValueAsDouble();
     }
 
+    public boolean atSpeed(double target) {
+        double tolerance = 1.0;
+        return Math.abs(getVelocityMotor() - target) < tolerance;
+    }
+
     public void stop() {
         m_velocityLeader.stopMotor();
     }

@@ -38,6 +38,7 @@ public class HoodSubsystem extends SubsystemBase {
 
         pidController = new PIDController(0.1, 0, 0);
         pidController.enableContinuousInput(0.0, 1.0);
+        pidController.setTolerance(0.01);
     }
 
     public double getPosition() {

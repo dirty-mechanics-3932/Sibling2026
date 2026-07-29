@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.shooter.PositionAndShootCommand;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -243,6 +244,9 @@ public class RobotContainer {
                 (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                     ? "Blue Hub"
                     : "Red Hub"))));
+
+    // PositionAndShootCommand
+    //m_driverController.leftTrigger().whileTrue(new PositionAndShootCommand(position, drumstick, hood, catchup, swerve));
   }
 
   private Pose2d getInitPose() {
