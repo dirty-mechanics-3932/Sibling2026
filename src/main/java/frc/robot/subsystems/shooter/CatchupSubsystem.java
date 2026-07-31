@@ -20,8 +20,8 @@ public class CatchupSubsystem extends SubsystemBase {
 
     public CatchupSubsystem() {
         // Remember to set the motor IDs
-        m_velocityLeader = new TalonFX(1); 
-        m_velocityFollower = new TalonFX(2);
+        m_velocityLeader = new TalonFX(40); 
+        m_velocityFollower = new TalonFX(41);
 
         configs = new TalonFXConfiguration();
         velocityRequest = new VelocityVoltage(0);

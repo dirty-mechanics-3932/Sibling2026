@@ -21,9 +21,9 @@ public class DrumstickSubsystem extends SubsystemBase {
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs
-        m_velocityLeader = new TalonFX(1); 
-        m_velocityFollower1 = new TalonFX(2);
-        m_velocityFollower2 = new TalonFX(3);
+        m_velocityLeader = new TalonFX(31); 
+        m_velocityFollower1 = new TalonFX(32);
+        m_velocityFollower2 = new TalonFX(33);
 
         configs = new TalonFXConfiguration();
         velocityRequest = new VelocityVoltage(0);

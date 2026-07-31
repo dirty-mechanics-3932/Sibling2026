@@ -27,6 +27,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.intake.IntakeTilt;
+import frc.robot.subsystems.shooter.CatchupSubsystem;
+import frc.robot.subsystems.shooter.DrumstickSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.hotDog.HotDog;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.vision.FieldConstants;
@@ -47,6 +51,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController m_driverController = new CommandXboxController(0);
+  final CommandXboxController m_opController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
@@ -58,6 +63,9 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   private final IntakeTilt intakeTilt;
   private final IntakeSpin intakeSpin;
+  private final CatchupSubsystem catchupSubsystem;
+  private final DrumstickSubsystem drumstickSubsystem;
+  private final HoodSubsystem hoodSubsystem;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -123,10 +131,14 @@ public class RobotContainer {
     m_visionFront = new VisionSubsystem(m_drivebase, "limelight", "Front");
     intakeSpin = new IntakeSpin();
     intakeTilt = new IntakeTilt();
+    catchupSubsystem = new CatchupSubsystem();
+    drumstickSubsystem = new DrumstickSubsystem();
+    hoodSubsystem = new HoodSubsystem();
 
     // Configure the trigger bindings
     configureBindings();
     driverBindings();
+    operatorBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
 
     // Create the NamedCommands that will be used in PathPlanner
@@ -243,6 +255,14 @@ public class RobotContainer {
                 (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                     ? "Blue Hub"
                     : "Red Hub"))));
+  }
+
+  private void operatorBindings(){
+    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.setVelocitySetpoint(1)));
+    m_opController.button(2).whileTrue(new InstantCommand(() -> drumstickSubsystem.stop()));
+    m_opController.button(3).whileTrue(new InstantCommand(() -> catchupSubsystem.setVelocitySetpoint(1)));
+    m_opController.button(4).whileTrue(new InstantCommand(() -> catchupSubsystem.stop()));
+    
   }
 
   private Pose2d getInitPose() {

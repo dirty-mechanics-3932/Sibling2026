@@ -24,7 +24,7 @@ public class HoodSubsystem extends SubsystemBase {
     private double targetPosition = 0.0;
     
     public HoodSubsystem() {
-        m_hoodMotor = new SparkMax(0, MotorType.kBrushless); // Remember to set the motor IDs
+        m_hoodMotor = new SparkMax(50, MotorType.kBrushless); // Remember to set the motor IDs
 
         absoluteEncoder = new DutyCycleEncoder(0);
         config = new SparkMaxConfig();
