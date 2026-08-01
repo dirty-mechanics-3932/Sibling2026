@@ -8,13 +8,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class hotDog {
+public class HotDog {
      public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
 
-    public hotDog() {
-        m_velocityMotor = new TalonFX(20); // Remember to set the motor IDs
+    public HotDog() {
+        m_velocityMotor = new TalonFX(0); // Remember to set the motor IDs
         configs.Slot0.kP = 0.01;
         configs.Slot0.kI = 0.00;
         configs.Slot0.kD = 0.00;

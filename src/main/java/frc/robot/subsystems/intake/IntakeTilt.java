@@ -14,57 +14,64 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeTilt extends SubsystemBase {
 
-    public final TalonFX m_positionMotor;
-    private final TalonFXConfiguration posConfiguration;
+    public final TalonFX m_intakeTiltMotor; // gear ratio = 52.5
+    private final TalonFXConfiguration config;
     private final PositionVoltage positionVoltage;
-    private final DigitalInput limitSwitch = new DigitalInput(0);
+    private final DigitalInput limitSwitch = new DigitalInput(1);
     
-    double gearRatio = 1.0;
+    private double gearRatio = 52.5;
+    private double lastPosition;
 
     public IntakeTilt() {
-        m_positionMotor = new TalonFX(21); // Remember to set the motor IDs
-        posConfiguration = new TalonFXConfiguration();
+        m_intakeTiltMotor = new TalonFX(21); // Remember to set the motor IDs
+        config = new TalonFXConfiguration();
         positionVoltage = new PositionVoltage(0);
 
-        posConfiguration.Slot0.kP = 4.5;
-        posConfiguration.Slot0.kI = 0.00;
-        posConfiguration.Slot0.kD = 0.00;
-        posConfiguration.Slot0.kS = 0.25;
-        posConfiguration.Slot0.kV = 0.12;
+        config.Slot0.kP = 4.5;
+        config.Slot0.kI = 0.00;
+        config.Slot0.kD = 0.00;
+        config.Slot0.kS = 0.25;
+        config.Slot0.kV = 0.12;
         
-        m_positionMotor.getConfigurator().apply(posConfiguration);
+        m_intakeTiltMotor.getConfigurator().apply(config);
     }
 
     public void zeroEncoder(){
-        m_positionMotor.setPosition(0);
+        m_intakeTiltMotor.setPosition(0);
     }
-    public void setPositionSetpoint(double value) {
-        m_positionMotor.setControl(positionVoltage.withPosition(value).withEnableFOC(true)); //in rotations
+
+    public void setIntakeTiltSetpoint(double value) {
+        m_intakeTiltMotor.setControl(positionVoltage.withPosition(value).withEnableFOC(true)); //in rotations
     }
 
     public double getPositionMotor() {
-        return m_positionMotor.getPosition().getValueAsDouble();
+        return m_intakeTiltMotor.getPosition().getValueAsDouble();
     }
 
     public void homeIntake(){
         while (limitSwitch.get()) {
-            m_positionMotor.set(-.1);   
+            m_intakeTiltMotor.set(-.1);   
         }
-        m_positionMotor.set(0); 
-        m_positionMotor.setPosition(0);
+        m_intakeTiltMotor.set(0); 
+        m_intakeTiltMotor.setPosition(0);
     }
 
-    public void extendIntake() {
-        setPositionSetpoint(60); // TODO: input value later
+    public void extendIntake(double degrees) {
+        lastPosition = degrees;
+        double motorRotations = gearRatio * (degrees/360);
+        setIntakeTiltSetpoint(motorRotations);
     }
 
-    public void bounceIntake() {
-        setPositionSetpoint(60); // TODO: input value later
+    public void bounceIntake(double degrees) {
+        lastPosition = degrees;
+        double motorRotations = gearRatio * (degrees/360);
+        setIntakeTiltSetpoint(motorRotations);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Position Motor", getPositionMotor());
-        SmartDashboard.putBoolean("Intake Limit", limitSwitch.get());
+        SmartDashboard.putNumber("IntakeTiltPos", getPositionMotor());
+        SmartDashboard.putNumber("IntakeTiltDeg", lastPosition);
+        SmartDashboard.putBoolean("IntakeLimit", limitSwitch.get());
     }
 }

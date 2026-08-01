@@ -10,40 +10,48 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSpin extends SubsystemBase {
 
-    public final TalonFX m_velocityMotor;
-    private final TalonFXConfiguration configs;
+    public final TalonFX m_intakeSpinMotor;
+    private final TalonFXConfiguration config;
     private final VelocityVoltage velocityRequest;
 
     public IntakeSpin() {
-        m_velocityMotor = new TalonFX(20); // Remember to set the motor IDs
-        configs = new TalonFXConfiguration();
+        m_intakeSpinMotor = new TalonFX(20); // Remember to set the motor IDs
+        config = new TalonFXConfiguration();
         velocityRequest = new VelocityVoltage(0);
 
-        configs.Slot0.kP = 0.01;
-        configs.Slot0.kI = 0.00;
-        configs.Slot0.kD = 0.00;
-        configs.Slot0.kS = 0.25;
-        configs.Slot0.kV = 0.12;
+        config.Slot0.kP = 0.01;
+        config.Slot0.kI = 0.00;
+        config.Slot0.kD = 0.00;
+        config.Slot0.kS = 0.25;
+        config.Slot0.kV = 0.12;
 
         // configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        m_velocityMotor.getConfigurator().apply(configs);
+        m_intakeSpinMotor.getConfigurator().apply(config);
     }
 
     public void setVelocitySetpoint(double value) {
-        m_velocityMotor.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
+        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
+    }
+
+    public void intakeSpinIn(double value) {
+        setVelocitySetpoint(value);
+    }
+
+    public void intakeSpinOut(double value) {
+        setVelocitySetpoint(value);
     }
 
     public double getVelocityMotor() {
-        return m_velocityMotor.getVelocity().getValueAsDouble();
+        return m_intakeSpinMotor.getVelocity().getValueAsDouble();
     }
 
-    public void stop() {
-        m_velocityMotor.stopMotor();
+    public void stopIntake() {
+        m_intakeSpinMotor.stopMotor();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Velocity Motor", getVelocityMotor());
+        SmartDashboard.putNumber("IntakeSpinVel", getVelocityMotor());
     }
 }
