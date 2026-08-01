@@ -19,7 +19,8 @@ public class IntakeTilt extends SubsystemBase {
     private final PositionVoltage positionVoltage;
     private final DigitalInput limitSwitch = new DigitalInput(1);
     
-    double gearRatio = 1.0;
+    private double gearRatio = 52.5;
+    private double lastPosition;
 
     public IntakeTilt() {
         m_intakeTiltMotor = new TalonFX(21); // Remember to set the motor IDs
@@ -55,17 +56,22 @@ public class IntakeTilt extends SubsystemBase {
         m_intakeTiltMotor.setPosition(0);
     }
 
-    public void extendIntake() {
-        setIntakeTiltSetpoint(60); // TODO: input value later
+    public void extendIntake(double degrees) {
+        lastPosition = degrees;
+        double motorRotations = gearRatio * (degrees/360);
+        setIntakeTiltSetpoint(motorRotations);
     }
 
-    public void bounceIntake() {
-        setIntakeTiltSetpoint(60); // TODO: input value later
+    public void bounceIntake(double degrees) {
+        lastPosition = degrees;
+        double motorRotations = gearRatio * (degrees/360);
+        setIntakeTiltSetpoint(motorRotations);
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("IntakeTiltPos", getPositionMotor());
-        // SmartDashboard.putBoolean("Intake Limit", limitSwitch.get());
+        SmartDashboard.putNumber("IntakeTiltDeg", lastPosition);
+        SmartDashboard.putBoolean("IntakeLimit", limitSwitch.get());
     }
 }

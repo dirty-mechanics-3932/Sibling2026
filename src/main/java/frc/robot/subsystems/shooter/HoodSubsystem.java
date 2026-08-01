@@ -23,6 +23,8 @@ public class HoodSubsystem extends SubsystemBase {
     private final DutyCycleEncoder absoluteEncoder;
     private final TalonFXConfiguration config;
     private final PositionVoltage positionVoltage;
+
+    double gearRatio = 1.0; //12 to  40 + 22 to 30
     
     public HoodSubsystem() {
         m_hoodMotor = new TalonFX(50); // Remember to set the motor IDs
