@@ -40,24 +40,24 @@ public class DrumstickSubsystem extends SubsystemBase {
         m_velocityFollower1.getConfigurator().apply(configs);
         m_velocityFollower2.getConfigurator().apply(configs);
 
-        m_velocityFollower1.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Aligned));
-        m_velocityFollower2.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Aligned));
+        m_velocityFollower1.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
+        m_velocityFollower2.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public void setVelocitySetpoint(double value) {
+    public void setShooterSetpoint(double value) {
         m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
     }
 
-    public double getVelocityMotor() {
+    public double getVelocity() {
         return m_velocityLeader.getVelocity().getValueAsDouble();
     }
 
-    public void stop() {
+    public void stopShooter() {
         m_velocityLeader.stopMotor();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Drumstick Velocity", getVelocityMotor());
+        SmartDashboard.putNumber("Drumstick Velocity", getVelocity());
     }
 }

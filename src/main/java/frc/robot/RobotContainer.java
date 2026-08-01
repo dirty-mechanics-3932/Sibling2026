@@ -231,13 +231,6 @@ public class RobotContainer {
     m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
     m_driverController.leftBumper().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
 
-    m_driverController.leftTrigger().whileTrue(new InstantCommand(() -> intakeSpin.setVelocitySetpoint(-40)))
-        .whileFalse(new InstantCommand(() -> intakeSpin.stop()));
-
-    m_driverController.b().whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
-    m_driverController.y().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));   
-    m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(0)));
-
     m_driverController
         .start()
         .onTrue(
@@ -258,11 +251,24 @@ public class RobotContainer {
   }
 
   private void operatorBindings(){
-    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.setVelocitySetpoint(1)));
-    m_opController.button(2).whileTrue(new InstantCommand(() -> drumstickSubsystem.stop()));
-    m_opController.button(3).whileTrue(new InstantCommand(() -> catchupSubsystem.setVelocitySetpoint(1)));
-    m_opController.button(4).whileTrue(new InstantCommand(() -> catchupSubsystem.stop()));
-    
+    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.setShooterSetpoint(40)));
+    m_opController.button(2).whileTrue(new InstantCommand(() -> drumstickSubsystem.stopShooter()));
+
+    m_opController.button(3).whileTrue(new InstantCommand(() -> catchupSubsystem.setCatchupSetpoint(40)));
+    m_opController.button(4).whileTrue(new InstantCommand(() -> catchupSubsystem.stopCatchup()));
+
+    m_opController.button(5).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodSetpoint(1)));
+    m_opController.button(6).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodSetpoint(0)));
+    m_opController.button(7).whileTrue(new InstantCommand(() -> hoodSubsystem.zeroEncoder()));
+
+    m_opController.button(8).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
+    m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.setIntakeTiltSetpoint(1)));   
+    m_opController.button(10).whileTrue(new InstantCommand(() -> intakeTilt.setIntakeTiltSetpoint(0)));
+
+    m_opController.button(11).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinIn(-40)))
+        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
+    m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(40)))
+        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
   }
 
   private Pose2d getInitPose() {

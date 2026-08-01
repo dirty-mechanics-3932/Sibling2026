@@ -20,8 +20,8 @@ public class CatchupSubsystem extends SubsystemBase {
 
     public CatchupSubsystem() {
         // Remember to set the motor IDs
-        m_velocityLeader = new TalonFX(40); 
-        m_velocityFollower = new TalonFX(41);
+        m_velocityLeader = new TalonFX(41); 
+        m_velocityFollower = new TalonFX(40);
 
         configs = new TalonFXConfiguration();
         velocityRequest = new VelocityVoltage(0);
@@ -37,23 +37,23 @@ public class CatchupSubsystem extends SubsystemBase {
         m_velocityLeader.getConfigurator().apply(configs);
         m_velocityFollower.getConfigurator().apply(configs);
 
-        m_velocityFollower.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Aligned));
+        m_velocityFollower.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public void setVelocitySetpoint(double value) {
+    public void setCatchupSetpoint(double value) {
         m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
     }
 
-    public double getVelocityMotor() {
+    public double getVelocity() {
         return m_velocityLeader.getVelocity().getValueAsDouble();
     }
 
-    public void stop() {
+    public void stopCatchup() {
         m_velocityLeader.stopMotor();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Catchup Velocity", getVelocityMotor());
+        SmartDashboard.putNumber("Catchup Velocity", getVelocity());
     }
 }
