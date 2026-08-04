@@ -1,5 +1,8 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -17,42 +20,46 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HoodSubsystem extends SubsystemBase {
 
-    public final SparkMax m_hoodMotor;
+    public final TalonFX m_hoodMotor;
 
     private final DutyCycleEncoder absoluteEncoder;
-    private final SparkMaxConfig config;
-    private final PIDController pidController;
+    private final TalonFXConfiguration config;
+    private final PositionVoltage positionVoltage;
+    boolean isAtSetpoint;
+    private final double tolerance = 0.05;
 
-    private double targetPosition = 0.0;
+    double gearRatio = 1.0; //12 to  40 + 22 to 30
     
     public HoodSubsystem() {
-        m_hoodMotor = new SparkMax(0, MotorType.kBrushless); // Remember to set the motor IDs
+        m_hoodMotor = new TalonFX(50); // Remember to set the motor IDs
 
         absoluteEncoder = new DutyCycleEncoder(0);
-        config = new SparkMaxConfig();
+        config = new TalonFXConfiguration();
+        positionVoltage = new PositionVoltage(0);
+        
+        config.Slot0.kP = 4.5;
+        config.Slot0.kI = 0.00;
+        config.Slot0.kD = 0.00;
+        config.Slot0.kS = 0.25;
+        config.Slot0.kV = 0.12;
 
-        config.limitSwitch.forwardLimitSwitchType(Type.kNormallyOpen);
-        config.limitSwitch.forwardLimitSwitchTriggerBehavior(Behavior.kStopMovingMotor);
-        config.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
-        config.limitSwitch.reverseLimitSwitchTriggerBehavior(Behavior.kStopMovingMotor);
+        m_hoodMotor.getConfigurator().apply(config);
 
-        m_hoodMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        pidController = new PIDController(0.1, 0, 0);
-        pidController.enableContinuousInput(0.0, 1.0);
-        pidController.setTolerance(0.01);
+        // pidController = new PIDController(0.1, 0, 0);
+        // pidController.enableContinuousInput(0.0, 1.0);
     }
 
-    public double getPosition() {
-        return absoluteEncoder.get();
+    public double getHoodPosition() {
+        // return absoluteEncoder.get();
+        return m_hoodMotor.getPosition().getValueAsDouble();
     }
 
-    public Command setTargetPosition(double value) {
-        return Commands.runOnce(() -> targetPosition = Math.max(0.0, Math.min(1.0, value)));
+    public Command setHoodPosition(double value) {
+        return Commands.runOnce(() -> m_hoodMotor.setControl(positionVoltage.withPosition(value).withEnableFOC(true)));
     }
 
-    public boolean atTargetPosition() {
-        return pidController.atSetpoint();
+    public void zeroEncoder(){
+        m_hoodMotor.setPosition(0);
     }
 
     public Command stop() {
@@ -61,14 +68,6 @@ public class HoodSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (absoluteEncoder.isConnected()) {
-            double pidOutput = pidController.calculate(getPosition(), targetPosition);
-        
-            m_hoodMotor.set(pidOutput);
-
-            SmartDashboard.putNumber("Hood Target Position", targetPosition);
-        } else {
-            stop();
-        }
+        SmartDashboard.putNumber("Hood Position", getHoodPosition());
     }
 }

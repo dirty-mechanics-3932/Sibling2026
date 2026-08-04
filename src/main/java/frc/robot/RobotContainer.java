@@ -27,6 +27,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.intake.IntakeTilt;
+import frc.robot.subsystems.shooter.CatchupSubsystem;
+import frc.robot.subsystems.shooter.DrumstickSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.hotDog.HotDog;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.vision.FieldConstants;
@@ -47,6 +51,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController m_driverController = new CommandXboxController(0);
+  final CommandXboxController m_opController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
@@ -58,6 +63,9 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   private final IntakeTilt intakeTilt;
   private final IntakeSpin intakeSpin;
+  private final CatchupSubsystem catchupSubsystem;
+  private final DrumstickSubsystem drumstickSubsystem;
+  private final HoodSubsystem hoodSubsystem;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -123,10 +131,14 @@ public class RobotContainer {
     m_visionFront = new VisionSubsystem(m_drivebase, "limelight", "Front");
     intakeSpin = new IntakeSpin();
     intakeTilt = new IntakeTilt();
+    catchupSubsystem = new CatchupSubsystem();
+    drumstickSubsystem = new DrumstickSubsystem();
+    hoodSubsystem = new HoodSubsystem();
 
     // Configure the trigger bindings
     configureBindings();
     driverBindings();
+    operatorBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
 
     // Create the NamedCommands that will be used in PathPlanner
@@ -219,13 +231,6 @@ public class RobotContainer {
     m_driverController.back().whileTrue(m_drivebase.centerModulesCommand());
     m_driverController.leftBumper().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
 
-    m_driverController.leftTrigger().whileTrue(new InstantCommand(() -> intakeSpin.setVelocitySetpoint(-40)))
-        .whileFalse(new InstantCommand(() -> intakeSpin.stop()));
-
-    m_driverController.b().whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
-    m_driverController.y().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));   
-    m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.setPositionSetpoint(0)));
-
     m_driverController
         .start()
         .onTrue(
@@ -246,6 +251,27 @@ public class RobotContainer {
 
     // PositionAndShootCommand
     //m_driverController.leftTrigger().whileTrue(new PositionAndShootCommand(position, drumstick, hood, catchup, swerve));
+  }
+
+  private void operatorBindings(){
+    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.setShooterSetpoint(40)));
+    m_opController.button(2).whileTrue(new InstantCommand(() -> drumstickSubsystem.stopShooter()));
+
+    m_opController.button(3).whileTrue(new InstantCommand(() -> catchupSubsystem.setCatchupSetpoint(40)));
+    m_opController.button(4).whileTrue(new InstantCommand(() -> catchupSubsystem.stopCatchup()));
+
+    m_opController.button(5).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodPosition(1)));
+    m_opController.button(6).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodPosition(0)));
+    m_opController.button(7).whileTrue(new InstantCommand(() -> hoodSubsystem.zeroEncoder()));
+
+    m_opController.button(8).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
+    m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.extendIntake(90)));
+    m_opController.button(10).whileTrue(new InstantCommand(() -> intakeTilt.setIntakeTiltSetpoint(0)));
+
+    m_opController.button(11).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinIn(-40)))
+        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
+    m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(40)))
+        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
   }
 
   private Pose2d getInitPose() {

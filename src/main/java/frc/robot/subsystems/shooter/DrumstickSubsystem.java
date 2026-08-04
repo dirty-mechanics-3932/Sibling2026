@@ -23,9 +23,9 @@ public class DrumstickSubsystem extends SubsystemBase {
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs
-        m_velocityLeader = new TalonFX(1); 
-        m_velocityFollower1 = new TalonFX(2);
-        m_velocityFollower2 = new TalonFX(3);
+        m_velocityLeader = new TalonFX(31); 
+        m_velocityFollower1 = new TalonFX(32);
+        m_velocityFollower2 = new TalonFX(33);
 
         configs = new TalonFXConfiguration();
         velocityRequest = new VelocityVoltage(0);
@@ -42,29 +42,29 @@ public class DrumstickSubsystem extends SubsystemBase {
         m_velocityFollower1.getConfigurator().apply(configs);
         m_velocityFollower2.getConfigurator().apply(configs);
 
-        m_velocityFollower1.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Aligned));
-        m_velocityFollower2.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Aligned));
+        m_velocityFollower1.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
+        m_velocityFollower2.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public Command setVelocitySetpoint(double value) {
+    public Command setShooterSetpoint(double value) {
         return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true)));
     }
 
-    public double getVelocityMotor() {
+    public double getVelocity() {
         return m_velocityLeader.getVelocity().getValueAsDouble();
     }
 
     public boolean atSpeed(double target) {
         double tolerance = 1.0;
-        return Math.abs(getVelocityMotor() - target) < tolerance;
+        return Math.abs(getVelocity() - target) < tolerance;
     }
 
-    public Command stop() {
+    public Command stopShooter() {
         return Commands.runOnce(()->m_velocityLeader.stopMotor());
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Drumstick Velocity", getVelocityMotor());
+        SmartDashboard.putNumber("Drumstick Velocity", getVelocity());
     }
 }

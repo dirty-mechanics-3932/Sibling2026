@@ -167,6 +167,6 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public boolean readyToShoot(DrumstickSubsystem drumstick, HoodSubsystem hood) {
-        return atHeading() && shooterRPM > 0 && hood.atTargetPosition() && Math.abs(drumstick.getVelocityMotor() - shooterRPM) < 100;
+        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocity() - shooterRPM) < 100;
     }
 }

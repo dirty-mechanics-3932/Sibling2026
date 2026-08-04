@@ -32,10 +32,10 @@ public class PositionAndShootCommand extends Command {
     @Override
     public void execute(){
         // Spin flywheel
-        m_drumstickSubsystem.setVelocitySetpoint(m_positionSubsysten.getShooterRPM());
+        m_drumstickSubsystem.setShooterSetpoint(m_positionSubsysten.getShooterRPM());
 
         // Angle hood
-        m_hoodSubsystem.setTargetPosition(m_positionSubsysten.getHoodPosition());
+        m_hoodSubsystem.setHoodPosition(m_positionSubsysten.getHoodPosition());
 
         // Aim robot code
         //double targetDirection = m_positionSubsysten.getTargetHeading() - m_drivebase.getHeading().getDegrees() * 0.1;
@@ -43,28 +43,28 @@ public class PositionAndShootCommand extends Command {
 
         if(m_positionSubsysten.readyToShoot(m_drumstickSubsystem, m_hoodSubsystem)) {
             if (Robot.showAllLogs && Robot.count % 50 == 5) {
-                Boolean atSpeed = Math.abs(m_drumstickSubsystem.getVelocityMotor() - m_positionSubsysten.getShooterRPM()) < 100;
+                Boolean atSpeed = Math.abs(m_drumstickSubsystem.getVelocity() - m_positionSubsysten.getShooterRPM()) < 100;
                 logf(
                     "Shooter-na req:%.2f act:%.2f ok:%b angle req:%.2f act:%.2f ok:%b hood:%.2f",
                     m_positionSubsysten.getShooterRPM(),
-                    m_drumstickSubsystem.getVelocityMotor(),
+                    m_drumstickSubsystem.getVelocity(),
                     atSpeed,
                     m_positionSubsysten.getTargetHeading(),
                     m_drivebase.getHeading(),
                     m_positionSubsysten.atHeading(),
-                    m_hoodSubsystem.getPosition()
+                    m_hoodSubsystem.getHoodPosition()
                 );
             }
-            m_catchupSubsystem.setVelocitySetpoint(6000);
+            m_catchupSubsystem.setCatchupSetpoint(6000);
         }else{
-            m_catchupSubsystem.stop();
+            m_catchupSubsystem.stopCatchup();
         }
     }
 
     @Override
     public void end(boolean interrupted){
-        m_drumstickSubsystem.stop();
-        m_catchupSubsystem.stop();
+        m_drumstickSubsystem.stopShooter();
+        m_catchupSubsystem.stopCatchup();
         m_hoodSubsystem.stop();
     }
 

@@ -11,9 +11,9 @@ import frc.robot.subsystems.shooter.PositionSubsystem;
 public class HubSubCommands {
     
     public Command shootCommand(HotDog hotDog, PositionSubsystem position, CatchupSubsystem catchup, DrumstickSubsystem drumstick, HoodSubsystem hood){
-        return Commands.sequence(drumstick.setVelocitySetpoint(position.getShooterRPM()), 
-        hood.setTargetPosition(position.getHoodPosition()),
-        (catchup.setVelocitySetpoint(40).alongWith(hotDog.setVelocitySetpoint(40)).onlyIf(()->position.readyToShoot(drumstick, hood)))
+        return Commands.sequence(drumstick.setShooterSetpoint(position.getShooterRPM()), 
+        hood.setHoodPosition(position.getHoodPosition()),
+        (catchup.setCatchupSetpoint(40).alongWith(hotDog.setVelocitySetpoint(40)).onlyIf(()->position.readyToShoot(drumstick, hood)))
         );
     }
 
