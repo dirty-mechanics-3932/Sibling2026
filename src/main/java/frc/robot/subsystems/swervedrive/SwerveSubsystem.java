@@ -62,6 +62,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final SwerveDrive m_swerveDrive;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
+  private boolean shootBackward = false; //0 is forward, 1 is backward
   
   Pose2d m_currentRobotPose;
   Pose2d robotPose = new Pose2d();
@@ -698,6 +699,16 @@ public class SwerveSubsystem extends SubsystemBase
                      .getAngle();
   }
 
+  public boolean shootBackward(Supplier<Pose2d> targetPose){
+    Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+    Rotation2d targetHeadingForward = delta.getAngle();
+    Rotation2d targetHeadingBackward = delta.getAngle().plus(new Rotation2d(180));
+    if (((robotPose.getRotation().minus(targetHeadingBackward)).minus(robotPose.getRotation().minus(targetHeadingForward))).getRadians() <= 0 ){
+      shootBackward = true;
+    }
+    return shootBackward; 
+  }  
+
   public Command aimAtPoseCommand(
     DoubleSupplier translationX,
     DoubleSupplier translationY,
@@ -709,12 +720,14 @@ public class SwerveSubsystem extends SubsystemBase
       Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
 
       Rotation2d targetHeading = delta.getAngle();
+      
       logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
       logf("Translations: %,2f", delta);
 
       double omega = headingPID.calculate(
         robotPose.getRotation().getRadians(),
         targetHeading.getRadians());
+
 
       logf("Omega: %.2f", omega);
 
