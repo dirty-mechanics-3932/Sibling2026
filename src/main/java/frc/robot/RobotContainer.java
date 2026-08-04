@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.shooter.PositionAndShootCommand;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -239,7 +238,7 @@ public class RobotContainer {
             () -> -m_driverController.getLeftX(),
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                 ? FieldConstants.HUB_POSE_BLUE
-                : FieldConstants.HUB_POSE_RED)
+                : FieldConstants.HUB_POSE_RED,  false, 0)
             .alongWith(myLogf("Aiming at hub pose:" +
                 (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                     ? "Blue Hub"

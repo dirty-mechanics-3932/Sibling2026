@@ -63,6 +63,8 @@ public class SwerveSubsystem extends SubsystemBase
   private final SwerveDrive m_swerveDrive;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
   private boolean shootBackward = false; //0 is forward, 1 is backward
+  int targetShootingSide;
+  Rotation2d targetHeading;
   
   Pose2d m_currentRobotPose;
   Pose2d robotPose = new Pose2d();
@@ -712,14 +714,32 @@ public class SwerveSubsystem extends SubsystemBase
   public Command aimAtPoseCommand(
     DoubleSupplier translationX,
     DoubleSupplier translationY,
-    Supplier<Pose2d> targetPose) {
+    Supplier<Pose2d> targetPose, 
+    Boolean fixPos,
+    int pos) {
 
+    
     logf("Command starting");
+    targetShootingSide = pos;
 
     return Commands.run(() -> {
-      Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
 
-      Rotation2d targetHeading = delta.getAngle();
+      if (!fixPos){
+        if (shootBackward(targetPose)){
+          targetShootingSide = 2;
+        } else{
+          targetShootingSide = 1;
+        }
+      }
+
+       Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+
+      if (pos == 1){ //shoot with front
+         targetHeading = delta.getAngle();
+      } else {
+         targetHeading = delta.getAngle().plus(new Rotation2d(180)); //shoot with back
+      }
+  
       
       logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
       logf("Translations: %,2f", delta);
@@ -739,8 +759,10 @@ public class SwerveSubsystem extends SubsystemBase
             0.4),
             omega,
             true);
+      
     },
     this
     );
+    
   }
 }
