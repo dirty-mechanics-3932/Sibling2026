@@ -7,13 +7,15 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
-public class hotDog {
+public class HotDog {
      public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
 
-    public hotDog() {
+    public HotDog() {
         m_velocityMotor = new TalonFX(20); // Remember to set the motor IDs
         configs.Slot0.kP = 0.01;
         configs.Slot0.kI = 0.00;
@@ -24,8 +26,8 @@ public class hotDog {
         m_velocityMotor.getConfigurator().apply(configs);
     }
 
-    public void setVelocitySetpoint(double value) {
-        m_velocityMotor.setControl(velocityRequest.withVelocity(50).withEnableFOC(true));
+    public Command setVelocitySetpoint(double value) {
+        return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(50).withEnableFOC(true)));
     }
 
     public double getVelocityMotor() {

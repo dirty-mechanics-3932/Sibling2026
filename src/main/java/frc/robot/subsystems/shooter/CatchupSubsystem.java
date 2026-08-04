@@ -8,6 +8,8 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CatchupSubsystem extends SubsystemBase {
@@ -40,8 +42,8 @@ public class CatchupSubsystem extends SubsystemBase {
         m_velocityFollower.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
-    public void setVelocitySetpoint(double value) {
-        m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
+    public Command setVelocitySetpoint(double value) {
+        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true)));
     }
 
     public double getVelocityMotor() {
@@ -53,8 +55,8 @@ public class CatchupSubsystem extends SubsystemBase {
         return Math.abs(getVelocityMotor() - target) < tolerance;
     }
 
-    public void stop() {
-        m_velocityLeader.stopMotor();
+    public Command stop() {
+        return Commands.runOnce(()->m_velocityLeader.stopMotor());
     }
 
     @Override

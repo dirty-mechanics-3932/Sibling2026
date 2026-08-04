@@ -11,6 +11,8 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HoodSubsystem extends SubsystemBase {
@@ -45,16 +47,16 @@ public class HoodSubsystem extends SubsystemBase {
         return absoluteEncoder.get();
     }
 
-    public void setTargetPosition(double value) {
-        targetPosition = Math.max(0.0, Math.min(1.0, value));
+    public Command setTargetPosition(double value) {
+        return Commands.runOnce(() -> targetPosition = Math.max(0.0, Math.min(1.0, value)));
     }
 
     public boolean atTargetPosition() {
         return pidController.atSetpoint();
     }
 
-    public void stop() {
-        m_hoodMotor.stopMotor();
+    public Command stop() {
+       return Commands.runOnce(()->m_hoodMotor.stopMotor());
     }
 
     @Override
