@@ -25,8 +25,6 @@ public class HoodSubsystem extends SubsystemBase {
     private final DutyCycleEncoder absoluteEncoder;
     private final TalonFXConfiguration config;
     private final PositionVoltage positionVoltage;
-    boolean isAtSetpoint;
-    private final double tolerance = 0.05;
 
     double gearRatio = 1.0; //12 to  40 + 22 to 30
     

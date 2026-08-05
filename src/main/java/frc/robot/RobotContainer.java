@@ -30,6 +30,7 @@ import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.PositionSubsystem;
 import frc.robot.subsystems.hotDog.HotDog;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -66,6 +67,7 @@ public class RobotContainer {
   private final CatchupSubsystem catchupSubsystem;
   private final DrumstickSubsystem drumstickSubsystem;
   private final HoodSubsystem hoodSubsystem;
+  private final PositionSubsystem positionSubsystem; 
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -134,6 +136,7 @@ public class RobotContainer {
     catchupSubsystem = new CatchupSubsystem();
     drumstickSubsystem = new DrumstickSubsystem();
     hoodSubsystem = new HoodSubsystem();
+    positionSubsystem = new PositionSubsystem(m_drivebase);
 
     // Configure the trigger bindings
     configureBindings();
@@ -254,24 +257,24 @@ public class RobotContainer {
   }
 
   private void operatorBindings(){
-    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.setShooterSetpoint(40)));
-    m_opController.button(2).whileTrue(new InstantCommand(() -> drumstickSubsystem.stopShooter()));
+    m_opController.button(1).whileTrue(drumstickSubsystem.setShooterSetpoint(40));
+    m_opController.button(2).whileTrue(drumstickSubsystem.stopShooter());
 
-    m_opController.button(3).whileTrue(new InstantCommand(() -> catchupSubsystem.setCatchupSetpoint(40)));
-    m_opController.button(4).whileTrue(new InstantCommand(() -> catchupSubsystem.stopCatchup()));
+    m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(40));
+    m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
 
-    m_opController.button(5).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodPosition(1)));
-    m_opController.button(6).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodPosition(0)));
+    m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));
+    m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(0));
     m_opController.button(7).whileTrue(new InstantCommand(() -> hoodSubsystem.zeroEncoder()));
 
     m_opController.button(8).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
-    m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.extendIntake(90)));
-    m_opController.button(10).whileTrue(new InstantCommand(() -> intakeTilt.setIntakeTiltSetpoint(0)));
+    m_opController.button(9).whileTrue(intakeTilt.extendIntake(90));
+    m_opController.button(10).whileTrue(intakeTilt.setIntakeTiltSetpoint(0));
 
-    m_opController.button(11).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinIn(-40)))
-        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
+    m_opController.button(11).whileTrue(intakeSpin.intakeSpinIn(-40))
+        .whileFalse(intakeSpin.stopIntake());
     m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(40)))
-        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
+        .whileFalse(intakeSpin.stopIntake());
   }
 
   private Pose2d getInitPose() {

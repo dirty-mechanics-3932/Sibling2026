@@ -6,6 +6,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSpin extends SubsystemBase {
@@ -34,8 +36,8 @@ public class IntakeSpin extends SubsystemBase {
         m_intakeSpinMotor.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
     }
 
-    public void intakeSpinIn(double value) {
-        setVelocitySetpoint(value);
+    public Command intakeSpinIn(double value) {
+        return Commands.runOnce(()->setVelocitySetpoint(value));
     }
 
     public void intakeSpinOut(double value) {
@@ -46,8 +48,8 @@ public class IntakeSpin extends SubsystemBase {
         return m_intakeSpinMotor.getVelocity().getValueAsDouble();
     }
 
-    public void stopIntake() {
-        m_intakeSpinMotor.stopMotor();
+    public Command stopIntake() {
+        return Commands.runOnce(()->m_intakeSpinMotor.stopMotor());
     }
 
     @Override

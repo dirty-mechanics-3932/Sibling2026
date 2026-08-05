@@ -10,6 +10,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeTilt extends SubsystemBase {
@@ -40,8 +42,8 @@ public class IntakeTilt extends SubsystemBase {
         m_intakeTiltMotor.setPosition(0);
     }
 
-    public void setIntakeTiltSetpoint(double value) {
-        m_intakeTiltMotor.setControl(positionVoltage.withPosition(value).withEnableFOC(true)); //in rotations
+    public Command setIntakeTiltSetpoint(double value) {
+        return Commands.runOnce(()->m_intakeTiltMotor.setControl(positionVoltage.withPosition(value).withEnableFOC(true))); //in rotations
     }
 
     public double getPositionMotor() {
@@ -53,19 +55,19 @@ public class IntakeTilt extends SubsystemBase {
             m_intakeTiltMotor.set(-.1);   
         }
         m_intakeTiltMotor.set(0); 
-        m_intakeTiltMotor.setPosition(0);
+        zeroEncoder();
     }
 
-    public void extendIntake(double degrees) {
+    public Command extendIntake(double degrees) {
         lastPosition = degrees;
         double motorRotations = gearRatio * (degrees/360);
-        setIntakeTiltSetpoint(motorRotations);
+        return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
     }
 
-    public void bounceIntake(double degrees) {
+    public Command bounceIntake(double degrees) {
         lastPosition = degrees;
         double motorRotations = gearRatio * (degrees/360);
-        setIntakeTiltSetpoint(motorRotations);
+        return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
     }
 
     @Override
