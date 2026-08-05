@@ -257,10 +257,10 @@ public class RobotContainer {
   }
 
   private void operatorBindings(){
-    m_opController.button(1).whileTrue(drumstickSubsystem.setShooterSetpoint(40));
+    m_opController.button(1).whileTrue(drumstickSubsystem.setShooterSetpoint(2000));
     m_opController.button(2).whileTrue(drumstickSubsystem.stopShooter());
 
-    m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(40));
+    m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(2000));
     m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
 
     m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));
@@ -271,9 +271,9 @@ public class RobotContainer {
     m_opController.button(9).whileTrue(intakeTilt.extendIntake(90));
     m_opController.button(10).whileTrue(intakeTilt.setIntakeTiltSetpoint(0));
 
-    m_opController.button(11).whileTrue(intakeSpin.intakeSpinIn(-40))
+    m_opController.button(11).whileTrue(intakeSpin.intakeSpinIn(-2000))
         .whileFalse(intakeSpin.stopIntake());
-    m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(40)))
+    m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(2000)))
         .whileFalse(intakeSpin.stopIntake());
   }
 

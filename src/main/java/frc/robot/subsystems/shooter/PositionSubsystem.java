@@ -49,6 +49,16 @@ public class PositionSubsystem extends SubsystemBase {
         this.m_drivebase = swerve;
 
         shootData.put(1.0,2500.0);
+        shootData.put(2.0,2600.0);
+        shootData.put(3.0,2850.0);
+        shootData.put(4.0,3000.0);
+        shootData.put(5.0,3440.0);
+        shootData.put(6.0,3405.0);
+        shootData.put(7.0,4700.0);
+        shootData.put(8.0,4800.0);
+        shootData.put(9.0,4915.0);
+        shootData.put(10.0,6000.0);
+        shootData.put(20.0,6000.0);
 
         hoodData.put(1.0, .23);
     }

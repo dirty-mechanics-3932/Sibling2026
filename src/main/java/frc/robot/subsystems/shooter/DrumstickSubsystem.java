@@ -20,6 +20,7 @@ public class DrumstickSubsystem extends SubsystemBase {
     
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
+    private double setpoint; 
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs
@@ -47,11 +48,12 @@ public class DrumstickSubsystem extends SubsystemBase {
     }
 
     public Command setShooterSetpoint(double value) {
-        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true)));
+        setpoint = value/60; 
+        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(setpoint).withEnableFOC(true)));
     }
 
     public double getVelocity() {
-        return m_velocityLeader.getVelocity().getValueAsDouble();
+        return m_velocityLeader.getVelocity().getValueAsDouble() * 60;
     }
 
     public boolean atSpeed(double target) {
