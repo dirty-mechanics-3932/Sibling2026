@@ -268,8 +268,8 @@ public class RobotContainer {
     m_opController.button(7).whileTrue(new InstantCommand(() -> hoodSubsystem.zeroEncoder()));
 
     m_opController.button(8).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
-    m_opController.button(9).whileTrue(intakeTilt.extendIntake(90));
-    m_opController.button(10).whileTrue(intakeTilt.setIntakeTiltSetpoint(0));
+    m_opController.button(9).whileTrue(intakeTilt.setIntakeTiltSetpoint(120));
+    m_opController.button(10).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
 
     m_opController.button(11).whileTrue(intakeSpin.intakeSpinIn(-2000))
         .whileFalse(intakeSpin.stopIntake());

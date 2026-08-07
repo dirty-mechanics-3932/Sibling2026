@@ -31,9 +31,9 @@ public class DrumstickSubsystem extends SubsystemBase {
         configs = new TalonFXConfiguration();
         velocityRequest = new VelocityVoltage(0);
 
-        configs.Slot0.kP = 0.01;
+        configs.Slot0.kP = 0.0001;
         configs.Slot0.kI = 0.00;
-        configs.Slot0.kD = 0.00;
+        configs.Slot0.kD = 0.03;
         configs.Slot0.kS = 0.25;
         configs.Slot0.kV = 0.12;
 

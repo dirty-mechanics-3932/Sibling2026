@@ -22,6 +22,7 @@ public class IntakeTilt extends SubsystemBase {
     private final DigitalInput limitSwitch = new DigitalInput(1);
     
     private double gearRatio = 52.5;
+    double motorRotations;
     private double lastPosition;
 
     public IntakeTilt() {
@@ -58,17 +59,17 @@ public class IntakeTilt extends SubsystemBase {
         zeroEncoder();
     }
 
-    public Command extendIntake(double degrees) {
-        lastPosition = degrees;
-        double motorRotations = gearRatio * (degrees/360);
-        return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
-    }
+    // public Command extendIntake(double degrees) {
+    //     lastPosition = degrees;
+    //     motorRotations = gearRatio * (degrees/360);
+    //     return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
+    // }
 
-    public Command bounceIntake(double degrees) {
-        lastPosition = degrees;
-        double motorRotations = gearRatio * (degrees/360);
-        return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
-    }
+    // public Command bounceIntake(double degrees) {
+    //     lastPosition = degrees;
+    //     motorRotations = gearRatio * (degrees/360);
+    //     return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
+    // }
 
     @Override
     public void periodic() {
