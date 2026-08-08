@@ -49,7 +49,7 @@ public class PositionAndShootCommand extends Command {
                     m_positionSubsysten.getShooterRPM(),
                     m_drumstickSubsystem.getVelocity(),
                     atSpeed,
-                    m_positionSubsysten.getTargetHeading(),
+                    m_positionSubsysten.getTargetHeadingDegrees(),
                     m_drivebase.getHeading(),
                     m_positionSubsysten.atHeading(),
                     m_hoodSubsystem.getHoodPosition()

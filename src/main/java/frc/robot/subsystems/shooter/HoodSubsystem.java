@@ -27,6 +27,7 @@ public class HoodSubsystem extends SubsystemBase {
     private final PositionVoltage positionVoltage;
 
     double gearRatio = 1.0; //12 to  40 + 22 to 30
+    double targetPosition;
     
     public HoodSubsystem() {
         m_hoodMotor = new TalonFX(50); // Remember to set the motor IDs
@@ -53,7 +54,13 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public Command setHoodPosition(double value) {
+        targetPosition = value;
         return Commands.runOnce(() -> m_hoodMotor.setControl(positionVoltage.withPosition(value).withEnableFOC(true)));
+    }
+
+    public boolean atTargetPosition() {
+        double tolerance = 1.0;
+        return Math.abs(getHoodPosition() - targetPosition) < tolerance;
     }
 
     public void zeroEncoder(){

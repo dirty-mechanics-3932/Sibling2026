@@ -244,13 +244,10 @@ public class RobotContainer {
         m_drivebase.aimAtPoseCommand(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                ? FieldConstants.HUB_POSE_BLUE
-                : FieldConstants.HUB_POSE_RED,  false, 0)
-            .alongWith(myLogf("Aiming at hub pose:" +
-                (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                    ? "Blue Hub"
-                    : "Red Hub"))));
+            () -> positionSubsystem.getTarget(),
+            0)
+            .alongWith(myLogf("Aiming at target pose:" +
+                positionSubsystem.getTargetName())));
 
     // PositionAndShootCommand
     //m_driverController.leftTrigger().whileTrue(new PositionAndShootCommand(position, drumstick, hood, catchup, swerve));

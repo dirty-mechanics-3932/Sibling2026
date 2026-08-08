@@ -38,6 +38,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.subsystems.shooter.PositionSubsystem;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -62,7 +64,6 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final SwerveDrive m_swerveDrive;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
-  private boolean shootBackward = false; //0 is forward, 1 is backward
   int targetShootingSide;
   Rotation2d targetHeading;
   
@@ -701,45 +702,52 @@ public class SwerveSubsystem extends SubsystemBase
                      .getAngle();
   }
 
-  public boolean shootBackward(Supplier<Pose2d> targetPose){
-    Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
-    Rotation2d targetHeadingForward = delta.getAngle();
-    Rotation2d targetHeadingBackward = delta.getAngle().plus(new Rotation2d(180));
-    if (((robotPose.getRotation().minus(targetHeadingBackward)).minus(robotPose.getRotation().minus(targetHeadingForward))).getRadians() <= 0 ){
-      shootBackward = true;
-    }
-    return shootBackward; 
-  }  
+
+  // public boolean shootBackward(Supplier<Pose2d> targetPose){
+  //   Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+  //   Rotation2d targetHeadingForward = delta.getAngle();
+  //   Rotation2d targetHeadingBackward = delta.getAngle().plus(new Rotation2d(180));
+  //   if (((robotPose.getRotation().minus(targetHeadingBackward)).minus(robotPose.getRotation().minus(targetHeadingForward))).getRadians() <= 0 ){
+  //     shootBackward = true;
+  //   }
+  //   return shootBackward; 
+  // }  
+
+  public boolean shootBackward(Supplier<Pose2d> targetPose) {
+    Pose2d pose = getPose();
+    Rotation2d robotHeading = pose.getRotation();
+    Rotation2d targetHeading = Rotation2d.fromDegrees(targetPose.get().getTranslation().minus(pose.getTranslation()).getAngle().getDegrees());
+    double angleDifference = Math.abs(targetHeading.minus(robotHeading).getDegrees());
+    return angleDifference > 90;
+  }
 
   public Command aimAtPoseCommand(
     DoubleSupplier translationX,
     DoubleSupplier translationY,
-    Supplier<Pose2d> targetPose, 
-    Boolean fixPos,
+    Supplier<Pose2d> targetPose,
     int pos) {
 
-    
     logf("Command starting");
-    targetShootingSide = pos;
 
     return Commands.run(() -> {
 
-      if (!fixPos){
-        if (shootBackward(targetPose)){
-          targetShootingSide = 2;
-        } else{
-          targetShootingSide = 1;
+      Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+
+      if (pos == 1) {
+        // Front
+        targetHeading = delta.getAngle();
+
+      } else if (pos == 2) {
+        // Back
+        targetHeading = delta.getAngle().plus(Rotation2d.fromDegrees(180));
+
+      } else {
+        if (!shootBackward(targetPose)) {
+          targetHeading = delta.getAngle();
+        } else {
+          targetHeading = delta.getAngle().plus(Rotation2d.fromDegrees(180));
         }
       }
-
-       Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
-
-      if (pos == 1){ //shoot with front
-         targetHeading = delta.getAngle();
-      } else {
-         targetHeading = delta.getAngle().plus(new Rotation2d(180)); //shoot with back
-      }
-  
       
       logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
       logf("Translations: %,2f", delta);
@@ -747,7 +755,6 @@ public class SwerveSubsystem extends SubsystemBase
       double omega = headingPID.calculate(
         robotPose.getRotation().getRadians(),
         targetHeading.getRadians());
-
 
       logf("Omega: %.2f", omega);
 

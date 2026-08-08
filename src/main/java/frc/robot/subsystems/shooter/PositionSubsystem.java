@@ -13,24 +13,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.vision.FieldConstants;
 
 public class PositionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem m_drivebase;
-
-    private Pose2d hubPoseBlue =
-        new Pose2d(Meters.of(4.63), Meters.of(4.03), new Rotation2d(Degrees.of(0)));
-    private Pose2d hubPoseRed =
-        new Pose2d(Meters.of(11.92), Meters.of(4.03), new Rotation2d(Degrees.of(180)));
-
-    private Pose2d neutralRedRight =
-        new Pose2d(Meters.of(14.42), Meters.of(6.01), new Rotation2d(Degrees.of(180)));
-    private Pose2d neutralRedLeft =
-        new Pose2d(Meters.of(14.42), Meters.of(2.01), new Rotation2d(Degrees.of(0)));
-    private Pose2d neutralBlueLeft =
-        new Pose2d(Meters.of(2.31), Meters.of(6.01), new Rotation2d(Degrees.of(180)));
-    private Pose2d neutralBlueRight =
-        new Pose2d(Meters.of(2.31), Meters.of(2.01), new Rotation2d(Degrees.of(0)));
 
     private boolean isTargetOverrided = false;
     
@@ -38,12 +25,16 @@ public class PositionSubsystem extends SubsystemBase {
     private String targetName = "";
 
     private double distance;
-    private double targetHeading;
+    private double targetHeadingDegrees;
     private double shooterRPM;
     private double hoodPosition;
 
+    // For the data tables, the reverse data is for when the robot is facing backwards
     private final InterpolatingDoubleTreeMap shootData = new InterpolatingDoubleTreeMap();
+    private final InterpolatingDoubleTreeMap shootReverseData = new InterpolatingDoubleTreeMap();
+
     private final InterpolatingDoubleTreeMap hoodData = new InterpolatingDoubleTreeMap();
+    private final InterpolatingDoubleTreeMap hoodReverseData = new InterpolatingDoubleTreeMap();
 
     public PositionSubsystem(SwerveSubsystem swerve){
         this.m_drivebase = swerve;
@@ -60,7 +51,21 @@ public class PositionSubsystem extends SubsystemBase {
         shootData.put(10.0,6000.0);
         shootData.put(20.0,6000.0);
 
+        shootReverseData.put(1.0,2500.0);
+        shootReverseData.put(2.0,2600.0);
+        shootReverseData.put(3.0,2850.0);
+        shootReverseData.put(4.0,3000.0);
+        shootReverseData.put(5.0,3440.0);
+        shootReverseData.put(6.0,3405.0);
+        shootReverseData.put(7.0,4700.0);
+        shootReverseData.put(8.0,4800.0);
+        shootReverseData.put(9.0,4915.0);
+        shootReverseData.put(10.0,6000.0);
+        shootReverseData.put(20.0,6000.0);
+
         hoodData.put(1.0, .23);
+
+        hoodReverseData.put(1.0, .23);
     }
 
     @Override
@@ -68,72 +73,81 @@ public class PositionSubsystem extends SubsystemBase {
         updateTarget();
         if (target == null) return;
 
-        // If this doesn't work just replace 'compensatedPose' with 'm_drivebase.getPose()'
-        Pose2d compensatedPose = compensatedPose();
-        distance = compensatedPose.getTranslation().getDistance(target.getTranslation());
-        shooterRPM = shootData.get(distance);
-        hoodPosition = hoodData.get(distance);
-        targetHeading = target.getTranslation().minus(compensatedPose.getTranslation()).getAngle().getDegrees();
+        // Pose2d compensatedPose = compensatedPose();
+        Pose2d pose = m_drivebase.getPose();
+        distance = pose.getTranslation().getDistance(target.getTranslation());
+        shooterRPM = m_drivebase.shootBackward(() -> target) ? shootData.get(distance) : shootReverseData.get(distance);
+        hoodPosition = m_drivebase.shootBackward(() -> target) ? hoodData.get(distance) : hoodReverseData.get(distance);
+        targetHeadingDegrees = target.getTranslation().minus(pose.getTranslation()).getAngle().getDegrees();
 
         SmartDashboard.putString("Target Name", targetName);
     }
 
-    // An attempt to compensate for motion so shooting while moving works, does not currently compensate for rotation
-    private Pose2d compensatedPose(){
-        Pose2d pose = m_drivebase.getPose();
-        ChassisSpeeds speeds = m_drivebase.getFieldVelocity();
-        double latency = 0.25;
+    // private Pose2d compensatedPose(){
+    //     Pose2d pose = m_drivebase.getPose();
+    //     ChassisSpeeds speeds = m_drivebase.getFieldVelocity();
+    //     double latency = 0.25;
 
-        return new Pose2d(
-            pose.getX() + speeds.vxMetersPerSecond * latency,
-            pose.getY() + speeds.vyMetersPerSecond * latency,
-            pose.getRotation()
-        );
-    }
+    //     return new Pose2d(
+    //         pose.getX() + speeds.vxMetersPerSecond * latency,
+    //         pose.getY() + speeds.vyMetersPerSecond * latency,
+    //         pose.getRotation()
+    //     );
+    // }
+
+    // public boolean closerToForward() {
+    //     Pose2d pose = m_drivebase.getPose();
+    //     Rotation2d robotHeading = pose.getRotation();
+    //     Rotation2d targetHeading = Rotation2d.fromDegrees(targetHeadingDegrees);
+    //     double angleDifference = Math.abs(targetHeading.minus(robotHeading).getDegrees());
+    //     return angleDifference <= 90;
+    // }
 
     private void updateTarget() {
+        Pose2d pose = m_drivebase.getPose();
+        double robotTranslationY = pose.getTranslation().getY();
+        double hubBlueTranslationY = FieldConstants.HUB_POSE_BLUE.getTranslation().getY();
+        double hubRedTranslationY = FieldConstants.HUB_POSE_RED.getTranslation().getY();
         if(Robot.isAllianceBlue()) {
-            target = hubPoseBlue;
+            target = FieldConstants.HUB_POSE_BLUE;
             targetName = "hubPoseBlue";
             if (isInNeutralZone()) {
-                Pose2d pose = m_drivebase.getPose();
                 if (!isTargetOverrided) {
-                    if (pose.getTranslation().getY() < hubPoseBlue.getTranslation().getY()) {
-                        target = neutralBlueRight;
+                    if (robotTranslationY < hubBlueTranslationY) {
+                        target = FieldConstants.NEUTRAL_BLUE_RIGHT;
                         targetName = "neutralBlueRight";
-                    } else if (pose.getTranslation().getY() > hubPoseBlue.getTranslation().getY()) {
-                        target = neutralBlueLeft;
+                    } else if (robotTranslationY > hubBlueTranslationY) {
+                        target = FieldConstants.NEUTRAL_BLUE_LEFT;
                         targetName = "neutralBlueLeft";
                     }
                 } else {
-                    if (pose.getTranslation().getY() < hubPoseBlue.getTranslation().getY()) {
-                        target = neutralBlueLeft;
+                    if (robotTranslationY < hubBlueTranslationY) {
+                        target = FieldConstants.NEUTRAL_BLUE_LEFT;
                         targetName = "neutralBlueLeft";
-                    } else if (pose.getTranslation().getY() > hubPoseBlue.getTranslation().getY()) {
-                        target = neutralBlueRight;
+                    } else if (robotTranslationY > hubBlueTranslationY) {
+                        target = FieldConstants.NEUTRAL_BLUE_RIGHT;
                         targetName = "neutralBlueRight";
                     }
                 }
             }
         } else {
-            target = hubPoseRed;
+            target = FieldConstants.HUB_POSE_RED;
             targetName = "hubPoseRed";
             if (isInNeutralZone()) {
-                Pose2d pose = m_drivebase.getPose();
                 if (!isTargetOverrided) {
-                    if (pose.getTranslation().getY() < hubPoseRed.getTranslation().getY()) {
-                        target = neutralRedLeft;
+                    if (robotTranslationY < hubRedTranslationY) {
+                        target = FieldConstants.NEUTRAL_RED_LEFT;
                         targetName = "neutralRedLeft";
-                    } else if (pose.getTranslation().getY() > hubPoseRed.getTranslation().getY()) {
-                        target = neutralRedRight;
+                    } else if (robotTranslationY > hubRedTranslationY) {
+                        target = FieldConstants.NEUTRAL_RED_RIGHT;
                         targetName = "neutralRedRight";
                     }
                 } else {
-                    if (pose.getTranslation().getY() < hubPoseRed.getTranslation().getY()) {
-                        target = neutralRedRight;
+                    if (robotTranslationY < hubRedTranslationY) {
+                        target = FieldConstants.NEUTRAL_RED_RIGHT;
                         targetName = "neutralRedRight";
-                    } else if (pose.getTranslation().getY() > hubPoseRed.getTranslation().getY()) {
-                        target = neutralRedLeft;
+                    } else if (robotTranslationY > hubRedTranslationY) {
+                        target = FieldConstants.NEUTRAL_RED_LEFT;
                         targetName = "neutralRedLeft";
                     }
                 }
@@ -149,8 +163,16 @@ public class PositionSubsystem extends SubsystemBase {
         return hoodPosition;
     }
 
-    public double getTargetHeading() {
-        return targetHeading;
+    public double getTargetHeadingDegrees() {
+        return targetHeadingDegrees;
+    }
+
+    public Pose2d getTarget() {
+        return target;
+    }
+
+    public String getTargetName() {
+        return targetName;
     }
 
     public boolean isInNeutralZone() {
@@ -173,10 +195,10 @@ public class PositionSubsystem extends SubsystemBase {
 
     public boolean atHeading() {
         double tolerance = 2.0;
-        return Math.abs(m_drivebase.getHeading().minus(Rotation2d.fromDegrees(targetHeading)).getDegrees()) < tolerance;
+        return Math.abs(m_drivebase.getHeading().minus(Rotation2d.fromDegrees(targetHeadingDegrees)).getDegrees()) < tolerance;
     }
 
     public boolean readyToShoot(DrumstickSubsystem drumstick, HoodSubsystem hood) {
-        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocity() - shooterRPM) < 100;
+        return atHeading() && shooterRPM > 0 && hood.atTargetPosition() && Math.abs(drumstick.getVelocity() - shooterRPM) < 100;
     }
 }
