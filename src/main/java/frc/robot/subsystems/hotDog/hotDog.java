@@ -1,5 +1,7 @@
 package frc.robot.subsystems.hotDog;
 
+import static frc.robot.utilities.Util.logf;
+
 import java.time.Period;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -30,7 +32,8 @@ public class HotDog {
     }
 
     public Command setVelocitySetpoint(double value) {
-        setPoint = (value * 60);
+        setPoint = (value / 60);
+         logf("*****************Try to run hot dog");
         return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(setPoint).withEnableFOC(true)));
     }
 

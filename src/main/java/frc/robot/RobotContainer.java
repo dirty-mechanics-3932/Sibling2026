@@ -286,7 +286,7 @@ public class RobotContainer {
     m_opController.button(1).whileTrue(drumstickSubsystem.setShooterSetpoint(2000));
     m_opController.button(2).whileTrue(drumstickSubsystem.stopShooter());
 
-    m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(2000));
+    m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
     m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
 
     m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));

@@ -11,6 +11,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.utilities.Util.logf;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class DrumstickSubsystem extends SubsystemBase {
 
-    private final TalonFX m_velocityLeader = new TalonFX(31);
+    private final TalonFX m_velocityLeader;
     private final TalonFX m_velocityFollower1;
     private final TalonFX m_velocityFollower2;
     
@@ -30,7 +32,7 @@ public class DrumstickSubsystem extends SubsystemBase {
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs
-      //  m_velocityLeader = new TalonFX(31); 
+        m_velocityLeader = new TalonFX(31); 
         m_velocityFollower1 = new TalonFX(32);
         m_velocityFollower2 = new TalonFX(33);
 
@@ -54,8 +56,7 @@ public class DrumstickSubsystem extends SubsystemBase {
     }
 
     public Command setShooterSetpoint(double value) {
-        setpoint = value/60; 
-        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(setpoint).withEnableFOC(true)));
+        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)));
     }
 
     public double getVelocity() {
@@ -71,27 +72,27 @@ public class DrumstickSubsystem extends SubsystemBase {
         return Commands.runOnce(()->m_velocityLeader.stopMotor());
     }
 
-    private SysIdRoutine sysIdRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null,
-            Volts.of(4),
-            null,
-             (state) -> SignalLogger.writeString("state", state.toString())
-        ), 
-        new SysIdRoutine.Mechanism(
-            (volts) -> m_velocityLeader.setControl(m_voltReq.withOutput(volts.in(Volts))),
-            null,
-            this
-        )
-    );
+//     private SysIdRoutine sysIdRoutine = new SysIdRoutine(
+//         new SysIdRoutine.Config(
+//             null,
+//             Volts.of(4),
+//             null,
+//              (state) -> SignalLogger.writeString("state", state.toString())
+//         ), 
+//         new SysIdRoutine.Mechanism(
+//             (volts) -> m_velocityLeader.setControl(m_voltReq.withOutput(volts.in(Volts))),
+//             null,
+//             this
+//         )
+//     );
 
-public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-   return sysIdRoutine.quasistatic(direction);
-}
+// public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+//    return sysIdRoutine.quasistatic(direction);
+// }
 
-public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-   return sysIdRoutine.dynamic(direction);
-}
+// public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+//    return sysIdRoutine.dynamic(direction);
+// }
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Drumstick Velocity", getVelocity());

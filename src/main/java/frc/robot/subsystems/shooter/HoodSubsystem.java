@@ -25,6 +25,8 @@ public class HoodSubsystem extends SubsystemBase {
     private final DutyCycleEncoder absoluteEncoder;
     private final TalonFXConfiguration config;
     private final PositionVoltage positionVoltage;
+    private int targetPosition; 
+    private int tolerance; 
 
     double gearRatio = 1.0; //12 to  40 + 22 to 30
     
@@ -60,6 +62,10 @@ public class HoodSubsystem extends SubsystemBase {
         m_hoodMotor.setPosition(0);
     }
 
+    public void setPositionWithEncoder(int value){
+        targetPosition = value;
+    }
+
     public Command stop() {
        return Commands.runOnce(()->m_hoodMotor.stopMotor());
     }
@@ -67,5 +73,7 @@ public class HoodSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Hood Position", getHoodPosition());
+        //if (absoluteEncoder.get())
+
     }
 }

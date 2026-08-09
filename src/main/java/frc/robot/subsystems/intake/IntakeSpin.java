@@ -35,7 +35,7 @@ public class IntakeSpin extends SubsystemBase {
     }
 
     public void setVelocitySetpoint(double value) {
-        setpoint = value * 60;
+        setpoint = value/60;
         m_intakeSpinMotor.setControl(velocityRequest.withVelocity(setpoint).withEnableFOC(true));
     }
 
