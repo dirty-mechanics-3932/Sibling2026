@@ -701,6 +701,10 @@ public class SwerveSubsystem extends SubsystemBase
                      .getAngle();
   }
 
+  public SwerveDrive getSwerveDrive() {
+    return m_swerveDrive;
+  }
+
   public boolean shootBackward(Supplier<Pose2d> targetPose){
     Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
     Rotation2d targetHeadingForward = delta.getAngle();

@@ -27,6 +27,7 @@ public class IntakeSpin extends SubsystemBase {
         config.Slot0.kD = 0.00;
         config.Slot0.kS = 0.25;
         config.Slot0.kV = 0.12;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; 
 
         // configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -38,12 +39,8 @@ public class IntakeSpin extends SubsystemBase {
         m_intakeSpinMotor.setControl(velocityRequest.withVelocity(setpoint).withEnableFOC(true));
     }
 
-    public Command intakeSpinIn(double value) {
+    public Command intakeSpin(double value) {
         return Commands.runOnce(()->setVelocitySetpoint(value));
-    }
-
-    public void intakeSpinOut(double value) {
-        setVelocitySetpoint(value);
     }
 
     public double getVelocity() {

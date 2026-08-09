@@ -76,6 +76,8 @@ public class PositionSubsystem extends SubsystemBase {
         targetHeading = target.getTranslation().minus(compensatedPose.getTranslation()).getAngle().getDegrees();
 
         SmartDashboard.putString("Target Name", targetName);
+        SmartDashboard.putNumber("Distance to Target", distance);
+        SmartDashboard.putNumber("Target drumstick rpm", shooterRPM);
     }
 
     // An attempt to compensate for motion so shooting while moving works, does not currently compensate for rotation

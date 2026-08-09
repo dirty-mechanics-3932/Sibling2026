@@ -48,6 +48,7 @@ public class VisionSubsystem extends SubsystemBase {
   private Pose2d        m_pose = new Pose2d();
   private PoseEstimate  m_mt2  = null;
   private double m_mt2_yaw;
+  int tagCount;
 
   // Initialize with the CAN ID configured in Phoenix Tuner X
   Pigeon2 pigeon = new Pigeon2(14); 
@@ -83,6 +84,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    tagCount = LimelightHelpers.getRawFiducials(m_cameraName).length;
     try {
       Pose2d robotPose = m_swerveDrive.getPose();
       double yaw = pigeon.getYaw().getValueAsDouble();
@@ -108,7 +110,7 @@ public class VisionSubsystem extends SubsystemBase {
 
       SmartDashboard.putBoolean(m_shortName + "-TV", m_tv);
       SmartDashboard.putNumber(m_shortName + "-TagCount",
-           m_mt2 != null ? m_mt2.tagCount : 0);
+           tagCount);
 
       if (m_mt2 != null) {
         SmartDashboard.putNumber("Swerve Heading", m_swerveDrive.getPose().getRotation().getDegrees());
@@ -116,7 +118,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber(m_shortName + " VHead", m_mt2_yaw);
       }
 
-      if (m_tv && m_mt2 != null && m_mt2.tagCount > 0) {
+      if (m_tv && m_mt2 != null && tagCount > 0) {
         // Cache pose once so all helpers share the same snapshot.
         m_pose = m_mt2.pose;
         updateSwerveOdometry(m_mt2);
@@ -151,7 +153,7 @@ public class VisionSubsystem extends SubsystemBase {
     if (mt2.avgTagDist > MAX_TAG_DISTANCE_METERS) return;
 
     // Gate 3 – multi-tag span (skip for single-tag; span is 0)
-    if (mt2.tagCount >= 2 && mt2.tagSpan < MIN_TAG_SPAN_METERS) return;
+    if (tagCount >= 2 && mt2.tagSpan < MIN_TAG_SPAN_METERS) return;
 
     // Use the timestamp that comes directly from the PoseEstimate — it is
     // already the FPGA-adjusted capture time (pipeline + capture latency baked in).
@@ -159,7 +161,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Scale std devs by distance: further = less trust.
     double distScale = 1.0 + mt2.avgTagDist * 0.3;
-    double xyStdDev = (mt2.tagCount >= 2 ? MULTI_TAG_XY_STDDEV : SINGLE_TAG_XY_STDDEV)
+    double xyStdDev = (tagCount >= 2 ? MULTI_TAG_XY_STDDEV : SINGLE_TAG_XY_STDDEV)
                       * distScale;
     Matrix<N3, N1> stdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(),
         xyStdDev, xyStdDev, ROT_STDDEV);
@@ -196,7 +198,7 @@ public class VisionSubsystem extends SubsystemBase {
    * Uses the cached PoseEstimate; never triggers a new NT read.
    */
   public Optional<Pose2d> getRobotPose() {
-    if (m_mt2 == null || !m_tv || m_mt2.tagCount == 0) return Optional.empty();
+    if (m_mt2 == null || !m_tv || tagCount == 0) return Optional.empty();
     Pose2d p = m_mt2.pose;
     if (p.getX() == 0.0 && p.getY() == 0.0) return Optional.empty();
     return Optional.of(p);
@@ -285,7 +287,7 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public void resetGyroYaw() {
-    if (m_mt2 == null || !m_tv || m_mt2.tagCount == 0) {
+    if (m_mt2 == null || !m_tv || tagCount == 0) {
       logf("Cannot reset gyro yaw from %s: no valid pose", m_shortName);
       return;
     }

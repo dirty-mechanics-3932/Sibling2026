@@ -6,6 +6,7 @@ package frc.robot;
 
 import static frc.robot.utilities.Util.logf;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
@@ -36,6 +38,7 @@ import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.vision.FieldConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystemV2;
 
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -57,7 +60,9 @@ public class RobotContainer {
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
 
-  private VisionSubsystem m_visionFront;
+  private VisionSubsystemV2 m_visionLeft;
+  private VisionSubsystemV2 m_visionRight;
+  private VisionSubsystemV2 m_visionRear;
 
   // Establish a Sendable Chooser that will be able to be sent to the
   // SmartDashboard, allowing selection of desired auto
@@ -68,6 +73,7 @@ public class RobotContainer {
   private final DrumstickSubsystem drumstickSubsystem;
   private final HoodSubsystem hoodSubsystem;
   private final PositionSubsystem positionSubsystem; 
+  private final HotDog hotDog; 
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -130,13 +136,16 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_visionFront = new VisionSubsystem(m_drivebase, "limelight", "Front");
+    m_visionLeft = new VisionSubsystemV2(m_drivebase, "limelight-left", "left");
+    m_visionRight = new VisionSubsystemV2(m_drivebase, "limelight-right", "right");
+    m_visionRear = new VisionSubsystemV2(m_drivebase, "limelight-rear", "rear");
     intakeSpin = new IntakeSpin();
     intakeTilt = new IntakeTilt();
     catchupSubsystem = new CatchupSubsystem();
     drumstickSubsystem = new DrumstickSubsystem();
     hoodSubsystem = new HoodSubsystem();
     positionSubsystem = new PositionSubsystem(m_drivebase);
+    hotDog = new HotDog(); 
 
     // Configure the trigger bindings
     configureBindings();
@@ -251,6 +260,23 @@ public class RobotContainer {
                 (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                     ? "Blue Hub"
                     : "Red Hub"))));
+    m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
+    m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
+
+//commands you need to run sysid. run the logger, then quasistatic forward, reverse; dynamic forward, reverse; end log
+//     m_joystick.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+// m_joystick.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+// /*
+//  * Joystick Y = quasistatic forward
+//  * Joystick A = quasistatic reverse
+//  * Joystick B = dynamic forward
+//  * Joystick X = dyanmic reverse
+//  */
+// m_joystick.y().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+// m_joystick.a().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+// m_joystick.b().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kForward));
+// m_joystick.x().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // PositionAndShootCommand
     //m_driverController.leftTrigger().whileTrue(new PositionAndShootCommand(position, drumstick, hood, catchup, swerve));
@@ -265,16 +291,23 @@ public class RobotContainer {
 
     m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));
     m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(0));
-    m_opController.button(7).whileTrue(new InstantCommand(() -> hoodSubsystem.zeroEncoder()));
 
-    m_opController.button(8).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
-    m_opController.button(9).whileTrue(intakeTilt.setIntakeTiltSetpoint(120));
-    m_opController.button(10).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
+    m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
+    m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpoint(120));
+    m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
 
-    m_opController.button(11).whileTrue(intakeSpin.intakeSpinIn(-2000))
+    m_opController.button(10).whileTrue(intakeSpin.intakeSpin(2000))
         .whileFalse(intakeSpin.stopIntake());
-    m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(2000)))
-        .whileFalse(intakeSpin.stopIntake());
+    m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stop());
+
+    
+    // m_opController.button(12).whileTrue(intakeSpin.intakeSpin(2000))
+    //     .whileFalse(intakeSpin.stopIntake());
+    // m_opController.button(13).whileTrue(drumstickSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // m_opController.button(14).whileTrue(drumstickSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // m_opController.button(15).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // m_opController.button(16).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+   m_opController.button(13).whileTrue(drumstickSubsystem.setShooterSetpoint(positionSubsystem.getShooterRPM()));
   }
 
   private Pose2d getInitPose() {
@@ -286,15 +319,22 @@ public class RobotContainer {
   }
 
   public void switchPipelines(int num) {
-    m_visionFront.switchPipeline(num);
+    m_visionLeft.switchPipeline(num);
+    m_visionRight.switchPipeline(num);
+    m_visionRear.switchPipeline(num);
+
   }
 
   public void setVisionThrottle(int throttle) {
-    m_visionFront.setThrottle(throttle);
+    m_visionLeft.setThrottle(throttle);
+    m_visionRight.setThrottle(throttle);
+    m_visionRear.setThrottle(throttle);
   }
 
   private void logPoses() {
-    logf("******* Pose: %s %s %s Robot:%s", m_visionFront.getVisionResult());
+    logf("LL ******* Pose: %s %s %s Robot:%s", m_visionLeft.getVisionResult());
+    logf("LRight******* Pose: %s %s %s Robot:%s", m_visionRight.getVisionResult());
+    logf("LRear******* Pose: %s %s %s Robot:%s", m_visionRear.getVisionResult());
   }
 
   /**
