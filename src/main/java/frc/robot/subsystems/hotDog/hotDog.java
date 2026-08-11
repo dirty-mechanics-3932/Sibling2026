@@ -17,7 +17,6 @@ public class HotDog {
      public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
-    public double setPoint; 
 
     public HotDog() {
         m_velocityMotor = new TalonFX(60); // Remember to set the motor IDs
@@ -32,9 +31,7 @@ public class HotDog {
     }
 
     public Command setVelocitySetpoint(double value) {
-        setPoint = (value / 60);
-         logf("*****************Try to run hot dog");
-        return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(setPoint).withEnableFOC(true)));
+        return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)));
     }
 
     public double getVelocityMotor() {

@@ -20,7 +20,6 @@ public class CatchupSubsystem extends SubsystemBase {
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
 
-    private double setpoint; 
 
     public CatchupSubsystem() {
         // Remember to set the motor IDs
@@ -45,8 +44,7 @@ public class CatchupSubsystem extends SubsystemBase {
     }
 
     public Command setCatchupSetpoint(double value) {
-        setpoint = value/60;
-        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(setpoint).withEnableFOC(true)));
+        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)));
     }
 
     public double getVelocity() {

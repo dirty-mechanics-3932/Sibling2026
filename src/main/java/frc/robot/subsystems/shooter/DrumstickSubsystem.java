@@ -28,7 +28,6 @@ public class DrumstickSubsystem extends SubsystemBase {
     private final VoltageOut m_voltReq = new VoltageOut(0.0); 
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
-    private double setpoint; 
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs

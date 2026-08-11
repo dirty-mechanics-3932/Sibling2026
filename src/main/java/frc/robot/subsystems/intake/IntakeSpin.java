@@ -15,7 +15,6 @@ public class IntakeSpin extends SubsystemBase {
     public final TalonFX m_intakeSpinMotor;
     private final TalonFXConfiguration config;
     private final VelocityVoltage velocityRequest;
-    private double setpoint;
 
     public IntakeSpin() {
         m_intakeSpinMotor = new TalonFX(20); // Remember to set the motor IDs
@@ -35,8 +34,7 @@ public class IntakeSpin extends SubsystemBase {
     }
 
     public void setVelocitySetpoint(double value) {
-        setpoint = value/60;
-        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(setpoint).withEnableFOC(true));
+        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true));
     }
 
     public Command intakeSpin(double value) {
