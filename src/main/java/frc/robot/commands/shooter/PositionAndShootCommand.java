@@ -59,6 +59,7 @@ public class PositionAndShootCommand extends Command {
         }else{
             m_catchupSubsystem.stopCatchup();
         }
+        
     }
 
     @Override

@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.HubSubCommands;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
@@ -74,6 +75,7 @@ public class RobotContainer {
   private final HoodSubsystem hoodSubsystem;
   private final PositionSubsystem positionSubsystem; 
   private final HotDog hotDog; 
+  private final HubSubCommands hubSubCommands; 
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -146,6 +148,7 @@ public class RobotContainer {
     hoodSubsystem = new HoodSubsystem();
     positionSubsystem = new PositionSubsystem(m_drivebase);
     hotDog = new HotDog(); 
+    hubSubCommands = new HubSubCommands(); 
 
     // Configure the trigger bindings
     configureBindings();
@@ -283,7 +286,7 @@ public class RobotContainer {
   }
 
   private void operatorBindings(){
-    m_opController.button(1).whileTrue(drumstickSubsystem.setShooterSetpoint(2000));
+    m_opController.button(1).whileTrue(drumstickSubsystem.shootCommand(2000));
     m_opController.button(2).whileTrue(drumstickSubsystem.stopShooter());
 
     m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
@@ -307,7 +310,8 @@ public class RobotContainer {
     // m_opController.button(14).whileTrue(drumstickSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // m_opController.button(15).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // m_opController.button(16).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-   m_opController.button(13).whileTrue(drumstickSubsystem.setShooterSetpoint(positionSubsystem.getShooterRPM()));
+   m_opController.button(12).whileTrue(hubSubCommands.shootCommand(hotDog, positionSubsystem, catchupSubsystem, drumstickSubsystem, hoodSubsystem));
+
   }
 
   private Pose2d getInitPose() {
