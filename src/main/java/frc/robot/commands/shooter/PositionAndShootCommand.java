@@ -35,7 +35,7 @@ public class PositionAndShootCommand extends Command {
         m_drumstickSubsystem.setShooterSetpoint(m_positionSubsysten.getShooterRPM());
 
         // Angle hood
-        m_hoodSubsystem.setHoodPosition(m_positionSubsysten.getHoodPosition());
+       // m_hoodSubsystem.setHoodPosition(m_positionSubsysten.getHoodPosition());
 
         // Aim robot code
         //double targetDirection = m_positionSubsysten.getTargetHeading() - m_drivebase.getHeading().getDegrees() * 0.1;
@@ -55,11 +55,11 @@ public class PositionAndShootCommand extends Command {
                     m_hoodSubsystem.getHoodPosition()
                 );
             }
-            m_catchupSubsystem.setCatchupSetpoint(6000);
+            m_catchupSubsystem.setCatchupSetpoint(2000);
         }else{
             m_catchupSubsystem.stopCatchup();
         }
-        
+
     }
 
     @Override

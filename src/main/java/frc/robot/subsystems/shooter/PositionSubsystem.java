@@ -17,6 +17,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class PositionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem m_drivebase;
+    double tolerance = 500; 
 
     private Pose2d hubPoseBlue =
         new Pose2d(Meters.of(4.63), Meters.of(4.03), new Rotation2d(Degrees.of(0)));
@@ -179,6 +180,6 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public boolean readyToShoot(DrumstickSubsystem drumstick, HoodSubsystem hood) {
-        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocity() - shooterRPM) < 100;
+        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocity() - shooterRPM) <= tolerance;
     }
 }

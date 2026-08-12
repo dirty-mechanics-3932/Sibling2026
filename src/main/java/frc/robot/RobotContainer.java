@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
+import frc.robot.commands.shooter.PositionAndShootCommand;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
@@ -310,7 +311,10 @@ public class RobotContainer {
     // m_opController.button(14).whileTrue(drumstickSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // m_opController.button(15).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // m_opController.button(16).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-   m_opController.button(12).whileTrue(hubSubCommands.shootCommand(hotDog, positionSubsystem, catchupSubsystem, drumstickSubsystem, hoodSubsystem));
+    m_opController.button(12).whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, catchupSubsystem, m_drivebase));
+    m_opController.button(13).whileTrue(new InstantCommand(()->drumstickSubsystem.setShooterSetpoint(positionSubsystem.getShooterRPM())));
+    m_opController.button(14).whileTrue(drumstickSubsystem.shootCommand(positionSubsystem.getShooterRPM()));
+   //m_opController.button(12).whileTrue(hubSubCommands.shootCommand(hotDog, positionSubsystem, catchupSubsystem, drumstickSubsystem, hoodSubsystem));
 
   }
 

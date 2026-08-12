@@ -28,7 +28,7 @@ public class DrumstickSubsystem extends SubsystemBase {
     private final VoltageOut m_voltReq = new VoltageOut(0.0); 
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
-    private double tolerance = 100; 
+    private double tolerance = 500; 
     private double testValue = 2000;
 
     public DrumstickSubsystem() {
@@ -58,11 +58,12 @@ public class DrumstickSubsystem extends SubsystemBase {
 
     public void setShooterSetpoint(double value) {
        m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true));
+        SmartDashboard.putBoolean("Drumstick At Speed", atSpeed(value/60));
     }
 
 
     public Command shootCommand(double value){
-        return run(()->setShooterSetpoint(value)).until(()->atSpeed(value));
+        return runEnd(()->setShooterSetpoint(value), ()->setShooterSetpoint(value)).until(()->atSpeed(value));
     }
 
     public double getVelocity() {
@@ -101,7 +102,5 @@ public class DrumstickSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Drumstick Velocity", getVelocity());
-        double velocity = testValue;
-        SmartDashboard.putBoolean("Drumstick At Speed", atSpeed(velocity));
     }
 }
