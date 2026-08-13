@@ -1,10 +1,7 @@
 package frc.robot.subsystems.intake;
 
 
-import static frc.robot.utilities.Util.logf;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 

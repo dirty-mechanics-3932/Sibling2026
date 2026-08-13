@@ -114,7 +114,7 @@ public class VisionSubsystemV2 extends SubsystemBase {
     // You can optionally tune standard deviations here; see YAGSL docs for "Tuning
     // out Drift"
     int tagCount = LimelightHelpers.getRawFiducials(m_cameraName).length;
-    if (Robot.count % 20 == 0) {
+    if (Robot.count % 500 == 0) {
       logf("%s TV:%b tagCount:%d pX:%.3f pY:%.3f ", m_cameraName, tv, tagCount, pose.getX(), pose.getY());
     }
     if (tv && tagCount > 0 && (pose.getX() != 0 || pose.getY() != 0)) {

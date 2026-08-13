@@ -24,9 +24,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+//import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
 import frc.robot.commands.shooter.PositionAndShootCommand;
@@ -74,9 +75,9 @@ public class RobotContainer {
   private final CatchupSubsystem catchupSubsystem;
   private final DrumstickSubsystem drumstickSubsystem;
   private final HoodSubsystem hoodSubsystem;
-  private final PositionSubsystem positionSubsystem; 
-  private final HotDog hotDog; 
-  private final HubSubCommands hubSubCommands; 
+  private final PositionSubsystem positionSubsystem;
+  private final HotDog hotDog;
+  private final HubSubCommands hubSubCommands;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -148,8 +149,8 @@ public class RobotContainer {
     drumstickSubsystem = new DrumstickSubsystem();
     hoodSubsystem = new HoodSubsystem();
     positionSubsystem = new PositionSubsystem(m_drivebase);
-    hotDog = new HotDog(); 
-    hubSubCommands = new HubSubCommands(); 
+    hotDog = new HotDog();
+    hubSubCommands = new HubSubCommands();
 
     // Configure the trigger bindings
     configureBindings();
@@ -188,15 +189,20 @@ public class RobotContainer {
    * Flight joysticks}.
    */
   private void configureBindings() {
-    Command driveFieldOrientedDirectAngle = m_drivebase.driveFieldOriented(driveDirectAngle);
+    // Command driveFieldOrientedDirectAngle =
+    // m_drivebase.driveFieldOriented(driveDirectAngle);
     Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity = m_drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = m_drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
+    // Command driveRobotOrientedAngularVelocity =
+    // m_drivebase.driveFieldOriented(driveRobotOriented);
+    // Command driveSetpointGen =
+    // m_drivebase.driveWithSetpointGeneratorFieldRelative(
+    // driveDirectAngle);
     Command driveFieldOrientedDirectAngleKeyboard = m_drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = m_drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
+    // Command driveFieldOrientedAnglularVelocityKeyboard =
+    // m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+    // Command driveSetpointGenKeyboard =
+    // m_drivebase.driveWithSetpointGeneratorFieldRelative(
+    // driveDirectAngleKeyboard);
 
     if (RobotBase.isSimulation()) {
       m_drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
@@ -259,7 +265,8 @@ public class RobotContainer {
             () -> -m_driverController.getLeftX(),
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                 ? FieldConstants.HUB_POSE_BLUE
-                : FieldConstants.HUB_POSE_RED,  false, 0)
+                : FieldConstants.HUB_POSE_RED,
+            false, 0)
             .alongWith(myLogf("Aiming at hub pose:" +
                 (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                     ? "Blue Hub"
@@ -267,54 +274,60 @@ public class RobotContainer {
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
 
-//commands you need to run sysid. run the logger, then quasistatic forward, reverse; dynamic forward, reverse; end log
-//     m_joystick.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-// m_joystick.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    // commands you need to run sysid. run the logger, then quasistatic forward,
+    // reverse; dynamic forward, reverse; end log
+    // m_joystick.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // m_joystick.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
 
-// /*
-//  * Joystick Y = quasistatic forward
-//  * Joystick A = quasistatic reverse
-//  * Joystick B = dynamic forward
-//  * Joystick X = dyanmic reverse
-//  */
-// m_joystick.y().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-// m_joystick.a().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-// m_joystick.b().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kForward));
-// m_joystick.x().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // /*
+    // * Joystick Y = quasistatic forward
+    // * Joystick A = quasistatic reverse
+    // * Joystick B = dynamic forward
+    // * Joystick X = dyanmic reverse
+    // */
+    // m_joystick.y().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // m_joystick.a().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // m_joystick.b().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // m_joystick.x().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // PositionAndShootCommand
-    //m_driverController.leftTrigger().whileTrue(new PositionAndShootCommand(position, drumstick, hood, catchup, swerve));
+    // m_driverController.leftTrigger().whileTrue(new
+    // PositionAndShootCommand(position, drumstick, hood, catchup, swerve));
   }
 
-  private void operatorBindings(){
-    m_opController.button(1).whileTrue(drumstickSubsystem.shootCommand(2000));
+  private void operatorBindings() {
+    m_opController.button(1).whileTrue(drumstickSubsystem.runToSpeed(500));
     m_opController.button(2).whileTrue(drumstickSubsystem.stopShooter());
 
     m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
     m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
 
-    m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));
+    m_opController.button(5).onTrue(myLogf("Button 15"));
+    //m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));
     m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(0));
 
-    m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
+    m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations
+                                                                                            // needed for extension
     m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpoint(120));
     m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
 
     m_opController.button(10).whileTrue(intakeSpin.intakeSpin(2000))
         .whileFalse(intakeSpin.stopIntake());
-    m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stop());
+    m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
 
-    
     // m_opController.button(12).whileTrue(intakeSpin.intakeSpin(2000))
-    //     .whileFalse(intakeSpin.stopIntake());
+    // .whileFalse(intakeSpin.stopIntake());
     // m_opController.button(13).whileTrue(drumstickSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     // m_opController.button(14).whileTrue(drumstickSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // m_opController.button(15).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // m_opController.button(16).whileTrue(drumstickSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    m_opController.button(12).whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, catchupSubsystem, m_drivebase));
-    m_opController.button(13).whileTrue(new InstantCommand(()->drumstickSubsystem.setShooterSetpoint(positionSubsystem.getShooterRPM())));
-    m_opController.button(14).whileTrue(drumstickSubsystem.shootCommand(positionSubsystem.getShooterRPM()));
-   //m_opController.button(12).whileTrue(hubSubCommands.shootCommand(hotDog, positionSubsystem, catchupSubsystem, drumstickSubsystem, hoodSubsystem));
+    m_opController.button(12).whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem,
+        hoodSubsystem, catchupSubsystem, m_drivebase));
+    m_opController.button(13)
+        .whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM())));
+    m_opController.button(14).onTrue(shootBall());
+    m_opController.button(15).whileTrue(stopShootBall());
+    m_opController.button(16).whileTrue(myLogf("Button 15"));
 
   }
 
@@ -367,4 +380,28 @@ public class RobotContainer {
   public void homing() {
     intakeTilt.zeroEncoder();
   }
+
+  // This command will run the drumstick, catchup,
+  // and hotDog subsystems to shoot the ball.
+  public Command shootBall() {
+    return new SequentialCommandGroup(
+        myLogf("Start shoot ball command"),
+        drumstickSubsystem.runToSpeed(500),
+        myLogf("Shoot speed OK"),
+        hotDog.setVelocitySetpoint(500),
+        Commands.waitSeconds(.1),
+        catchupSubsystem.setCatchupSetpoint(500),
+        myLogf("shoot ball complete"));
+  }
+
+  // Command to stop the drumstick, catchup, and hotDog subsystems after shooting
+  // the ball.
+  public Command stopShootBall() {
+    return new SequentialCommandGroup(
+        drumstickSubsystem.stopShooter(),
+        hotDog.stopHotDog(),
+        catchupSubsystem.stopCatchup(),
+        myLogf("Stop shoot ball command complete"));
+  }
+
 }

@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -180,6 +179,6 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public boolean readyToShoot(DrumstickSubsystem drumstick, HoodSubsystem hood) {
-        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocity() - shooterRPM) <= tolerance;
+        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocityRPM() - shooterRPM) <= tolerance;
     }
 }

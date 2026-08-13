@@ -13,7 +13,7 @@ public class HubSubCommands {
     
     public Command shootCommand(HotDog hotDog, PositionSubsystem position, CatchupSubsystem catchup, DrumstickSubsystem drumstick, HoodSubsystem hood){
         return Commands.runOnce(()->logf("*****Starting shooter command")).andThen(
-        drumstick.shootCommand(position.getShooterRPM())).andThen( 
+        drumstick.runToSpeed(position.getShooterRPM())).andThen( 
         Commands.runOnce(()->logf("*****Continuing shooter command"))).andThen(
         hood.setHoodPosition(position.getHoodPosition())).andThen(
         Commands.waitUntil(()->position.readyToShoot(drumstick, hood))).andThen(
