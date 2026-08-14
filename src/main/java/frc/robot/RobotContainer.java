@@ -273,6 +273,7 @@ public class RobotContainer {
                     : "Red Hub"))));
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
+    m_driverController.y().onTrue(Commands.runOnce(()->hoodSubsystem.zeroEncoder()));
 
     // commands you need to run sysid. run the logger, then quasistatic forward,
     // reverse; dynamic forward, reverse; end log
@@ -302,9 +303,9 @@ public class RobotContainer {
     m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
     m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
 
-    m_opController.button(5).onTrue(myLogf("Button 15"));
-    //m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(1));
-    m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(0));
+    //m_opController.button(5).onTrue(myLogf("Button 15"));
+    m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(0));
+    m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(50));
 
     m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations
                                                                                             // needed for extension
@@ -379,6 +380,7 @@ public class RobotContainer {
 
   public void homing() {
     intakeTilt.zeroEncoder();
+    hoodSubsystem.zeroEncoder();
   }
 
   // This command will run the drumstick, catchup,
@@ -386,11 +388,11 @@ public class RobotContainer {
   public Command shootBall() {
     return new SequentialCommandGroup(
         myLogf("Start shoot ball command"),
-        drumstickSubsystem.runToSpeed(500),
+        drumstickSubsystem.runToSpeed(3000),
         myLogf("Shoot speed OK"),
-        hotDog.setVelocitySetpoint(500),
+        hotDog.setVelocitySetpoint(3000),
         Commands.waitSeconds(.1),
-        catchupSubsystem.setCatchupSetpoint(500),
+        catchupSubsystem.setCatchupSetpoint(3000),
         myLogf("shoot ball complete"));
   }
 

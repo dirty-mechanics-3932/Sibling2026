@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -39,10 +40,9 @@ public class DrumstickSubsystem extends SubsystemBase {
 
         configs.Slot0.kP = 0.0001;
         configs.Slot0.kI = 0.00;
-        configs.Slot0.kD = 0.03;
+        configs.Slot0.kD = 0.0; // Was 0.03
         configs.Slot0.kS = 0.25;
         configs.Slot0.kV = 0.12;
-
         configs.MotorOutput.withNeutralMode(NeutralModeValue.Coast);
 
         m_velocityLeader.getConfigurator().apply(configs);
