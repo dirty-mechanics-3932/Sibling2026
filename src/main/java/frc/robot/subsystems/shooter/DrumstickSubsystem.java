@@ -7,7 +7,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -26,7 +25,7 @@ public class DrumstickSubsystem extends SubsystemBase {
    private final VoltageOut m_voltReq = new VoltageOut(0.0); 
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
-    private double tolerance = 50;
+    private double tolerance = 500;
      private double targetRPM = 0;
 
     public DrumstickSubsystem() {

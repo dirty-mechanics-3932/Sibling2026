@@ -21,7 +21,7 @@ public class Robot extends TimedRobot
 {
 
   public static long count = 0;
-  public static Alliance alliance = Alliance.Red;
+  public static Alliance alliance = Alliance.Blue;
   private static Robot instance;
   private Command m_autonomousCommand;
 
@@ -115,6 +115,7 @@ public class Robot extends TimedRobot
   {
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    alliance = DriverStation.getAlliance().orElseThrow();
 
     //Print the selected autonomous command upon autonomous init
     System.out.println("Auto selected: " + m_autonomousCommand);
@@ -138,6 +139,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    alliance = DriverStation.getAlliance().orElseThrow();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

@@ -6,9 +6,12 @@ package frc.robot;
 
 import static frc.robot.utilities.Util.logf;
 
+import java.io.File;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,9 +19,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,19 +34,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
 import frc.robot.commands.shooter.PositionAndShootCommand;
+import frc.robot.subsystems.hotDog.HotDog;
+import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.PositionSubsystem;
-import frc.robot.subsystems.hotDog.HotDog;
-import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.vision.FieldConstants;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystemV2;
-
-import java.io.File;
 import swervelib.SwerveInputStream;
 
 /**
@@ -84,8 +84,8 @@ public class RobotContainer {
    * by angular velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getM_swerveDrive(),
-      () -> m_driverController.getLeftY() * -1,
-      () -> m_driverController.getLeftX() * -1)
+      () -> m_driverController.getLeftY(),
+      () -> m_driverController.getLeftX())
       .withControllerRotationAxis(() -> m_driverController.getRightX() * -1)
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.4)
@@ -273,7 +273,7 @@ public class RobotContainer {
                     : "Red Hub"))));
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
-    m_driverController.y().onTrue(Commands.runOnce(()->hoodSubsystem.zeroEncoder()));
+   
 
     // commands you need to run sysid. run the logger, then quasistatic forward,
     // reverse; dynamic forward, reverse; end log
@@ -299,20 +299,15 @@ public class RobotContainer {
   private void operatorBindings() {
     m_opController.button(1).whileTrue(drumstickSubsystem.runToSpeed(500));
     m_opController.button(2).whileTrue(drumstickSubsystem.stopShooter());
-
     m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
     m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
-
-    //m_opController.button(5).onTrue(myLogf("Button 15"));
     m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(0));
-    m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(50));
-
-    m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations
-                                                                                            // needed for extension
+    m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(30));
+    // To figure out rotations needed for extension
+    m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); 
     m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpoint(120));
     m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
-
-    m_opController.button(10).whileTrue(intakeSpin.intakeSpin(2000))
+    m_opController.button(10).whileTrue(intakeSpin.intakeSpin(3500))
         .whileFalse(intakeSpin.stopIntake());
     m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
 
@@ -328,8 +323,6 @@ public class RobotContainer {
         .whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM())));
     m_opController.button(14).onTrue(shootBall());
     m_opController.button(15).whileTrue(stopShootBall());
-    m_opController.button(16).whileTrue(myLogf("Button 15"));
-
   }
 
   private Pose2d getInitPose() {
@@ -380,19 +373,19 @@ public class RobotContainer {
 
   public void homing() {
     intakeTilt.zeroEncoder();
-    hoodSubsystem.zeroEncoder();
+    hoodSubsystem.setPositionWithEncoder(0); 
   }
 
   // This command will run the drumstick, catchup,
   // and hotDog subsystems to shoot the ball.
   public Command shootBall() {
     return new SequentialCommandGroup(
-        myLogf("Start shoot ball command"),
-        drumstickSubsystem.runToSpeed(3000),
+        myLogf("Start shoot ball command %.3f", positionSubsystem.getShooterRPM()),
+        drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM()),
         myLogf("Shoot speed OK"),
         hotDog.setVelocitySetpoint(3000),
         Commands.waitSeconds(.1),
-        catchupSubsystem.setCatchupSetpoint(3000),
+        catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM()),
         myLogf("shoot ball complete"));
   }
 

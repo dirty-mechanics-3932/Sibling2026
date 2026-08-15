@@ -114,10 +114,10 @@ public class VisionSubsystemV2 extends SubsystemBase {
     // You can optionally tune standard deviations here; see YAGSL docs for "Tuning
     // out Drift"
     int tagCount = LimelightHelpers.getRawFiducials(m_cameraName).length;
-    if (Robot.count % 500 == 0) {
+    if (Robot.count % 200 == 0) {
       logf("%s TV:%b tagCount:%d pX:%.3f pY:%.3f ", m_cameraName, tv, tagCount, pose.getX(), pose.getY());
     }
-    if (tv && tagCount > 0 && (pose.getX() != 0 || pose.getY() != 0)) {
+    if (tv && tagCount >= 0 && (pose.getX() != 0 || pose.getY() != 0)) {
       cyclecount++;
       if (cyclecount >= 5) {
         m_swerveDrive.getSwerveDrive().addVisionMeasurement(pose, imageCaptureTime);
