@@ -305,10 +305,11 @@ public class RobotContainer {
     m_opController.button(6).whileTrue(hoodSubsystem.setHoodPosition(30));
     // To figure out rotations needed for extension
     m_opController.button(7).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); 
-    m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpoint(120));
+    m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(-30));
     m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
-    m_opController.button(10).whileTrue(intakeSpin.intakeSpin(3500))
-        .whileFalse(intakeSpin.stopIntake());
+    m_opController.button(10).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(-5));
+    //m_opController.button(10).whileTrue(intakeSpin.intakeSpin(3500))
+    //    .whileFalse(intakeSpin.stopIntake());
     m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
 
     // m_opController.button(12).whileTrue(intakeSpin.intakeSpin(2000))

@@ -80,7 +80,8 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public Command setHoodPosition(double valueDeg) {
-        return Commands.run(() -> setPositionWithEncoder(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)), this)
+        return Commands
+                .run(() -> setPositionWithEncoder(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)), this)
                 .until(() -> atPosition(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)));
     }
 
@@ -89,24 +90,25 @@ public class HoodSubsystem extends SubsystemBase {
         m_hoodMotor.setControl(motionMagicVoltage.withPosition(targetPositionRot));
     }
 
-
     public Command stop() {
         return Commands.runOnce(() -> m_hoodMotor.stopMotor());
     }
 
     public boolean atPosition(double targetRot) {
-        double targetDeg = targetRot * 360; 
+        double targetDeg = targetRot * 360;
         SmartDashboard.putNumber("Hoodpos - target", Math.abs(getHoodPositionInDeg() - targetDeg));
         return Math.abs(getHoodPositionInDeg() - targetDeg) <= toleranceDeg;
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Hood Position", getHoodPositionInDeg());
-        SmartDashboard.putNumber("Hood Target", targetPositionRot * 360);
-        SmartDashboard.putNumber("Tolerance", toleranceDeg);
-        SmartDashboard.putBoolean("Hood At Position", atPosition(targetPositionRot));
-        if (Robot.count % 50 * 2 == 0) {
+        if (Robot.count % 20 == 6) {
+            SmartDashboard.putNumber("Hood Position", getHoodPositionInDeg());
+            SmartDashboard.putNumber("Hood Target", targetPositionRot * 360);
+            SmartDashboard.putNumber("Tolerance", toleranceDeg);
+            SmartDashboard.putBoolean("Hood At Position", atPosition(targetPositionRot));
+        }
+        if (Robot.count % 1000 == 0) {
             logf("Hood Position: %.2f, Target: %.2f, At Position: %b", getHoodPositionInDeg(), targetPositionRot * 360,
                     atPosition(targetPositionRot));
         }
