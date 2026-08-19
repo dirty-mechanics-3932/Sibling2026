@@ -34,11 +34,12 @@ public class IntakeTilt extends SubsystemBase {
     private double cruiseVelocityRps = 20.0;
     private double accelerationRpsPerSec = 40.0;
     private double jerkRpsPerSec2 = 400.0; // 0 disables jerk limiting (trapezoidal only)
+    private double bounceIntakeAngle = 80.0; // make method for this later
 
     // Current limiting
     private double statorCurrentLimitAmps = 40.0; // hard safety limit for all motion
     private double supplyCurrentLimitAmps = 30.0; // limits draw from the battery/PDH
-    private double homingCurrentAmps = 2.0; // 8.0; // gentle, fixed current used while homing
+    private double homingCurrentAmps = 8.0; // 8.0; // gentle, fixed current used while homing
 
     double motorRotations;
     private double lastPositionDeg;
@@ -112,7 +113,8 @@ public class IntakeTilt extends SubsystemBase {
             // Drive toward the hard stop at a fixed, gentle current instead of a raw
             // duty cycle, so torque (and heat/stress at the stop) stays bounded
             // regardless of battery voltage or how hard the mechanism binds.
-            tiltMotor.setControl(homingCurrent.withOutput(homingCurrentAmps));
+            // tiltMotor.setControl(homingCurrent.withOutput(homingCurrentAmps));
+            tiltMotor.set(-0.15);
             homing = true;
             homed = false;
             logf("Starting Intake Homing");
