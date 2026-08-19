@@ -752,7 +752,6 @@ public class SwerveSubsystem extends SubsystemBase
         robotPose.getRotation().getRadians(),
         targetHeading.getRadians());
 
-
       logf("Omega: %.2f", omega);
 
       drive(

@@ -263,9 +263,7 @@ public class RobotContainer {
         m_drivebase.aimAtPoseCommand(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                ? FieldConstants.HUB_POSE_BLUE
-                : FieldConstants.HUB_POSE_RED,
+            () -> positionSubsystem.getTarget(),
             false, 0)
             .alongWith(myLogf("Aiming at hub pose:" +
                 (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
@@ -274,6 +272,9 @@ public class RobotContainer {
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
    
+    // DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+    //             ? FieldConstants.HUB_POSE_BLUE
+    //             : FieldConstants.HUB_POSE_RED,
 
     // commands you need to run sysid. run the logger, then quasistatic forward,
     // reverse; dynamic forward, reverse; end log

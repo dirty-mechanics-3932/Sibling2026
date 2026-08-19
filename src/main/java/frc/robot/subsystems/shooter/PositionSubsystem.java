@@ -155,6 +155,10 @@ public class PositionSubsystem extends SubsystemBase {
         return targetHeading;
     }
 
+    public Pose2d getTarget() {
+        return target;
+    }
+
     public boolean isInNeutralZone() {
         if (target == null) return false;
         Pose2d pose = m_drivebase.getPose();
