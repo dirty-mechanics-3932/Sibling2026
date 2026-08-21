@@ -32,12 +32,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.subsystems.shooter.PositionSubsystem;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -61,6 +64,7 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive m_swerveDrive;
+  private final PositionSubsystem m_positionSubsystem;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
   private boolean shootBackward = false; //0 is forward, 1 is backward
   int targetShootingSide;
@@ -116,8 +120,9 @@ public class SwerveSubsystem extends SubsystemBase
    * @param driveCfg      SwerveDriveConfiguration for the swerve.
    * @param controllerCfg Swerve Controller.
    */
-  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
+  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg, PositionSubsystem positionSubsystem)
   {
+    m_positionSubsystem = positionSubsystem;
     m_swerveDrive = new SwerveDrive(driveCfg,
                                   controllerCfg,
                                   Constants.MAX_SPEED,
@@ -131,6 +136,12 @@ public class SwerveSubsystem extends SubsystemBase
     robotPose = getPose();
     m_currentRobotPose = m_swerveDrive.field.getRobotPose();
     publisher.set(m_currentRobotPose);
+
+    SmartDashboard.putNumber("getPose()", getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("robotPose", robotPose.getRotation().getDegrees());
+
+    Translation2d delta = m_positionSubsystem.getTarget().getTranslation().minus(getPose().getTranslation());
+    SmartDashboard.putNumber("Delta Angle", delta.getAngle().getDegrees());
   }
 
   @Override
@@ -721,7 +732,6 @@ public class SwerveSubsystem extends SubsystemBase
     Supplier<Pose2d> targetPose, 
     Boolean fixPos,
     int pos) {
-
     
     logf("Command starting");
     targetShootingSide = pos;
@@ -736,23 +746,32 @@ public class SwerveSubsystem extends SubsystemBase
         }
       }
 
-       Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+      SmartDashboard.putBoolean("Backwards Shooting", shootBackward(targetPose));
+      SmartDashboard.putNumber("Side", targetShootingSide);
+
+      Translation2d delta = targetPose.get().getTranslation().minus(getPose().getTranslation());
 
       if (pos == 1){ //shoot with front
-         targetHeading = delta.getAngle();
-      } else {
+        if (getPose().getY() < targetPose.get().getY()) {
+          targetHeading = new Rotation2d(180).minus(delta.getAngle());
+          //targetHeading = (delta.getAngle().times(-1)).plus(new Rotation2d(180));
+        } else {
+          targetHeading = delta.getAngle().minus(new Rotation2d(180));
+        }
+
+      } else { //shooting from the back
          targetHeading = delta.getAngle().plus(new Rotation2d(180)); //shoot with back
       }
-  
       
-      logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
-      logf("Translations: %,2f", delta);
+      SmartDashboard.putNumber("Target Heading", targetHeading.getDegrees());
+      SmartDashboard.putNumber("Delta Angle", delta.getAngle().getDegrees());
+      // SmartDashboard.putNumber("Translations: %,2f", delta);
 
       double omega = headingPID.calculate(
-        robotPose.getRotation().getRadians(),
+        getPose().getRotation().getRadians(),
         targetHeading.getRadians());
 
-      logf("Omega: %.2f", omega);
+      SmartDashboard.putNumber("Omega", omega);
 
       drive(
         SwerveMath.scaleTranslation(
@@ -762,7 +781,6 @@ public class SwerveSubsystem extends SubsystemBase
             0.4),
             omega,
             true);
-      
     },
     this
     );

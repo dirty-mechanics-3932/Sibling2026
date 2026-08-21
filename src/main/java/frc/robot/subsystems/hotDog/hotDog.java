@@ -1,6 +1,5 @@
 package frc.robot.subsystems.hotDog;
 
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -10,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class HotDog {
-     public final  TalonFX m_velocityMotor;
+    public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
 
