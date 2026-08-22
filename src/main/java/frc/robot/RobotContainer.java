@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 import static frc.robot.utilities.Util.logf;
 
 import java.io.File;
@@ -298,27 +300,27 @@ public class RobotContainer {
   }
 
   private void operatorBindings() {
-    m_opController.button(1).whileTrue(intakeSpin.intakeSpin(3000));
+    m_opController.button(1).whileTrue(intakeSpin.intakeSpin(RPM.of(3000)));
     m_opController.button(2).whileTrue(intakeSpin.stopIntake());
     // m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
     // m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
     // m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(0));
     // To figure out rotations needed for extension
 
-    m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(5));
-    m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(-5));
+    m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(Degrees.of(5)));
+    m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(Degrees.of(-5)));
     m_opController.button(5).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
-    m_opController.button(6).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(20));
-    m_opController.button(7).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(45));
-    m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(135));
+    m_opController.button(6).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(Degrees.of(20)));
+    m_opController.button(7).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(Degrees.of(45)));
+    m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(Degrees.of(135)));
     //m_opController.button(10).whileTrue(intakeSpin.intakeSpin(3500))
     //    .whileFalse(intakeSpin.stopIntake());
-    m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
+    m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(RPM.of(1000))).whileFalse(hotDog.stopHotDog());
 
     m_opController.button(12).whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem,
         hoodSubsystem, catchupSubsystem, m_drivebase));
     m_opController.button(13)
-        .whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM())));
+        .whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(RPM.of(positionSubsystem.getShooterRPM()))));
     m_opController.button(14).onTrue(shootBall());
     m_opController.button(15).whileTrue(stopShootBall());
   }
@@ -379,11 +381,11 @@ public class RobotContainer {
   public Command shootBall() {
     return new SequentialCommandGroup(
         myLogf("Start shoot ball command %.3f", positionSubsystem.getShooterRPM()),
-        drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM()),
+        drumstickSubsystem.runToSpeed(RPM.of(positionSubsystem.getShooterRPM())),
         myLogf("Shoot speed OK"),
-        hotDog.setVelocitySetpoint(3000),
+        hotDog.setVelocitySetpoint(RPM.of(3000)),
         Commands.waitSeconds(.1),
-        catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM()),
+        catchupSubsystem.setCatchupSetpoint(RPM.of(positionSubsystem.getShooterRPM())),
         myLogf("shoot ball complete"));
   }
 

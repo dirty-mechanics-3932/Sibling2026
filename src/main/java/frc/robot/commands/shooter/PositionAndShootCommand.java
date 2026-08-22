@@ -1,5 +1,7 @@
 package frc.robot.commands.shooter;
 
+import static edu.wpi.first.units.Units.RPM;
+
 //import static frc.robot.utilities.Util.logf;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -33,7 +35,7 @@ public class PositionAndShootCommand extends Command {
   @Override
   public void initialize() {
      // Spin flywheel
-   m_drumstickSubsystem.runToSpeed(m_positionSubsysten.getShooterRPM());
+   m_drumstickSubsystem.runToSpeed(RPM.of(m_positionSubsysten.getShooterRPM()));
   }
 
 

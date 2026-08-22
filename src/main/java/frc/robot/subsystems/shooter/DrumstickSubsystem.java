@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.RPM;
 import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -10,6 +11,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,7 +29,7 @@ public class DrumstickSubsystem extends SubsystemBase {
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
     private double tolerance = 500;
-     private double targetRPM = 0;
+     private AngularVelocity targetRPM = RPM.of(0);
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs
@@ -57,13 +60,13 @@ public class DrumstickSubsystem extends SubsystemBase {
     //     SmartDashboard.putBoolean("Drumstick At Speed", atSpeed(value/60));
     // }
 
-    public void  setVelocityRPM(double rpm) {
-        m_velocityLeader.setControl(velocityRequest.withVelocity(rpm / 60).withEnableFOC(true));
+    public void setVelocityRPM(AngularVelocity rpm) {
+        m_velocityLeader.setControl(velocityRequest.withVelocity(rpm).withEnableFOC(true));
         targetRPM = rpm;
     }
 
     // This command will run the shooter until it reaches the target speed, then return.
-    public Command runToSpeed(double rpm) {
+    public Command runToSpeed(AngularVelocity rpm) {
         return Commands.run(() -> setVelocityRPM(rpm), this).until(() -> atSpeed(rpm));
     }
 
@@ -76,9 +79,12 @@ public class DrumstickSubsystem extends SubsystemBase {
         return m_velocityLeader.getVelocity().getValueAsDouble() * 60;
     }
 
-    public boolean atSpeed(double target) {
-        return Math.abs(getVelocityRPM() - target) <= tolerance;
+    public boolean atSpeed(AngularVelocity target) {
+        return Math.abs(getVelocityRPM() - target.in(RPM)) <= tolerance;
     }
+
+    // Overload so callers can pass the AngularVelocity-typed targetRPM directly.
+
 
     public Command stopShooter() {
         return Commands.runOnce(()->m_velocityLeader.stopMotor());
@@ -113,7 +119,7 @@ public class DrumstickSubsystem extends SubsystemBase {
         }
         if (Robot.count % 100 == 0 && Math.abs(getVelocityRPM()) != 0) {
             logf("Drum Velocity:%.2f, At Speed:%b Target:%.2f",
-                    getVelocityRPM(), atSpeed(targetRPM), targetRPM);
+                    getVelocityRPM(), atSpeed(targetRPM), targetRPM.in(RPM));
         }
         
     }

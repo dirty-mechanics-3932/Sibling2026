@@ -1,4 +1,5 @@
 package frc.robot.subsystems.intake;
+import static edu.wpi.first.units.Units.Degrees;
 import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -45,6 +47,7 @@ public class IntakeTilt extends SubsystemBase {
     private double lastPositionDeg;
     private boolean homing = false, homed = false;
     private int zeroEncoderCount = 0;
+    private double degToDouble;
 
     public IntakeTilt() {
         tiltMotor = new TalonFX(21); // Remember to set the motor IDs
@@ -85,22 +88,25 @@ public class IntakeTilt extends SubsystemBase {
         tiltMotor.setPosition(0);
     }
 
-    public Command setIntakeTiltSetpointDeg(double value) {
-        return Commands.runOnce(() -> moveIntakeDeg(value));
+    public Command setIntakeTiltSetpointDeg(Angle degrees) {
+        degToDouble = degrees.in(Degrees);
+        return Commands.runOnce(() -> moveIntakeDeg(degrees));
     }
 
-    public Command moveIntakeTiltDeltaDeg(double value) {
-        return Commands.runOnce(() -> moveIntakeDeg(lastPositionDeg + value));
+    public Command moveIntakeTiltDeltaDeg(Angle degrees) {
+        degToDouble = degrees.in(Degrees);
+        return Commands.runOnce(() -> moveIntakeDeg(degrees));
     }
 
-    private void moveIntakeDeg(double degrees) {
+    private void moveIntakeDeg(Angle degrees) {
         if (!homed) {
             logf("********  Tried to move intake it was not homed");
             return;
         }
-        degrees = MathUtil.clamp(degrees, MIN_ANGLE, MAX_ANGLE);
-        lastPositionDeg = degrees;
-        double rots = degrees * gearRatio / 360.0;
+        degToDouble = degrees.in(Degrees);
+        degToDouble = MathUtil.clamp(degToDouble, MIN_ANGLE, MAX_ANGLE);
+        lastPositionDeg = degToDouble;
+        double rots = degToDouble * gearRatio / 360.0;
         tiltMotor.setControl(motionMagicVoltage.withPosition(rots).withEnableFOC(true));
     }
 

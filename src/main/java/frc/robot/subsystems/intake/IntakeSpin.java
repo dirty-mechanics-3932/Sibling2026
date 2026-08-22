@@ -4,7 +4,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,12 +33,12 @@ public class IntakeSpin extends SubsystemBase {
         m_intakeSpinMotor.getConfigurator().apply(config);
     }
 
-    public void setVelocitySetpoint(double value) {
-        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true));
+    public void setVelocitySetpoint(AngularVelocity valueRPM) {
+        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(valueRPM).withEnableFOC(true));
     }
 
-    public Command intakeSpin(double value) {
-        return Commands.runOnce(()->setVelocitySetpoint(value));
+    public Command intakeSpin(AngularVelocity valueRPM) {
+        return Commands.runOnce(()->setVelocitySetpoint(valueRPM));
     }
 
     public double getVelocity() {
