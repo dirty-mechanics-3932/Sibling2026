@@ -34,16 +34,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
 import frc.robot.commands.shooter.PositionAndShootCommand;
+import frc.robot.subsystems.Pose.FieldConstants;
+import frc.robot.subsystems.Pose.PositionSubsystem;
+import frc.robot.subsystems.Pose.VisionSubsystemV2;
 import frc.robot.subsystems.hotDog.HotDog;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.shooter.PositionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.subsystems.vision.FieldConstants;
-import frc.robot.subsystems.vision.VisionSubsystemV2;
 import swervelib.SwerveInputStream;
 
 /**

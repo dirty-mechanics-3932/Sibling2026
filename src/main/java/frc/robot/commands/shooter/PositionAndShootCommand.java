@@ -2,13 +2,13 @@ package frc.robot.commands.shooter;
 
 //import static frc.robot.utilities.Util.logf;
 
-//import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
+import frc.robot.subsystems.Pose.PositionSubsystem;
 //import frc.robot.Robot;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.shooter.PositionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class PositionAndShootCommand extends Command {
@@ -39,15 +39,12 @@ public class PositionAndShootCommand extends Command {
 
     @Override
     public void execute(){
-       
-        
-
         // Angle hood
-       // m_hoodSubsystem.setHoodPosition(m_positionSubsysten.getHoodPosition());
+        // m_hoodSubsystem.setHoodPosition(m_positionSubsysten.getHoodPosition());
 
         // Aim robot code
-        //double targetDirection = m_positionSubsysten.getTargetHeading() - m_drivebase.getHeading().getDegrees() * 0.1;
-        //m_drivebase.drive(new Translation2d(), targetDirection, true);
+        double targetDirection = m_positionSubsysten.getTargetHeading(); // - m_drivebase.getHeading().getDegrees() * 0.1;
+        m_drivebase.drive(new Translation2d(), targetDirection, true);
 
         // if(m_positionSubsysten.readyToShoot(m_drumstickSubsystem, m_hoodSubsystem)) {
         //     if (Robot.showAllLogs && Robot.count % 50 == 5) {

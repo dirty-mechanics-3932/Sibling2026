@@ -39,7 +39,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.subsystems.shooter.PositionSubsystem;
+import frc.robot.subsystems.Pose.PositionSubsystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive m_swerveDrive;
-  private final PositionSubsystem m_positionSubsystem;
+  private PositionSubsystem m_positionSubsystem;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
   private boolean shootBackward = false; //0 is forward, 1 is backward
   int targetShootingSide;
@@ -690,6 +690,7 @@ public class SwerveSubsystem extends SubsystemBase
    *
    * @return {@link SwerveDrive}
    */
+  //TODO: just make m_swerveDrive public, it does the same thing but less confusing
   public SwerveDrive getM_swerveDrive()
   {
     return m_swerveDrive;

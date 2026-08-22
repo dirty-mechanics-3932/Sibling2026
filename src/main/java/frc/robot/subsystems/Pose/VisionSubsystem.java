@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision;
+package frc.robot.subsystems.Pose;
 
 import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.utilities.Util.logf;
@@ -9,7 +9,6 @@ import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
-//import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -21,7 +20,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utilities.LimelightHelpers;
 import frc.robot.utilities.LimelightHelpers.LimelightResults;
 import frc.robot.utilities.LimelightHelpers.PoseEstimate;
-import com.ctre.phoenix6.hardware.Pigeon2;
+import frc.robot.utilities.LimelightHelpers.RawFiducial;
 
 import java.util.Optional;
 
@@ -29,11 +28,12 @@ import java.util.Optional;
 public class VisionSubsystem extends SubsystemBase {
 
   // --- Tuning constants ---
+  private static final double MAX_TAG_AMBIGUITY = 0.7;
   private static final double MAX_TAG_DISTANCE_METERS = 4.0;
-  private static final double MIN_TAG_SPAN_METERS     = 0.5; // only enforced with 2+ tags
-  private static final double SINGLE_TAG_XY_STDDEV    = 0.9;
-  private static final double MULTI_TAG_XY_STDDEV     = 0.3;
-  private static final double ROT_STDDEV              = 9999.0; // let gyro handle rotation
+  private static final double MIN_TAG_SPAN_METERS = 0.5; // only enforced with 2+ tags
+  private static final double SINGLE_TAG_XY_STDDEV = 0.7;
+  private static final double MULTI_TAG_XY_STDDEV = 0.3;
+  private static final double ROT_STDDEV = 9999.0; // let gyro handle rotation
   private boolean testLog = false;
 
   // --- Identity ---
@@ -44,34 +44,42 @@ public class VisionSubsystem extends SubsystemBase {
   private final SwerveSubsystem m_swerveDrive;
 
   // --- Cached state (refreshed every periodic) ---
-  private boolean       m_tv   = false;
-  private Pose2d        m_pose = new Pose2d();
-  private PoseEstimate  m_mt2  = null;
-  private double m_mt2_yaw;
+  private boolean m_mt_tv = false;
+  private Pose2d m_pose = new Pose2d();
+  private PoseEstimate m_mt = null;
+  private RawFiducial[] m_rawFiducials;
+  private double m_mt_yaw;
   int tagCount;
 
-  // Initialize with the CAN ID configured in Phoenix Tuner X
-  Pigeon2 pigeon = new Pigeon2(14); 
-
-  // --- Field layout (shared across all instances) ---
-  private static final AprilTagFieldLayout FIELD_LAYOUT =
-      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+  // --- Field layout (shared across all instances) --- Actually this is loaded as
+  // a separate instance for each camera, this is not global even though the info
+  // contained should be
+  private static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout
+      .loadField(AprilTagFields.k2026RebuiltWelded);
 
   // --- NT publisher ---
   private final StructPublisher<Pose2d> m_publisher;
 
   public static class NoValidPoseException extends Exception {
-    public NoValidPoseException(String msg) { super("Pose unavailable: " + msg); }
+    public NoValidPoseException(String msg) {
+      super("Pose unavailable: " + msg);
+    }
   }
 
   public VisionSubsystem(SwerveSubsystem swerveDrive, String cameraName, String shortName) {
     m_swerveDrive = swerveDrive;
-    m_cameraName  = cameraName;
-    m_shortName   = shortName;
+    m_cameraName = cameraName;
+    m_shortName = shortName;
 
-    setName(cameraName);
+    setName(m_cameraName);
 
-    LimelightHelpers.SetIMUMode(m_cameraName, 3);
+    // LimelightHelpers.SetIMUMode(m_cameraName, 3); //2 of our 3 cameras don't have
+    // IMUs so this is hurting more than helping.
+    LimelightHelpers.SetIMUMode(m_cameraName, 0); // 0 means robot only uses pidgeon for imu measurments
+
+    if (shortName == "rear")
+      LimelightHelpers.SetFiducialIDFiltersOverride(m_cameraName,
+          new int[] { 2, 3, 4, 5, 8, 9, 10, 11, 18, 19, 20, 21, 24, 25, 26, 27 });
 
     m_publisher = NetworkTableInstance.getDefault()
         .getStructTopic(m_shortName + ":MyPose", Pose2d.struct)
@@ -84,44 +92,41 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    tagCount = LimelightHelpers.getRawFiducials(m_cameraName).length;
+    // tagCount = LimelightHelpers.getRawFiducials(m_cameraName).length;
+    tagCount = LimelightHelpers.getTargetCount(m_cameraName);
+    m_rawFiducials = LimelightHelpers.getRawFiducials(m_cameraName);
     try {
-      Pose2d robotPose = m_swerveDrive.getPose();
-      double yaw = pigeon.getYaw().getValueAsDouble();
-      double yawRate = pigeon.getAngularVelocityZWorld().getValueAsDouble();
+      // First, tell Limelight your robot's current orientation
+      double robotYaw = m_swerveDrive.getPose().getRotation().getDegrees();
+      LimelightHelpers.SetRobotOrientation(m_cameraName, robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-      // LimelightHelpers.SetRobotOrientation(
-      //     m_cameraName,
-      //     m_swerveDrive.getPose().getRotation().getDegrees(),
-      //     0,
-      //     0.0,
-      //     0.0,
-      //     0.0,
-      //     0.0
-      // );
+      // this set of variables was never implemented?
+      // Pose2d robotPose = m_swerveDrive.getPose();
+      // double yaw = pigeon.getYaw().getValueAsDouble();
+      // double yawRate = pigeon.getAngularVelocityZWorld().getValueAsDouble();
 
-      // Fetch once per loop — reuse m_mt1 everywhere below.
-      // m_mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
-      
-      m_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
+      // Get pose estimate from camera
+      m_mt = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
+      m_mt_yaw = m_mt.pose.getRotation().getDegrees();
+      m_mt_tv = LimelightHelpers.getTV(m_cameraName);
 
-      m_mt2_yaw = m_mt2.pose.getRotation().getDegrees();
-      m_tv  = LimelightHelpers.getTV(m_cameraName);
+      SmartDashboard.putNumber(m_shortName + "-TagCount", tagCount);
+      SmartDashboard.putBoolean(m_shortName + "-TV", m_mt_tv);
 
-      SmartDashboard.putBoolean(m_shortName + "-TV", m_tv);
-      SmartDashboard.putNumber(m_shortName + "-TagCount",
-           tagCount);
+      // This should not be here it is trippling the resource requirements by logging
+      // the same info 3 times every single cycle
+      // if (m_mt != null) {
+      // SmartDashboard.putNumber("Swerve Heading",
+      // m_swerveDrive.getPose().getRotation().getDegrees());
+      // SmartDashboard.putNumber("Pigeon Heading",
+      // pigeon.getYaw().getValueAsDouble());
+      // SmartDashboard.putNumber(m_shortName + " VHead", m_mt_yaw);
+      // }
 
-      if (m_mt2 != null) {
-        SmartDashboard.putNumber("Swerve Heading", m_swerveDrive.getPose().getRotation().getDegrees());
-        // SmartDashboard.putNumber("Pigeon Heading", pigeon.getYaw().getValueAsDouble());
-        SmartDashboard.putNumber(m_shortName + " VHead", m_mt2_yaw);
-      }
-
-      if (m_tv && m_mt2 != null && tagCount > 0) {
+      if (m_mt_tv && m_mt != null && tagCount > 0) {
         // Cache pose once so all helpers share the same snapshot.
-        m_pose = m_mt2.pose;
-        updateSwerveOdometry(m_mt2);
+        m_pose = m_mt.pose;
+        updateSwerveOdometry(m_mt);
         updateSmartDashboard();
       }
 
@@ -138,39 +143,51 @@ public class VisionSubsystem extends SubsystemBase {
    * Applies the vision measurement to the swerve pose estimator.
    *
    * Quality gates (all must pass):
-   *   1. At least one tag visible
-   *   2. Pose not at origin (Limelight default when no fix)
-   *   3. Tag not too far away
-   *   4. Multi-tag span not too narrow (if 2+ tags)
+   * 1. At least one tag visible
+   * 2. Pose not at origin (Limelight default when no fix)
+   * 3. Tag not too far away
+   * 4. Multi-tag span not too narrow (if 2+ tags)
    */
-  private void updateSwerveOdometry(PoseEstimate mt2) {
-    Pose2d pose = mt2.pose;
+  private void updateSwerveOdometry(PoseEstimate mt) {
+    Pose2d pose = mt.pose;
 
-    // Gate 1 – origin guard
-    if (pose.getX() == 0.0 && pose.getY() == 0.0) return;
+    if (tagCount == 1 && m_rawFiducials.length == 1) {
+      if (m_rawFiducials[0].ambiguity > MAX_TAG_AMBIGUITY) {
+        return;
+      }
+      if (m_rawFiducials[0].distToCamera > MAX_TAG_DISTANCE_METERS) {
+        return;
+      }
+    }
+
+    // Gate 1 – origin guard (if camera claims robot at 0,0 data is bad)
+    if (pose.getX() == 0.0 && pose.getY() == 0.0)
+      return;
 
     // Gate 2 – distance
-    if (mt2.avgTagDist > MAX_TAG_DISTANCE_METERS) return;
+    if (mt.avgTagDist > MAX_TAG_DISTANCE_METERS)
+      return;
 
     // Gate 3 – multi-tag span (skip for single-tag; span is 0)
-    if (tagCount >= 2 && mt2.tagSpan < MIN_TAG_SPAN_METERS) return;
+    if (tagCount >= 2 && mt.tagSpan < MIN_TAG_SPAN_METERS)
+      return;
+
+    double gyroRate = m_swerveDrive.getRobotVelocity().omegaRadiansPerSecond;
+
+    if (Math.abs(gyroRate) > 360) {
+      return;
+    }
 
     // Use the timestamp that comes directly from the PoseEstimate — it is
     // already the FPGA-adjusted capture time (pipeline + capture latency baked in).
-    double captureTimestamp = mt2.timestampSeconds;
+    double captureTimestamp = mt.timestampSeconds;
 
     // Scale std devs by distance: further = less trust.
-    double distScale = 1.0 + mt2.avgTagDist * 0.3;
+    double distScale = 1.0 + mt.avgTagDist * 0.3;
     double xyStdDev = (tagCount >= 2 ? MULTI_TAG_XY_STDDEV : SINGLE_TAG_XY_STDDEV)
-                      * distScale;
+        * distScale;
     Matrix<N3, N1> stdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(),
         xyStdDev, xyStdDev, ROT_STDDEV);
-    
-    double gyroRate = pigeon.getAngularVelocityZWorld().getValueAsDouble();
-
-    if (Math.abs(gyroRate) > 360) {
-        return;
-    }
 
     m_swerveDrive.getM_swerveDrive().addVisionMeasurement(pose, captureTimestamp, stdDevs);
   }
@@ -181,7 +198,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   /** Returns a human-readable summary of the latest vision result. */
   public String getVisionResult() {
-    if (m_tv) {
+    if (m_mt_tv) {
       return String.format(
           "%s Tag:%d X:%.3f Y:%.3f R:%.2f",
           m_shortName,
@@ -194,13 +211,16 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   /**
-   * Returns the robot's estimated field pose from the most recent Limelight frame.
+   * Returns the robot's estimated field pose from the most recent Limelight
+   * frame.
    * Uses the cached PoseEstimate; never triggers a new NT read.
    */
   public Optional<Pose2d> getRobotPose() {
-    if (m_mt2 == null || !m_tv || tagCount == 0) return Optional.empty();
-    Pose2d p = m_mt2.pose;
-    if (p.getX() == 0.0 && p.getY() == 0.0) return Optional.empty();
+    if (m_mt == null || !m_mt_tv || tagCount == 0)
+      return Optional.empty();
+    Pose2d p = m_mt.pose;
+    if (p.getX() == 0.0 && p.getY() == 0.0)
+      return Optional.empty();
     return Optional.of(p);
   }
 
@@ -208,8 +228,11 @@ public class VisionSubsystem extends SubsystemBase {
    * Returns the field pose of the currently targeted AprilTag, if any.
    * Uses cached tv so this is safe to call frequently.
    */
+  // what is the point of this? especially since we know the position of all april
+  // tags always, and cannot distinguish which april tage to return in the method
   public Optional<Pose2d> getCurrentTargetPose() {
-    if (!m_tv) return Optional.empty();
+    if (!m_mt_tv)
+      return Optional.empty();
     try {
       int id = (int) LimelightHelpers.getFiducialID(m_cameraName);
       return FIELD_LAYOUT.getTagPose(id).map(p3d -> p3d.toPose2d());
@@ -224,7 +247,8 @@ public class VisionSubsystem extends SubsystemBase {
    * Use this if you need the target pose outside of periodic context.
    */
   public Optional<Pose2d> getTargetPose() {
-    if (!LimelightHelpers.getTV(m_cameraName)) return Optional.empty();
+    if (!LimelightHelpers.getTV(m_cameraName))
+      return Optional.empty();
     return getCurrentTargetPose();
   }
 
@@ -266,10 +290,10 @@ public class VisionSubsystem extends SubsystemBase {
       SmartDashboard.putNumber(m_shortName + ":PoseY", m_pose.getY());
       SmartDashboard.putNumber(m_shortName + ":PoseR", m_pose.getRotation().getDegrees());
       SmartDashboard.putNumber(m_shortName + ":AvgTagDist",
-          m_mt2 != null ? m_mt2.avgTagDist : -1);
+          m_mt != null ? m_mt.avgTagDist : -1);
     }
 
-    if (m_tv && Robot.count % 250 == 100) {
+    if (m_mt_tv && Robot.count % 250 == 100) {
       int tagID = (int) LimelightHelpers.getFiducialID(m_cameraName);
       SmartDashboard.putNumber(m_shortName + ":ID", tagID);
       try {
@@ -286,15 +310,16 @@ public class VisionSubsystem extends SubsystemBase {
     }
   }
 
-  public void resetGyroYaw() {
-    if (m_mt2 == null || !m_tv || tagCount == 0) {
-      logf("Cannot reset gyro yaw from %s: no valid pose", m_shortName);
-      return;
-    }
-    m_swerveDrive.resetYaw(m_mt2_yaw);
-  }
+  // this is not supposed to be inside the camera
+  // public void resetGyroYaw() {
+  // if (m_mt == null || !m_mt_tv || tagCount == 0) {
+  // logf("Cannot reset gyro yaw from %s: no valid pose", m_shortName);
+  // return;
+  // }
+  // m_swerveDrive.resetYaw(m_mt_yaw);
+  // }
 
   public double getVisionYaw() {
-    return m_mt2_yaw;
+    return m_mt_yaw;
   }
 }

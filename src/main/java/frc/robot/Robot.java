@@ -139,6 +139,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    //TODO: call stop all command here
     alliance = DriverStation.getAlliance().orElseThrow();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -149,6 +150,7 @@ public class Robot extends TimedRobot
       m_autonomousCommand.cancel();
     } else
     {
+      // Cancel all commands left in queue
       CommandScheduler.getInstance().cancelAll();
     }
     m_robotContainer.setVisionThrottle(0);
