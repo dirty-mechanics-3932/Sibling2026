@@ -37,12 +37,12 @@ import frc.robot.commands.shooter.PositionAndShootCommand;
 import frc.robot.subsystems.Pose.FieldConstants;
 import frc.robot.subsystems.Pose.PositionSubsystem;
 import frc.robot.subsystems.Pose.VisionSubsystemV2;
-import frc.robot.subsystems.hotDog.HotDog;
 import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.HotDog;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
