@@ -7,8 +7,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class HotDog {
+public class HotDog extends SubsystemBase {
     public final  TalonFX m_velocityMotor;
     private final TalonFXConfiguration configs = new TalonFXConfiguration();
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 

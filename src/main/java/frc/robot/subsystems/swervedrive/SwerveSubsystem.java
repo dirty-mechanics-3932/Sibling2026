@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.subsystems.Pose.FieldConstants;
 import frc.robot.subsystems.Pose.PositionSubsystem;
 
 import java.io.File;
@@ -47,6 +48,9 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import javax.security.auth.kerberos.DelegationPermission;
+
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -64,7 +68,7 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive m_swerveDrive;
-  private PositionSubsystem m_positionSubsystem;
+  // private PositionSubsystem m_positionSubsystem;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
   private boolean shootBackward = false; //0 is forward, 1 is backward
   int targetShootingSide;
@@ -83,6 +87,7 @@ public class SwerveSubsystem extends SubsystemBase
       NetworkTableInstance.getDefault().getStructTopic("MyRobotPose", Pose2d.struct).publish();
 
   public SwerveSubsystem(File directory) { 
+    // m_positionSubsystem = new PositionSubsystem(this);
     boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                                                                       Meter.of(4)),
@@ -120,9 +125,9 @@ public class SwerveSubsystem extends SubsystemBase
    * @param driveCfg      SwerveDriveConfiguration for the swerve.
    * @param controllerCfg Swerve Controller.
    */
-  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg, PositionSubsystem positionSubsystem)
+  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
   {
-    m_positionSubsystem = positionSubsystem;
+    // m_positionSubsystem = new PositionSubsystem(this);
     m_swerveDrive = new SwerveDrive(driveCfg,
                                   controllerCfg,
                                   Constants.MAX_SPEED,
@@ -137,11 +142,10 @@ public class SwerveSubsystem extends SubsystemBase
     m_currentRobotPose = m_swerveDrive.field.getRobotPose();
     publisher.set(m_currentRobotPose);
 
-    SmartDashboard.putNumber("getPose()", getPose().getRotation().getDegrees());
-    SmartDashboard.putNumber("robotPose", robotPose.getRotation().getDegrees());
+    SmartDashboard.putNumber("robotPOSE", getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("fielDPose", m_currentRobotPose.getRotation().getDegrees());
 
-    Translation2d delta = m_positionSubsystem.getTarget().getTranslation().minus(getPose().getTranslation());
-    SmartDashboard.putNumber("Delta Angle", delta.getAngle().getDegrees());
+    SmartDashboard.putNumber("Delta Angle", getHeadingToPose(FieldConstants.HUB_POSE_RED).getDegrees());
   }
 
   @Override
@@ -243,7 +247,7 @@ public class SwerveSubsystem extends SubsystemBase
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
         m_swerveDrive.getMaximumChassisVelocity(), 4.0,
-        m_swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+        Units.degreesToRadians(90), Units.degreesToRadians(720));
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
@@ -708,9 +712,15 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   public Rotation2d getHeadingToPose(Pose2d targetPose) {
-    return targetPose.getTranslation()
-                     .minus(getPose().getTranslation())
-                     .getAngle();
+    Rotation2d delta = (targetPose.getTranslation()).minus(getPose().getTranslation()).getAngle();
+
+    if (delta.getDegrees() < 0) {
+        delta = delta.plus(Rotation2d.fromDegrees(180));
+      } else {
+        delta = delta.minus(Rotation2d.fromDegrees(180));
+      }
+
+    return delta;
   }
 
   public SwerveDrive getSwerveDrive() {
@@ -750,23 +760,9 @@ public class SwerveSubsystem extends SubsystemBase
       SmartDashboard.putBoolean("Backwards Shooting", shootBackward(targetPose));
       SmartDashboard.putNumber("Side", targetShootingSide);
 
-      Translation2d delta = targetPose.get().getTranslation().minus(getPose().getTranslation());
-
-      if (pos == 1){ //shoot with front
-        if (getPose().getY() < targetPose.get().getY()) {
-          targetHeading = new Rotation2d(180).minus(delta.getAngle());
-          //targetHeading = (delta.getAngle().times(-1)).plus(new Rotation2d(180));
-        } else {
-          targetHeading = delta.getAngle().minus(new Rotation2d(180));
-        }
-
-      } else { //shooting from the back
-         targetHeading = delta.getAngle().plus(new Rotation2d(180)); //shoot with back
-      }
+      Rotation2d targetHeading = getHeadingToPose(targetPose.get());
       
       SmartDashboard.putNumber("Target Heading", targetHeading.getDegrees());
-      SmartDashboard.putNumber("Delta Angle", delta.getAngle().getDegrees());
-      // SmartDashboard.putNumber("Translations: %,2f", delta);
 
       double omega = headingPID.calculate(
         getPose().getRotation().getRadians(),
@@ -785,6 +781,5 @@ public class SwerveSubsystem extends SubsystemBase
     },
     this
     );
-    
   }
 }

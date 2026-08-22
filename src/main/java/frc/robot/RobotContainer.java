@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
-import frc.robot.commands.shooter.PositionAndShootCommand;
 import frc.robot.subsystems.Pose.FieldConstants;
 import frc.robot.subsystems.Pose.PositionSubsystem;
 import frc.robot.subsystems.Pose.VisionSubsystemV2;
@@ -84,11 +83,12 @@ public class RobotContainer {
    * by angular velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getM_swerveDrive(),
-      () -> m_driverController.getLeftY(),
-      () -> m_driverController.getLeftX())
+      () -> m_driverController.getLeftY() * -1,
+      () -> m_driverController.getLeftX() * -1)
       .withControllerRotationAxis(() -> m_driverController.getRightX() * -1)
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.4)
+      .scaleRotation(0.4)
       .allianceRelativeControl(true);
 
   /**
@@ -261,8 +261,8 @@ public class RobotContainer {
 
     m_driverController.rightTrigger().whileTrue(
         m_drivebase.aimAtPoseCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
+            () -> m_driverController.getLeftY(),
+            () -> m_driverController.getLeftX(),
             () -> positionSubsystem.getTarget(),
             false, 0)
             .alongWith(myLogf("Aiming at hub pose:" +
@@ -315,8 +315,6 @@ public class RobotContainer {
     //    .whileFalse(intakeSpin.stopIntake());
     m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
 
-    m_opController.button(12).whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem,
-        hoodSubsystem, catchupSubsystem, m_drivebase));
     m_opController.button(13)
         .whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM())));
     m_opController.button(14).onTrue(shootBall());
