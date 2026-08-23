@@ -44,19 +44,25 @@ public class PositionSubsystem extends SubsystemBase {
     public PositionSubsystem(SwerveSubsystem swerve) {
         this.m_drivebase = swerve;
 
-        shootData.put(1.0, 2900.0);
-        shootData.put(2.0, 3000.0);
-        shootData.put(3.0, 3250.0);
-        shootData.put(4.0, 3400.0);
-        shootData.put(5.0, 3840.0);
-        shootData.put(6.0, 3805.0);
+        shootData.put(1.0, 3100.0);
+        shootData.put(2.0, 3200.0);
+        shootData.put(3.0, 3500.0);
+        shootData.put(4.0, 3600.0);
+        shootData.put(5.0, 3940.0);
+        shootData.put(6.0, 3905.0);
         shootData.put(7.0, 4000.0);
         // shootData.put(8.0,4800.0);
         // shootData.put(9.0,4915.0);
         // shootData.put(10.0,6000.0);
         // shootData.put(20.0,6000.0);
 
-        hoodData.put(1.0, .23);
+        hoodData.put(1.0, 0.0);
+        hoodData.put(2.0, 5.0);
+        hoodData.put(3.0, 10.0);
+        hoodData.put(4.0, 11.0);
+        hoodData.put(5.0, 12.0);
+        hoodData.put(6.0, 15.0);
+        hoodData.put(7.0, 15.0);
     }
 
     @Override
@@ -77,6 +83,7 @@ public class PositionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Distance to Target", distance);
         SmartDashboard.putNumber("Target drumstick rpm", shooterRPM);
         SmartDashboard.putNumber("Heading to Target", targetHeading);
+        SmartDashboard.putNumber("Pos for Hood Target", hoodData.get(distance));
     }
 
     // An attempt to compensate for motion so shooting while moving works, does not
@@ -147,7 +154,7 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public double getHoodPosition() {
-        return hoodPosition;
+        return  hoodData.get(distance);
     }
 
     public double getTargetHeading() {

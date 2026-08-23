@@ -15,10 +15,11 @@ import frc.robot.subsystems.shooter.HotDog;
 
 public class HubSubCommands {
 
-    public Command shootBall(DrumstickSubsystem drumstickSubsystem, CatchupSubsystem catchupSubsystem, HotDog hotDog, PositionSubsystem positionSubsystem) {
+    public Command shootBall(DrumstickSubsystem drumstickSubsystem, CatchupSubsystem catchupSubsystem, HotDog hotDog, PositionSubsystem positionSubsystem, HoodSubsystem hood) {
         return new SequentialCommandGroup(
-            myLogf("Start shoot ball command %.3f", positionSubsystem.getShooterRPM()),
+            myLogf("Start shoot ball command %.3f, Hood pos %.3f", positionSubsystem.getShooterRPM(), positionSubsystem.getHoodPosition()),
             drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM()),
+            hood.setHoodPosition(positionSubsystem.getHoodPosition()),
             myLogf("Shoot speed OK"),
             hotDog.setVelocitySetpoint(3000),
             Commands.waitSeconds(.1),

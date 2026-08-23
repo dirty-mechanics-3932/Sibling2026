@@ -1,0 +1,646 @@
+{
+  "version": 1.0,
+  "grid_size": 32,
+  "tabs": [
+    {
+      "name": "Teleoperated",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "limelight-rear",
+            "x": 1280.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-rear",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "limelight-right",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-right",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "Field",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1280.0,
+            "height": 576.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Field",
+              "period": 0.06,
+              "field_game": "Reefscape",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Match Time",
+            "x": 0.0,
+            "y": 576.0,
+            "width": 1280.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/SmartDashboard/Match Time",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 15,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "limelight-left",
+            "x": 1280.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-left",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "IntakeLimit",
+            "x": 1120.0,
+            "y": 928.0,
+            "width": 352.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/IntakeLimit",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autonomous",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Field",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1280.0,
+            "height": 576.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Field",
+              "period": 0.06,
+              "field_game": "Reefscape",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Match Time",
+            "x": 0.0,
+            "y": 576.0,
+            "width": 640.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/SmartDashboard/Match Time",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 15,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "limelight-rear",
+            "x": 1280.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-rear",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "limelight-right",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-right",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "Auto Chooser",
+            "x": 640.0,
+            "y": 576.0,
+            "width": 640.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto Chooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "limelight-left",
+            "x": 1280.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-left",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Turret PID",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "kP",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/kP",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kI",
+            "x": 0.0,
+            "y": 64.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/kI",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kD",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/kD",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Setpoint (deg)",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/Setpoint",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Enable",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/Enable",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Limit Tripped",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/LimitTripped",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4294198070,
+              "false_color": 4283215696,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Commanded Setpoint (deg)",
+            "x": 224.0,
+            "y": 0.0,
+            "width": 800.0,
+            "height": 288.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/SetpointGraph",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "color": 4294198070,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Actual (deg)",
+            "x": 224.0,
+            "y": 320.0,
+            "width": 800.0,
+            "height": 288.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/Turret/Actual",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Flywheel PID",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "kP",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/kP",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kI",
+            "x": 0.0,
+            "y": 64.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/kI",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kD",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/kD",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kS",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/kS",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kV",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/kV",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kA",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/kA",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Setpoint (RPM)",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/Setpoint",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Enable",
+            "x": 0.0,
+            "y": 448.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/Enable",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Commanded Setpoint (RPM)",
+            "x": 224.0,
+            "y": 0.0,
+            "width": 800.0,
+            "height": 288.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/SetpointGraph",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "color": 4294198070,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Actual (RPM)",
+            "x": 224.0,
+            "y": 320.0,
+            "width": 800.0,
+            "height": 288.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/Flywheel/Actual",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Intake Pivot PID",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "kP",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kP",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kI",
+            "x": 0.0,
+            "y": 64.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kI",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kD",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kD",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kS",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kS",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kV",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kV",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kA",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kA",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "kG",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/kG",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Setpoint (deg)",
+            "x": 0.0,
+            "y": 448.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/Setpoint",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Enable",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 192.0,
+            "height": 64.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/Enable",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Commanded Setpoint (deg)",
+            "x": 224.0,
+            "y": 0.0,
+            "width": 800.0,
+            "height": 288.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/SetpointGraph",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "color": 4294198070,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Actual (deg)",
+            "x": 224.0,
+            "y": 320.0,
+            "width": 800.0,
+            "height": 288.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot/Actual",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

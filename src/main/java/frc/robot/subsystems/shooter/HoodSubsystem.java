@@ -85,6 +85,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setPositionWithEncoder(double valueRot) {
+        SmartDashboard.putNumber("Hood is trying to go here", valueRot*360); 
         targetPositionRot = MathUtil.clamp(valueRot, MIN_ROTATION, MAX_ROTATION);
         m_hoodMotor.setControl(motionMagicVoltage.withPosition(targetPositionRot));
     }
