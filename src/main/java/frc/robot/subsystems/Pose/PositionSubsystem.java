@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Pose;
 
+import static frc.robot.utilities.Util.logf;
+
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
@@ -51,6 +53,7 @@ public class PositionSubsystem extends SubsystemBase {
         shootData.put(5.0, 3940.0);
         shootData.put(6.0, 3905.0);
         shootData.put(7.0, 4000.0);
+        shootData.put(22.0,4500.0);
         // shootData.put(8.0,4800.0);
         // shootData.put(9.0,4915.0);
         // shootData.put(10.0,6000.0);
@@ -62,7 +65,16 @@ public class PositionSubsystem extends SubsystemBase {
         hoodData.put(4.0, 11.0);
         hoodData.put(5.0, 12.0);
         hoodData.put(6.0, 15.0);
-        hoodData.put(7.0, 15.0);
+        hoodData.put(7.0, 16.0);
+        hoodData.put(20.0, 20.0);
+        logShootTable();
+
+    }
+
+    public void logShootTable() {
+        for (distance = 0; distance < 20; distance += 2) {
+            logf("**** Dist:%.2f shoot:%.2f hood:%.2f", distance, getShooterRPM(), getHoodPosition());
+        }
     }
 
     @Override
@@ -73,7 +85,7 @@ public class PositionSubsystem extends SubsystemBase {
 
         // If this doesn't work just replace 'compensatedPose' with
         // 'm_drivebase.getPose()'
-        Pose2d compensatedPose = m_drivebase.getPose();//compensatedPose();
+        Pose2d compensatedPose = m_drivebase.getPose();// compensatedPose();
         distance = compensatedPose.getTranslation().getDistance(target.getTranslation());
         shooterRPM = shootData.get(distance);
         hoodPosition = hoodData.get(distance);
@@ -154,7 +166,7 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public double getHoodPosition() {
-        return  hoodData.get(distance);
+        return hoodData.get(distance);
     }
 
     public double getTargetHeading() {

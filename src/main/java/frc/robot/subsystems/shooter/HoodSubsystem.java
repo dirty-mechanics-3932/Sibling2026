@@ -44,8 +44,8 @@ public class HoodSubsystem extends SubsystemBase {
 
         configEncoder.MagnetSensor.MagnetOffset = 0.563476;
 
-        config.Slot0.kP = 20.0;
-        config.Slot0.kI = 0.00;
+        config.Slot0.kP = 75.0;
+        config.Slot0.kI = 0.0009;
         config.Slot0.kD = 0.00;
         config.Slot0.kS = 0.25;
         config.Slot0.kV = 0.12;
@@ -61,9 +61,9 @@ public class HoodSubsystem extends SubsystemBase {
         // Units are rotations/sec, rotations/sec^2, rotations/sec^3 (mechanism
         // rotations, since
         // SensorToMechanismRatio = 1 here, i.e. CANcoder rotations).
-        config.MotionMagic.MotionMagicCruiseVelocity = 15.0; // max velocity RPS
-        config.MotionMagic.MotionMagicAcceleration = 30.0; // time to reach cruise velocity rps^2
-        config.MotionMagic.MotionMagicJerk = 40.0; // time to reach max accel (0 = disabled)
+        config.MotionMagic.MotionMagicCruiseVelocity = 50.0; // max velocity RPS
+        config.MotionMagic.MotionMagicAcceleration = 50.0; // time to reach cruise velocity rps^2
+        config.MotionMagic.MotionMagicJerk = 100.0; // time to reach max accel (0 = disabled)
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_ROTATION;

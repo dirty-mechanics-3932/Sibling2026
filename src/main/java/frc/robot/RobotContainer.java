@@ -61,7 +61,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
-      
+
   private VisionSubsystemV2 m_visionLeft;
   private VisionSubsystemV2 m_visionRight;
   private VisionSubsystemV2 m_visionRear;
@@ -290,8 +290,10 @@ public class RobotContainer {
   }
 
   private void operatorBindings() {
-    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM()))).onFalse(drumstickSubsystem.stopShooter());
-    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM())).onFalse(catchupSubsystem.stopCatchup());
+    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(3000)))
+        .onFalse(drumstickSubsystem.stopShooter());
+    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM()))
+        .onFalse(catchupSubsystem.stopCatchup());
 
     m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(5));
     m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(-5));
@@ -302,13 +304,16 @@ public class RobotContainer {
     m_opController.button(7).whileTrue(intakeSpin.intakeSpin(3000)).onFalse(intakeSpin.stopIntake());
 
     m_opController.button(8).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
-    m_opController.button(9).onTrue(hoodSubsystem.setHoodPosition(15));
-    m_opController.button(10).whileTrue(intakeTilt.moveIntakeTiltDeltaDeg(-70)).onFalse(intakeTilt.extendIntake());
-    m_opController.button(13).onTrue(hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem, hoodSubsystem));
+    m_opController.button(9).whileTrue(intakeTilt.moveIntakeTiltDeltaDeg(-70)).onFalse(intakeTilt.extendIntake());
+    m_opController.button(10).onTrue(hoodSubsystem.setHoodPosition(0));
+    m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
+    m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
+    m_opController.button(13).onTrue(
+        hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem, hoodSubsystem));
     m_opController.button(14).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
-    
 
-    m_opController.povUp().onTrue(new InstantCommand(() -> Robot.alliance = Alliance.Red)).onFalse(new InstantCommand(() -> Robot.alliance = Alliance.Blue));
+    m_opController.povUp().onTrue(new InstantCommand(() -> Robot.alliance = Alliance.Red))
+        .onFalse(new InstantCommand(() -> Robot.alliance = Alliance.Blue));
   }
 
   private Pose2d getInitPose() {
@@ -359,6 +364,6 @@ public class RobotContainer {
 
   public void homing() {
     intakeTilt.zeroEncoder();
-    hoodSubsystem.setPositionWithEncoder(0); 
+    hoodSubsystem.setPositionWithEncoder(0);
   }
 }

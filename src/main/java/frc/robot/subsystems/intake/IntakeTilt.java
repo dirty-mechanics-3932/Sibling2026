@@ -90,7 +90,7 @@ public class IntakeTilt extends SubsystemBase {
     }
 
     public Command extendIntake() {
-        return setIntakeTiltSetpointDeg(135);
+        return setIntakeTiltSetpointDeg(118);
     }
 
     public Command moveIntakeTiltDeltaDeg(double value) {
