@@ -89,6 +89,10 @@ public class IntakeTilt extends SubsystemBase {
         return Commands.runOnce(() -> moveIntakeDeg(value));
     }
 
+    public Command extendIntake() {
+        return setIntakeTiltSetpointDeg(135);
+    }
+
     public Command moveIntakeTiltDeltaDeg(double value) {
         return Commands.runOnce(() -> moveIntakeDeg(lastPositionDeg + value));
     }
@@ -110,10 +114,6 @@ public class IntakeTilt extends SubsystemBase {
 
     public void homeIntake() {
         if (!homing && !getLimitSwitch()) {
-            // Drive toward the hard stop at a fixed, gentle current instead of a raw
-            // duty cycle, so torque (and heat/stress at the stop) stays bounded
-            // regardless of battery voltage or how hard the mechanism binds.
-            // tiltMotor.setControl(homingCurrent.withOutput(homingCurrentAmps));
             tiltMotor.set(-0.15);
             homing = true;
             homed = false;
@@ -162,12 +162,11 @@ public class IntakeTilt extends SubsystemBase {
             SmartDashboard.putNumber("IntakeTiltPos", getPositionMotorDeg());
             SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
             SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
-            SmartDashboard.putBoolean("IntakeAtSetpoint", isAtTarget());
         }
         if (Robot.count % 100 == 0) {
-            logf("Intake pos:%.2f  target:%.2f limit:%b atSet:%b homed:%b current:%.2f", getPositionMotorDeg(),
-                    lastPositionDeg,
-                    getLimitSwitch(), isAtTarget(), homed, tiltMotor.getSupplyCurrent().getValueAsDouble());
+            // logf("Intake pos:%.2f  target:%.2f limit:%b atSet:%b homed:%b current:%.2f", getPositionMotorDeg(),
+            //         lastPositionDeg,
+            //         getLimitSwitch(), isAtTarget(), homed, tiltMotor.getSupplyCurrent().getValueAsDouble());
         }
         if (homing && getLimitSwitch()) {
             endHoming();

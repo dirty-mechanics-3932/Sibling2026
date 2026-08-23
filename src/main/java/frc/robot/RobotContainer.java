@@ -61,7 +61,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
-
+      
   private VisionSubsystemV2 m_visionLeft;
   private VisionSubsystemV2 m_visionRight;
   private VisionSubsystemV2 m_visionRear;
@@ -271,10 +271,6 @@ public class RobotContainer {
                     : "Red Hub"))));
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
-   
-    // DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-    //             ? FieldConstants.HUB_POSE_BLUE
-    //             : FieldConstants.HUB_POSE_RED,
 
     // commands you need to run sysid. run the logger, then quasistatic forward,
     // reverse; dynamic forward, reverse; end log
@@ -291,34 +287,24 @@ public class RobotContainer {
     // m_joystick.a().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // m_joystick.b().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // m_joystick.x().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // PositionAndShootCommand
-    // m_driverController.leftTrigger().whileTrue(new
-    // PositionAndShootCommand(position, drumstick, hood, catchup, swerve));
   }
 
   private void operatorBindings() {
     m_opController.button(1).whileTrue(intakeSpin.intakeSpin(3000));
     m_opController.button(2).whileTrue(intakeSpin.stopIntake());
-    // m_opController.button(3).whileTrue(catchupSubsystem.setCatchupSetpoint(600));
-    // m_opController.button(4).whileTrue(catchupSubsystem.stopCatchup());
-    // m_opController.button(5).whileTrue(hoodSubsystem.setHoodPosition(0));
-    // To figure out rotations needed for extension
 
     m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(5));
     m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(-5));
+
     m_opController.button(5).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
-    m_opController.button(6).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(20));
-    m_opController.button(7).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(45));
-    m_opController.button(8).whileTrue(intakeTilt.setIntakeTiltSetpointDeg(135));
-    //m_opController.button(10).whileTrue(intakeSpin.intakeSpin(3500))
-    //    .whileFalse(intakeSpin.stopIntake());
+    m_opController.button(6).whileTrue(intakeTilt.extendIntake());
+
     m_opController.button(11).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
 
     m_opController.button(13)
         .whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM())));
-    m_opController.button(14).onTrue(shootBall());
-    m_opController.button(15).whileTrue(stopShootBall());
+    m_opController.button(14).onTrue(hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem));
+    m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
   }
 
   private Pose2d getInitPose() {
@@ -371,28 +357,4 @@ public class RobotContainer {
     intakeTilt.zeroEncoder();
     hoodSubsystem.setPositionWithEncoder(0); 
   }
-
-  // This command will run the drumstick, catchup,
-  // and hotDog subsystems to shoot the ball.
-  public Command shootBall() {
-    return new SequentialCommandGroup(
-        myLogf("Start shoot ball command %.3f", positionSubsystem.getShooterRPM()),
-        drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM()),
-        myLogf("Shoot speed OK"),
-        hotDog.setVelocitySetpoint(3000),
-        Commands.waitSeconds(.1),
-        catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM()),
-        myLogf("shoot ball complete"));
-  }
-
-  // Command to stop the drumstick, catchup, and hotDog subsystems after shooting
-  // the ball.
-  public Command stopShootBall() {
-    return new SequentialCommandGroup(
-        drumstickSubsystem.stopShooter(),
-        hotDog.stopHotDog(),
-        catchupSubsystem.stopCatchup(),
-        myLogf("Stop shoot ball command complete"));
-  }
-
 }

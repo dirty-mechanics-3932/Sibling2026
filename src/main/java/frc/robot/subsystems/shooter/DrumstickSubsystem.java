@@ -52,11 +52,6 @@ public class DrumstickSubsystem extends SubsystemBase {
         m_velocityFollower2.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    // public void setShooterSetpoint(double value) {
-    //    m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true));
-    //     SmartDashboard.putBoolean("Drumstick At Speed", atSpeed(value/60));
-    // }
-
     public void  setVelocityRPM(double rpm) {
         m_velocityLeader.setControl(velocityRequest.withVelocity(rpm / 60).withEnableFOC(true));
         targetRPM = rpm;
@@ -66,11 +61,6 @@ public class DrumstickSubsystem extends SubsystemBase {
     public Command runToSpeed(double rpm) {
         return Commands.run(() -> setVelocityRPM(rpm), this).until(() -> atSpeed(rpm));
     }
-
-
-    // public Command shootCommand(double value){
-    //     return runEnd(()->setShooterSetpoint(value), ()->setShooterSetpoint(value)).until(()->atSpeed(value));
-    // }
 
     public double getVelocityRPM() {
         return m_velocityLeader.getVelocity().getValueAsDouble() * 60;
@@ -105,6 +95,7 @@ public class DrumstickSubsystem extends SubsystemBase {
 // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
 //    return sysIdRoutine.dynamic(direction);
 // }
+
     @Override
     public void periodic() {
         if(Robot.count % 10 == 0) {

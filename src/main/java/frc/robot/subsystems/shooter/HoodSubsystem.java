@@ -32,12 +32,11 @@ public class HoodSubsystem extends SubsystemBase {
     public static final double MIN_ROTATION = MIN_ANGLE / 360.0;
     public static final double MAX_ROTATION = MAX_ANGLE / 360.0;
 
-    // Motor rotations per 1 CANcoder rotation (CANcoder is mounted on the hood
-    // output shaft)
+    // Motor rotations per 1 CANcoder rotation (CANcoder is mounted on the hood output shaft)
     double rotorToSensorRatio = 4.5454;
 
     public HoodSubsystem() {
-        m_hoodMotor = new TalonFX(50); // Remember to set the motor IDs
+        m_hoodMotor = new TalonFX(50);
         absoluteEncoder = new CANcoder(51);
         config = new TalonFXConfiguration();
         configEncoder = new CANcoderConfiguration();

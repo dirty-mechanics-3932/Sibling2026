@@ -40,7 +40,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.subsystems.Pose.FieldConstants;
-import frc.robot.subsystems.Pose.PositionSubsystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +47,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import javax.security.auth.kerberos.DelegationPermission;
 
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
@@ -142,10 +139,9 @@ public class SwerveSubsystem extends SubsystemBase
     m_currentRobotPose = m_swerveDrive.field.getRobotPose();
     publisher.set(m_currentRobotPose);
 
-    SmartDashboard.putNumber("robotPOSE", getPose().getRotation().getDegrees());
-    SmartDashboard.putNumber("fielDPose", m_currentRobotPose.getRotation().getDegrees());
+    SmartDashboard.putNumber("robotPose", getPose().getRotation().getDegrees());
 
-    SmartDashboard.putNumber("Delta Angle", getHeadingToPose(FieldConstants.HUB_POSE_RED).getDegrees());
+    SmartDashboard.putNumber("DeltaAngle (REDHUB)", getHeadingToPose(FieldConstants.HUB_POSE_RED).getDegrees());
   }
 
   @Override
@@ -727,6 +723,7 @@ public class SwerveSubsystem extends SubsystemBase
     return m_swerveDrive;
   }
 
+  // needs to be tested and reworked
   public boolean shootBackward(Supplier<Pose2d> targetPose){
     Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
     Rotation2d targetHeadingForward = delta.getAngle();
@@ -744,7 +741,6 @@ public class SwerveSubsystem extends SubsystemBase
     Boolean fixPos,
     int pos) {
     
-    logf("Command starting");
     targetShootingSide = pos;
 
     return Commands.run(() -> {
@@ -767,8 +763,6 @@ public class SwerveSubsystem extends SubsystemBase
       double omega = headingPID.calculate(
         getPose().getRotation().getRadians(),
         targetHeading.getRadians());
-
-      SmartDashboard.putNumber("Omega", omega);
 
       drive(
         SwerveMath.scaleTranslation(
