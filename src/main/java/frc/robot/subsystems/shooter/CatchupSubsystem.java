@@ -43,9 +43,14 @@ public class CatchupSubsystem extends SubsystemBase {
         m_velocityFollower.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public Command setCatchupSetpoint(double value) {
+    public Command setCatchupSetpointCmd(double value) {
         return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)));
     }
+
+    public void setCatchupSetpoint(double value){
+        m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)); 
+    }
+
 
     public double getVelocity() {
         return m_velocityLeader.getVelocity().getValueAsDouble() * 60;

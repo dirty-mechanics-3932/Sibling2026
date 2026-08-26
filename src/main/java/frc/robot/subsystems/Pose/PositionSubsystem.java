@@ -1,8 +1,10 @@
 package frc.robot.subsystems.Pose;
 
 import static frc.robot.utilities.Util.logf;
+import static frc.robot.utilities.Util.round2;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.*;
@@ -20,7 +22,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class PositionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem m_drivebase;
-    double tolerance = 500;
+    double tolerance = 100;
 
     private Pose2d hubPoseBlue = new Pose2d(Meters.of(4.63), Meters.of(4.03), new Rotation2d(Degrees.of(0)));
     private Pose2d hubPoseRed = new Pose2d(Meters.of(11.92), Meters.of(4.03), new Rotation2d(Degrees.of(180)));
@@ -31,8 +33,9 @@ public class PositionSubsystem extends SubsystemBase {
     private Pose2d neutralBlueRight = new Pose2d(Meters.of(2.31), Meters.of(2.01), new Rotation2d(Degrees.of(0)));
 
     private boolean isTargetOverrided = false;
+    private Pose2d compensatedPose = new Pose2d(); 
 
-    private Pose2d target;
+    private Pose2d target  = new Pose2d(Meters.of(4.63), Meters.of(4.03), new Rotation2d(Degrees.of(0)));
     private String targetName = "";
 
     private double distance;
@@ -46,18 +49,18 @@ public class PositionSubsystem extends SubsystemBase {
     public PositionSubsystem(SwerveSubsystem swerve) {
         this.m_drivebase = swerve;
 
-        shootData.put(1.0, 3100.0);
-        shootData.put(2.0, 3200.0);
-        shootData.put(3.0, 3500.0);
-        shootData.put(4.0, 3600.0);
-        shootData.put(5.0, 3940.0);
-        shootData.put(6.0, 3905.0);
-        shootData.put(7.0, 4000.0);
-        shootData.put(22.0,4500.0);
+        shootData.put(1.0, 2700.0);
+        shootData.put(2.0, 2800.0);
+        shootData.put(3.0, 3000.0);
+        shootData.put(4.0, 3100.0);
+        shootData.put(5.0, 3400.0);
+        shootData.put(6.0, 3405.0);
+        shootData.put(7.0, 3500.0);
         // shootData.put(8.0,4800.0);
         // shootData.put(9.0,4915.0);
         // shootData.put(10.0,6000.0);
         // shootData.put(20.0,6000.0);
+        shootData.put(22.0, 4500.0);
 
         hoodData.put(1.0, 0.0);
         hoodData.put(2.0, 5.0);
@@ -68,13 +71,12 @@ public class PositionSubsystem extends SubsystemBase {
         hoodData.put(7.0, 16.0);
         hoodData.put(20.0, 20.0);
         logShootTable();
-
     }
 
     public void logShootTable() {
-        for (distance = 0; distance < 20; distance += 2) {
-            logf("**** Dist:%.2f shoot:%.2f hood:%.2f", distance, getShooterRPM(), getHoodPosition());
-        }
+        // for (distance = 0; distance < 20; distance += 2) {
+        //     logf("**** Dist:%.2f shoot:%.2f hood:%.2f", distance, getShooterRPM(), getHoodPosition());
+        // }
     }
 
     @Override
@@ -85,17 +87,18 @@ public class PositionSubsystem extends SubsystemBase {
 
         // If this doesn't work just replace 'compensatedPose' with
         // 'm_drivebase.getPose()'
-        Pose2d compensatedPose = m_drivebase.getPose();// compensatedPose();
+        compensatedPose = m_drivebase.getPose();// compensatedPose();
         distance = compensatedPose.getTranslation().getDistance(target.getTranslation());
         shooterRPM = shootData.get(distance);
         hoodPosition = hoodData.get(distance);
         targetHeading = m_drivebase.getHeadingToPose(target).getDegrees();
-
-        SmartDashboard.putString("Target Name", targetName);
-        SmartDashboard.putNumber("Distance to Target", distance);
-        SmartDashboard.putNumber("Target drumstick rpm", shooterRPM);
-        SmartDashboard.putNumber("Heading to Target", targetHeading);
-        SmartDashboard.putNumber("Pos for Hood Target", hoodData.get(distance));
+        if (Robot.count % 10 == 5) {
+            SmartDashboard.putString("Target Name", targetName);
+            SmartDashboard.putNumber("Dist to Target", round2(distance));
+            SmartDashboard.putNumber("Drum Traget", Math.round(shooterRPM));
+            SmartDashboard.putNumber("Heading to Target", targetHeading);
+            SmartDashboard.putNumber("Hood Target Pos", round2(hoodPosition));
+        }
     }
 
     // An attempt to compensate for motion so shooting while moving works, does not
@@ -162,11 +165,18 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public double getShooterRPM() {
-        return shootData.get(distance);
+        return shootData.get(getDistanceV2());
     }
 
+    public double getDistance(){
+        return distance; 
+    }
+
+    public double getDistanceV2(){
+        return compensatedPose.getTranslation().getDistance(target.getTranslation());
+    }
     public double getHoodPosition() {
-        return hoodData.get(distance);
+        return hoodData.get(getDistanceV2());
     }
 
     public double getTargetHeading() {
@@ -202,6 +212,6 @@ public class PositionSubsystem extends SubsystemBase {
     }
 
     public boolean readyToShoot(DrumstickSubsystem drumstick, HoodSubsystem hood) {
-        return atHeading() && shooterRPM > 0 && Math.abs(drumstick.getVelocityRPM() - shooterRPM) <= tolerance;
+        return shooterRPM > 0 && Math.abs(drumstick.getVelocityRPM() - shooterRPM) <= tolerance;
     }
 }

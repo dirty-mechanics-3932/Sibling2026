@@ -21,14 +21,28 @@ public class Util {
   // Take an angle and convert it to -180 to 180
   public static double normalizeAngle(double angle) {
     double a = (angle + 180) % 360;
-    if (a < 0) a += 360;
+    if (a < 0)
+      a += 360;
     return a - 180;
   }
 
   // Take an angle and convert it to 0 to 360
   public static double unNormalilzeAngle(double angle) {
     double a = angle % 360;
-    if (a < 0) a += 360;
+    if (a < 0)
+      a += 360;
     return a;
+  }
+
+  public static double round1(double d) {
+    return Math.round(d * 10D) / 10D;
+  }
+
+  public static double round2(double d) {
+    return Math.round(d * 100D) / 100D;
+  }
+
+  public static double round3(double d) {
+    return Math.round(d * 1000D) / 1000D;
   }
 }

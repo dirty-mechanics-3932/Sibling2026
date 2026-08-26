@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import static frc.robot.utilities.Util.logf;
+import static frc.robot.utilities.Util.round2;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -81,7 +82,7 @@ public class HoodSubsystem extends SubsystemBase {
     public Command setHoodPosition(double valueDeg) {
         return Commands
                 .run(() -> setPositionWithEncoder(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)), this)
-                .until(() -> atPosition(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)));
+                .until(() -> hoodAtPosition(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)));
     }
 
     public void setPositionWithEncoder(double valueRot) {
@@ -94,23 +95,27 @@ public class HoodSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> m_hoodMotor.stopMotor());
     }
 
-    public boolean atPosition(double targetRot) {
+    public boolean hoodAtPosition(double targetRot) {
         double targetDeg = targetRot * 360;
         SmartDashboard.putNumber("Hoodpos - target", Math.abs(getHoodPositionInDeg() - targetDeg));
         return Math.abs(getHoodPositionInDeg() - targetDeg) <= toleranceDeg;
     }
 
+    public boolean hoodAtTarget() {
+        return hoodAtPosition(targetPositionRot);
+    }
+
     @Override
     public void periodic() {
         if (Robot.count % 20 == 6) {
-            SmartDashboard.putNumber("Hood Position", getHoodPositionInDeg());
-            SmartDashboard.putNumber("Hood Target", targetPositionRot * 360);
+            SmartDashboard.putNumber("Hood Position", round2(getHoodPositionInDeg()));
+            SmartDashboard.putNumber("Hood Target H", round2(targetPositionRot * 360));
             SmartDashboard.putNumber("Tolerance", toleranceDeg);
-            SmartDashboard.putBoolean("Hood At Position", atPosition(targetPositionRot));
+            SmartDashboard.putBoolean("Hood At Position", hoodAtPosition(targetPositionRot));
         }
-        if (Robot.count % 1000 == 0) {
-            logf("Hood Position: %.2f, Target: %.2f, At Position: %b", getHoodPositionInDeg(), targetPositionRot * 360,
-                    atPosition(targetPositionRot));
-        }
+        // if (Robot.count % 1000 == 0) {
+        //     logf("Hood Position: %.2f, Target: %.2f, At Position: %b", getHoodPositionInDeg(), targetPositionRot * 360,
+        //             hoodAtPosition(targetPositionRot));
+        // }
     }
 }

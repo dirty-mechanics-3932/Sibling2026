@@ -5,7 +5,7 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
-import static frc.robot.utilities.Util.logf;
+//import static frc.robot.utilities.Util.logf;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -690,7 +690,7 @@ public class SwerveSubsystem extends SubsystemBase
    *
    * @return {@link SwerveDrive}
    */
-  //TODO: just make m_swerveDrive public, it does the same thing but less confusing
+  // Just make m_swerveDrive public, it does the same thing but less confusing
   public SwerveDrive getM_swerveDrive()
   {
     return m_swerveDrive;

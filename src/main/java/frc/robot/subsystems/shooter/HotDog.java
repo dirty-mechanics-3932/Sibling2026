@@ -26,9 +26,13 @@ public class HotDog extends SubsystemBase {
         m_velocityMotor.getConfigurator().apply(configs);
     }
 
-    public Command setVelocitySetpoint(double value) {
+    public Command setVelocitySetpointCmd(double value) {
         return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)));
     }
+    public void setVelocitySetpoint(double value){
+        m_velocityMotor.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true));  
+    }
+
 
     public double getVelocityMotor() {
         return m_velocityMotor.getVelocity().getValueAsDouble();

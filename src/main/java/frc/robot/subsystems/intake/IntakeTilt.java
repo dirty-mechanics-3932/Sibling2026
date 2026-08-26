@@ -3,7 +3,7 @@ import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+//import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -21,11 +21,11 @@ public class IntakeTilt extends SubsystemBase {
     public final TalonFX tiltMotor; // gear ratio = 52.5
     private final TalonFXConfiguration config;
     private final MotionMagicVoltage motionMagicVoltage;
-    private final TorqueCurrentFOC homingCurrent;
+    //private final TorqueCurrentFOC homingCurrent;
     private final DigitalInput limitSwitch = new DigitalInput(9);
     // Range of motion, in degrees
     public static final double MIN_ANGLE = 0.0;
-    public static final double MAX_ANGLE = 150.0;
+    public static final double MAX_ANGLE = 120.0;
     private double gearRatio = 52.5;
     private double toleranceDeg = 3.0;
 
@@ -34,12 +34,12 @@ public class IntakeTilt extends SubsystemBase {
     private double cruiseVelocityRps = 20.0;
     private double accelerationRpsPerSec = 40.0;
     private double jerkRpsPerSec2 = 400.0; // 0 disables jerk limiting (trapezoidal only)
-    private double bounceIntakeAngle = 80.0; // make method for this later
+    //private double bounceIntakeAngle = 80.0; // make method for this later
 
     // Current limiting
     private double statorCurrentLimitAmps = 40.0; // hard safety limit for all motion
     private double supplyCurrentLimitAmps = 30.0; // limits draw from the battery/PDH
-    private double homingCurrentAmps = 8.0; // 8.0; // gentle, fixed current used while homing
+    //private double homingCurrentAmps = 8.0; // 8.0; // gentle, fixed current used while homing
 
     double motorRotations;
     private double lastPositionDeg;
@@ -50,7 +50,7 @@ public class IntakeTilt extends SubsystemBase {
         tiltMotor = new TalonFX(21); // Remember to set the motor IDs
         config = new TalonFXConfiguration();
         motionMagicVoltage = new MotionMagicVoltage(0);
-        homingCurrent = new TorqueCurrentFOC(0);
+        //homingCurrent = new TorqueCurrentFOC(0);
 
         config.Slot0.kP = 4.5;
         config.Slot0.kI = 0.00;

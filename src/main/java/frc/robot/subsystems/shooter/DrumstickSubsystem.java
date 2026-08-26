@@ -21,16 +21,16 @@ public class DrumstickSubsystem extends SubsystemBase {
     private final TalonFX m_velocityLeader;
     private final TalonFX m_velocityFollower1;
     private final TalonFX m_velocityFollower2;
-    
-   private final VoltageOut m_voltReq = new VoltageOut(0.0); 
+    @SuppressWarnings("unused")
+    private final VoltageOut m_voltReq = new VoltageOut(0.0);
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
     private double tolerance = 500;
-     private double targetRPM = 0;
+    private double targetRPM = 0;
 
     public DrumstickSubsystem() {
         // Remember to set the motor IDs
-        m_velocityLeader = new TalonFX(31); 
+        m_velocityLeader = new TalonFX(31);
         m_velocityFollower1 = new TalonFX(32);
         m_velocityFollower2 = new TalonFX(33);
 
@@ -52,12 +52,13 @@ public class DrumstickSubsystem extends SubsystemBase {
         m_velocityFollower2.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public void  setVelocityRPM(double rpm) {
+    public void setVelocityRPM(double rpm) {
         m_velocityLeader.setControl(velocityRequest.withVelocity(rpm / 60).withEnableFOC(true));
         targetRPM = rpm;
     }
 
-    // This command will run the shooter until it reaches the target speed, then return.
+    // This command will run the shooter until it reaches the target speed, then
+    // return.
     public Command runToSpeed(double rpm) {
         return Commands.run(() -> setVelocityRPM(rpm), this).until(() -> atSpeed(rpm));
     }
@@ -71,41 +72,42 @@ public class DrumstickSubsystem extends SubsystemBase {
     }
 
     public Command stopShooter() {
-        return Commands.runOnce(()->m_velocityLeader.stopMotor());
+        return Commands.runOnce(() -> m_velocityLeader.stopMotor());
     }
 
-//     private SysIdRoutine sysIdRoutine = new SysIdRoutine(
-//         new SysIdRoutine.Config(
-//             null,
-//             Volts.of(4),
-//             null,
-//              (state) -> SignalLogger.writeString("state", state.toString())
-//         ), 
-//         new SysIdRoutine.Mechanism(
-//             (volts) -> m_velocityLeader.setControl(m_voltReq.withOutput(volts.in(Volts))),
-//             null,
-//             this
-//         )
-//     );
+    // private SysIdRoutine sysIdRoutine = new SysIdRoutine(
+    // new SysIdRoutine.Config(
+    // null,
+    // Volts.of(4),
+    // null,
+    // (state) -> SignalLogger.writeString("state", state.toString())
+    // ),
+    // new SysIdRoutine.Mechanism(
+    // (volts) ->
+    // m_velocityLeader.setControl(m_voltReq.withOutput(volts.in(Volts))),
+    // null,
+    // this
+    // )
+    // );
 
-// public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-//    return sysIdRoutine.quasistatic(direction);
-// }
+    // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    // return sysIdRoutine.quasistatic(direction);
+    // }
 
-// public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-//    return sysIdRoutine.dynamic(direction);
-// }
+    // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    // return sysIdRoutine.dynamic(direction);
+    // }
 
     @Override
     public void periodic() {
-        if(Robot.count % 10 == 0) {
-            SmartDashboard.putNumber("Drum Velocity", getVelocityRPM());
+        if (Robot.count % 10 == 0) {
+            SmartDashboard.putNumber("Drum Vel", getVelocityRPM());
             SmartDashboard.putBoolean("Drum At Speed", atSpeed(targetRPM));
         }
         if (Robot.count % 100 == 0 && Math.abs(getVelocityRPM()) != 0) {
             logf("Drum Velocity:%.2f, At Speed:%b Target:%.2f",
                     getVelocityRPM(), atSpeed(targetRPM), targetRPM);
         }
-        
+
     }
 }

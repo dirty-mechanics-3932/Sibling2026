@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,13 +26,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
-import frc.robot.subsystems.Pose.FieldConstants;
+import frc.robot.commands.PositionAndShootCommand;
+import frc.robot.subsystems.Indicator.IndicatorSubsystem;
 import frc.robot.subsystems.Pose.PositionSubsystem;
 import frc.robot.subsystems.Pose.VisionSubsystemV2;
 import frc.robot.subsystems.intake.IntakeSpin;
@@ -77,6 +76,7 @@ public class RobotContainer {
   private final PositionSubsystem positionSubsystem;
   private final HotDog hotDog;
   private final HubSubCommands hubSubCommands;
+  public final IndicatorSubsystem indicatorSubsystem;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -151,6 +151,7 @@ public class RobotContainer {
     positionSubsystem = new PositionSubsystem(m_drivebase);
     hotDog = new HotDog();
     hubSubCommands = new HubSubCommands();
+    indicatorSubsystem = new IndicatorSubsystem(this);
 
     // Configure the trigger bindings
     configureBindings();
@@ -257,18 +258,16 @@ public class RobotContainer {
         .start()
         .onTrue(
             Commands.runOnce(() -> m_drivebase.resetOdometry(getInitPose()))
-                .andThen(myLogf("Reset Pose to 1.2,1.2,180")));
+                .andThen(myLogf("Reset Pose %s", Robot.getAllianceColor())));
 
+    // Align Robot to target
     m_driverController.rightTrigger().whileTrue(
         m_drivebase.aimAtPoseCommand(
             () -> m_driverController.getLeftY(),
             () -> m_driverController.getLeftX(),
             () -> positionSubsystem.getTarget(),
             false, 0)
-            .alongWith(myLogf("Aiming at hub pose:" +
-                (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                    ? "Blue Hub"
-                    : "Red Hub"))));
+            .alongWith(myLogf("Aiming at hub pose:%s", Robot.getAllianceColor())));
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
 
@@ -290,9 +289,9 @@ public class RobotContainer {
   }
 
   private void operatorBindings() {
-    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.runToSpeed(3000)))
+    m_opController.button(1).whileTrue(drumstickSubsystem.runToSpeed(3000))
         .onFalse(drumstickSubsystem.stopShooter());
-    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM()))
+    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpointCmd(positionSubsystem.getShooterRPM()))
         .onFalse(catchupSubsystem.stopCatchup());
 
     m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(5));
@@ -303,24 +302,23 @@ public class RobotContainer {
 
     m_opController.button(7).whileTrue(intakeSpin.intakeSpin(3000)).onFalse(intakeSpin.stopIntake());
 
-    m_opController.button(8).whileTrue(hotDog.setVelocitySetpoint(1000)).whileFalse(hotDog.stopHotDog());
-    m_opController.button(9).whileTrue(intakeTilt.moveIntakeTiltDeltaDeg(-70)).onFalse(intakeTilt.extendIntake());
+    m_opController.button(8).whileTrue(hotDog.setVelocitySetpointCmd(1000)).whileFalse(hotDog.stopHotDog());
+    m_opController.button(9).whileTrue(intakeTilt.moveIntakeTiltDeltaDeg(-70).alongWith(intakeSpin.intakeSpin(3000))).onFalse(intakeTilt.extendIntake().alongWith(intakeSpin.stopIntake()));
     m_opController.button(10).onTrue(hoodSubsystem.setHoodPosition(0));
     m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
     m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
-    m_opController.button(13).onTrue(
-        hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem, hoodSubsystem));
-    m_opController.button(14).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
-
-    m_opController.povUp().onTrue(new InstantCommand(() -> Robot.alliance = Alliance.Red))
-        .onFalse(new InstantCommand(() -> Robot.alliance = Alliance.Blue));
+    m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase));
+    // m_opController.button(14).onTrue(
+    //     hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem, hoodSubsystem));
+    m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
+    m_opController.povUp().whileTrue(intakeSpin.intakeSpin(-2000)).onFalse(intakeSpin.intakeSpin(0.0));
   }
 
   private Pose2d getInitPose() {
     if (Robot.isAllianceBlue()) {
-      return new Pose2d(new Translation2d(1.2, 1.2), Rotation2d.fromDegrees(-180));
+      return new Pose2d(new Translation2d(3.1256, 4.034536), Rotation2d.fromDegrees(-180));
     } else {
-      return new Pose2d(new Translation2d(15.341, 1.2), Rotation2d.fromDegrees(180));
+      return new Pose2d(new Translation2d(13.4154, 4.034536), Rotation2d.fromDegrees(180));
     }
   }
 
@@ -337,6 +335,7 @@ public class RobotContainer {
     m_visionRear.setThrottle(throttle);
   }
 
+  @SuppressWarnings("unused")
   private void logPoses() {
     logf("LL ******* Pose: %s %s %s Robot:%s", m_visionLeft.getVisionResult());
     logf("LRight******* Pose: %s %s %s Robot:%s", m_visionRight.getVisionResult());
@@ -366,4 +365,19 @@ public class RobotContainer {
     intakeTilt.zeroEncoder();
     hoodSubsystem.setPositionWithEncoder(0);
   }
+
+  public boolean[] getLimitSwitches() {
+    boolean[] switches = {
+        intakeTilt.getLimitSwitch(),
+        hoodSubsystem.hoodAtPosition(0),
+        hoodSubsystem.hoodAtTarget(),
+        positionSubsystem.readyToShoot(drumstickSubsystem, hoodSubsystem)
+    };
+    return switches;
+  }
+
+  public void setLimitSwitches() {
+    indicatorSubsystem.setStatusIndicators(getLimitSwitches());
+  }
+
 }

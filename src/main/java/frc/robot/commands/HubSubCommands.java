@@ -17,13 +17,13 @@ public class HubSubCommands {
 
     public Command shootBall(DrumstickSubsystem drumstickSubsystem, CatchupSubsystem catchupSubsystem, HotDog hotDog, PositionSubsystem positionSubsystem, HoodSubsystem hood) {
         return new SequentialCommandGroup(
-            myLogf("Start shoot ball command %.3f, Hood pos %.3f", positionSubsystem.getShooterRPM(), positionSubsystem.getHoodPosition()),
+            myLogf("Start shoot ball command %.3f, Hood pos %.3f, Distance to targ %.3f", positionSubsystem.getShooterRPM(), positionSubsystem.getHoodPosition(), positionSubsystem.getDistanceV2()),
             drumstickSubsystem.runToSpeed(positionSubsystem.getShooterRPM()),
             hood.setHoodPosition(positionSubsystem.getHoodPosition()),
             myLogf("Shoot speed OK"),
-            hotDog.setVelocitySetpoint(3000),
+            hotDog.setVelocitySetpointCmd(3000),
             Commands.waitSeconds(.1),
-            catchupSubsystem.setCatchupSetpoint(positionSubsystem.getShooterRPM()),
+            catchupSubsystem.setCatchupSetpointCmd(positionSubsystem.getShooterRPM()),
             myLogf("shoot ball complete"));
     }
 
