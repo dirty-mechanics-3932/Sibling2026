@@ -6,8 +6,11 @@ import static frc.robot.utilities.Util.logf;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
 import frc.robot.subsystems.Pose.PositionSubsystem;
+import frc.robot.subsystems.intake.IntakeSpin;
+import frc.robot.subsystems.intake.IntakeTilt;
 //import frc.robot.Robot;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
@@ -22,19 +25,25 @@ public class PositionAndShootCommand extends Command {
     private final HotDog m_hotDog; 
     private final CatchupSubsystem m_catchupSubsystem;
     private final SwerveSubsystem m_drivebase;
+    private final IntakeTilt m_IntakeTilt;
+    private final IntakeSpin m_IntakeSpin;
 
     private double shooterTarget;
     private double hoodTarget;
     private double distToTarget; 
     private boolean atSpeed; 
+    private boolean finished;
+    private int my_count = 0; 
 
-    public PositionAndShootCommand(PositionSubsystem position, DrumstickSubsystem drumstick, HoodSubsystem hood, HotDog hotDog, CatchupSubsystem catchup, SwerveSubsystem swerve){
+    public PositionAndShootCommand(PositionSubsystem position, DrumstickSubsystem drumstick, HoodSubsystem hood, HotDog hotDog, CatchupSubsystem catchup, SwerveSubsystem swerve, IntakeTilt intakeTilt, IntakeSpin intakeSpin){
         this.m_positionSubsysten = position;
         this.m_drumstickSubsystem = drumstick;
         this.m_hotDog = hotDog;
         this.m_hoodSubsystem = hood;
         this.m_catchupSubsystem = catchup;
         this.m_drivebase = swerve;
+        this.m_IntakeTilt = intakeTilt;
+        this.m_IntakeSpin = intakeSpin; 
 
         addRequirements(position, catchup, hood, drumstick);
     }
@@ -56,10 +65,17 @@ public class PositionAndShootCommand extends Command {
 
     @Override
     public void execute(){
+        my_count++;
         if (!atSpeed && m_positionSubsysten.readyToShoot(m_drumstickSubsystem, m_hoodSubsystem)){
             m_catchupSubsystem.setCatchupSetpoint(shooterTarget);
             m_hotDog.setVelocitySetpoint(3000); 
+            my_count = 0;
             atSpeed = true; 
+        }
+        if (atSpeed && my_count>=25){
+            m_IntakeTilt.moveIntakeTiltDeltaDeg(-70);
+            m_IntakeSpin.setVelocitySetpoint(3000);
+            finished = true;
         }
     }
 
@@ -70,6 +86,6 @@ public class PositionAndShootCommand extends Command {
 
     @Override
     public boolean isFinished(){
-        return atSpeed;
+        return finished;
     }
 }

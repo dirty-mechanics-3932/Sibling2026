@@ -199,16 +199,16 @@ public class VisionSubsystemV2 extends SubsystemBase {
       if (Robot.count % 250 == 100) {
         SmartDashboard.putNumber(m_shortName + ":ID", tagID);
         Pose2d tagPose = m_fieldLayout.getTagPose(tagID).orElseThrow().toPose2d();
-        // logf(
-        //     "%s tag:%d Pose x:%.3f y:%.3f angle:%.3f delta x:%.3f y:%.3f angle:%.2f",
-        //     m_shortName,
-        //     tagID,
-        //     pose.getX(),
-        //     pose.getY(),
-        //     pose.getRotation().getDegrees(),
-        //     pose.getX() - tagPose.getX(),
-        //     pose.getY() - tagPose.getY(),
-        //     tagPose.getRotation().getDegrees());
+        logf(
+            "%s tag:%d Pose x:%.3f y:%.3f angle:%.3f delta x:%.3f y:%.3f angle:%.2f",
+            m_shortName,
+            tagID,
+            pose.getX(),
+            pose.getY(),
+            pose.getRotation().getDegrees(),
+            pose.getX() - tagPose.getX(),
+            pose.getY() - tagPose.getY(),
+            tagPose.getRotation().getDegrees());
 
         //   SmartDashboard.putNumber(m_shortName + ":TagPX", tagPose.getX());
         //   SmartDashboard.putNumber(m_shortName + ":TagPY", tagPose.getY());

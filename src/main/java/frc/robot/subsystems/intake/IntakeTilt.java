@@ -25,7 +25,7 @@ public class IntakeTilt extends SubsystemBase {
     private final DigitalInput limitSwitch = new DigitalInput(9);
     // Range of motion, in degrees
     public static final double MIN_ANGLE = 0.0;
-    public static final double MAX_ANGLE = 120.0;
+    public static final double MAX_ANGLE = 125.0;
     private double gearRatio = 52.5;
     private double toleranceDeg = 3.0;
 
@@ -90,11 +90,15 @@ public class IntakeTilt extends SubsystemBase {
     }
 
     public Command extendIntake() {
-        return setIntakeTiltSetpointDeg(118);
+        return setIntakeTiltSetpointDeg(120);
     }
 
-    public Command moveIntakeTiltDeltaDeg(double value) {
+    public Command moveIntakeTiltDeltaDegCmd(double value) {
         return Commands.runOnce(() -> moveIntakeDeg(lastPositionDeg + value));
+    }
+
+    public void moveIntakeTiltDeltaDeg(double value){
+        moveIntakeDeg(lastPositionDeg+value);
     }
 
     private void moveIntakeDeg(double degrees) {

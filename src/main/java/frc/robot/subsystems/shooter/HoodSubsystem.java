@@ -97,7 +97,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     public boolean hoodAtPosition(double targetRot) {
         double targetDeg = targetRot * 360;
-        SmartDashboard.putNumber("Hoodpos - target", Math.abs(getHoodPositionInDeg() - targetDeg));
+        SmartDashboard.putNumber("Hoodpos  Error", Math.abs(getHoodPositionInDeg() - targetDeg));
         return Math.abs(getHoodPositionInDeg() - targetDeg) <= toleranceDeg;
     }
 

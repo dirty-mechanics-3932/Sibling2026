@@ -261,13 +261,14 @@ public class RobotContainer {
                 .andThen(myLogf("Reset Pose %s", Robot.getAllianceColor())));
 
     // Align Robot to target
-    m_driverController.rightTrigger().whileTrue(
+    m_driverController.leftTrigger().whileTrue(
         m_drivebase.aimAtPoseCommand(
             () -> m_driverController.getLeftY(),
             () -> m_driverController.getLeftX(),
             () -> positionSubsystem.getTarget(),
             false, 0)
             .alongWith(myLogf("Aiming at hub pose:%s", Robot.getAllianceColor())));
+    m_driverController.rightTrigger().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin)).onFalse(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
 
@@ -294,8 +295,8 @@ public class RobotContainer {
     m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpointCmd(positionSubsystem.getShooterRPM()))
         .onFalse(catchupSubsystem.stopCatchup());
 
-    m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(5));
-    m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDeg(-5));
+    m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(5));
+    m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(-5));
 
     m_opController.button(5).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
     m_opController.button(6).whileTrue(intakeTilt.extendIntake());
@@ -303,11 +304,11 @@ public class RobotContainer {
     m_opController.button(7).whileTrue(intakeSpin.intakeSpin(3000)).onFalse(intakeSpin.stopIntake());
 
     m_opController.button(8).whileTrue(hotDog.setVelocitySetpointCmd(1000)).whileFalse(hotDog.stopHotDog());
-    m_opController.button(9).whileTrue(intakeTilt.moveIntakeTiltDeltaDeg(-70).alongWith(intakeSpin.intakeSpin(3000))).onFalse(intakeTilt.extendIntake().alongWith(intakeSpin.stopIntake()));
+    m_opController.button(9).whileTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(-70).alongWith(intakeSpin.intakeSpin(3000)));
     m_opController.button(10).onTrue(hoodSubsystem.setHoodPosition(0));
     m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
     m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
-    m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase));
+    m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin));
     // m_opController.button(14).onTrue(
     //     hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem, hoodSubsystem));
     m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
