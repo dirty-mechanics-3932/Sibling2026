@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -26,7 +28,8 @@ public class HotDog {
     }
 
     public Command setVelocitySetpoint(AngularVelocity valueRPM) {
-        return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(valueRPM).withEnableFOC(true)));
+            double rps = valueRPM.in(RotationsPerSecond);
+        return Commands.runOnce(()->m_velocityMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true)));
     }
 
     public double getVelocityMotor() {

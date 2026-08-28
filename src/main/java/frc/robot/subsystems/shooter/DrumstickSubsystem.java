@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -60,9 +61,10 @@ public class DrumstickSubsystem extends SubsystemBase {
     //     SmartDashboard.putBoolean("Drumstick At Speed", atSpeed(value/60));
     // }
 
-    public void setVelocityRPM(AngularVelocity rpm) {
-        m_velocityLeader.setControl(velocityRequest.withVelocity(rpm).withEnableFOC(true));
-        targetRPM = rpm;
+    public void setVelocityRPM(AngularVelocity valueRPM) {
+            double rps = valueRPM.in(RotationsPerSecond);
+        m_velocityLeader.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
+        targetRPM = valueRPM;
     }
 
     // This command will run the shooter until it reaches the target speed, then return.

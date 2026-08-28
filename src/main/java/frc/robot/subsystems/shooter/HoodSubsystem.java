@@ -1,5 +1,8 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -10,6 +13,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,11 +30,11 @@ public class HoodSubsystem extends SubsystemBase {
     private double toleranceDeg = 2; // degrees
 
     // Range of motion, in degrees
-    public static final double MIN_ANGLE = 0.0;
-    public static final double MAX_ANGLE = 50.0;
+    public static final Angle MIN_ANGLE = Degrees.of(0.0);
+    public static final Angle MAX_ANGLE = Degrees.of(50.0);
 
-    public static final double MIN_ROTATION = MIN_ANGLE / 360.0;
-    public static final double MAX_ROTATION = MAX_ANGLE / 360.0;
+    public static final Angle MIN_ROTATION = MIN_ANGLE;
+    public static final Angle MAX_ROTATION = MAX_ANGLE.in(Rotations);
 
     // Motor rotations per 1 CANcoder rotation (CANcoder is mounted on the hood
     // output shaft)
@@ -67,9 +71,9 @@ public class HoodSubsystem extends SubsystemBase {
         config.MotionMagic.MotionMagicJerk = 40.0; // time to reach max accel (0 = disabled)
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_ROTATION;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_ROTATION.in(Degrees);
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = MIN_ROTATION;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = MIN_ROTATION.in(Degrees);
 
         m_hoodMotor.getConfigurator().apply(config);
         absoluteEncoder.getConfigurator().apply(configEncoder);
@@ -79,14 +83,14 @@ public class HoodSubsystem extends SubsystemBase {
         return absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360;
     }
 
-    public Command setHoodPosition(double valueDeg) {
+    public Command setHoodPosition(Angle valueDeg) {
         return Commands
-                .run(() -> setPositionWithEncoder(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)), this)
-                .until(() -> atPosition(MathUtil.clamp(valueDeg / 360, MIN_ROTATION, MAX_ROTATION)));
+                .run(() -> setPositionWithEncoder(Degrees.of(MathUtil.clamp(valueDeg.in(Degrees), MIN_ROTATION.in(Degrees), MAX_ROTATION.in(Degrees)))), this)
+                .until(() -> atPosition(Degrees.of(MathUtil.clamp(valueDeg.in(Degrees), MIN_ROTATION.in(Degrees), MAX_ROTATION.in(Degrees)))));
     }
 
-    public void setPositionWithEncoder(double valueRot) {
-        targetPositionRot = MathUtil.clamp(valueRot, MIN_ROTATION, MAX_ROTATION);
+    public void setPositionWithEncoder(Angle valueRot) {
+        targetPositionRot = MathUtil.clamp(valueRot.in(Rotations), MIN_ROTATION.in(Degrees), MAX_ROTATION.in(Degrees));
         m_hoodMotor.setControl(motionMagicVoltage.withPosition(targetPositionRot));
     }
 
@@ -94,8 +98,8 @@ public class HoodSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> m_hoodMotor.stopMotor());
     }
 
-    public boolean atPosition(double targetRot) {
-        double targetDeg = targetRot * 360;
+    public boolean atPosition(Angle targetRot) {
+        double targetDeg = targetRot.in(Degrees);
         SmartDashboard.putNumber("Hoodpos - target", Math.abs(getHoodPositionInDeg() - targetDeg));
         return Math.abs(getHoodPositionInDeg() - targetDeg) <= toleranceDeg;
     }
@@ -106,11 +110,11 @@ public class HoodSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Hood Position", getHoodPositionInDeg());
             SmartDashboard.putNumber("Hood Target", targetPositionRot * 360);
             SmartDashboard.putNumber("Tolerance", toleranceDeg);
-            SmartDashboard.putBoolean("Hood At Position", atPosition(targetPositionRot));
+            SmartDashboard.putBoolean("Hood At Position", atPosition(Rotations.of(targetPositionRot)));
         }
         if (Robot.count % 1000 == 0) {
             logf("Hood Position: %.2f, Target: %.2f, At Position: %b", getHoodPositionInDeg(), targetPositionRot * 360,
-                    atPosition(targetPositionRot));
+                    atPosition(Rotations.of(targetPositionRot)));
         }
     }
 }

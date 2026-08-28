@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -46,7 +47,8 @@ public class CatchupSubsystem extends SubsystemBase {
     }
 
     public Command setCatchupSetpoint(AngularVelocity valueRPM) {
-        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(valueRPM).withEnableFOC(true)));
+            double rps = valueRPM.in(RotationsPerSecond);
+        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true)));
     }
 
     public double getVelocity() {
