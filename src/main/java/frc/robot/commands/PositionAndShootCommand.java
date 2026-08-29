@@ -14,6 +14,12 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class PositionAndShootCommand extends Command {
 
+    /* Valor values
+     * Intake: 3600
+     * Hopper (hotdog): 1320
+     * Catchup: 1500
+     *  
+     */
     private final PositionSubsystem m_positionSubsysten;
     private final DrumstickSubsystem m_drumstickSubsystem;
     private final HoodSubsystem m_hoodSubsystem;

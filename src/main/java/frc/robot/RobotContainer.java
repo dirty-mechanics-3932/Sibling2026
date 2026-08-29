@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.HubSubCommands;
-import frc.robot.commands.PositionAndShootCommand;
+import frc.robot.commands.PositionAndShootCommand; 
 import frc.robot.subsystems.Indicator.IndicatorSubsystem;
 import frc.robot.subsystems.Pose.PositionSubsystem;
 import frc.robot.subsystems.Pose.VisionSubsystemV2;
@@ -269,8 +269,9 @@ public class RobotContainer {
             false, 0)
             .alongWith(myLogf("Aiming at hub pose:%s", Robot.getAllianceColor())));
     m_driverController.rightTrigger().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin)).onFalse(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
-    m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
-    m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
+    m_driverController.y().whileTrue(intakeTilt.extendIntake()); 
+    m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
+    m_driverController.b().whileTrue(intakeSpin.intakeSpin(3000)).onFalse((intakeSpin.intakeSpin(0))); 
   }
 
   private void operatorBindings() {
