@@ -97,7 +97,7 @@ public class IntakeTilt extends SubsystemBase {
     }
 
     public void moveIntakeTiltDeltaDeg(double value){
-        moveIntakeDeg(lastPositionDeg+value);
+        moveIntakeDeg(lastPositionDeg + value);
     }
 
     private void moveIntakeDeg(double degrees) {
