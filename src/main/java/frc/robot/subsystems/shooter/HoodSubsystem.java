@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import static frc.robot.utilities.Util.logf;
 import static frc.robot.utilities.Util.round2;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;

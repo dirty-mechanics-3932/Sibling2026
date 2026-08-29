@@ -271,22 +271,6 @@ public class RobotContainer {
     m_driverController.rightTrigger().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin)).onFalse(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
     m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
     m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
-
-    // commands you need to run sysid. run the logger, then quasistatic forward,
-    // reverse; dynamic forward, reverse; end log
-    // m_joystick.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-    // m_joystick.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-
-    // /*
-    // * Joystick Y = quasistatic forward
-    // * Joystick A = quasistatic reverse
-    // * Joystick B = dynamic forward
-    // * Joystick X = dyanmic reverse
-    // */
-    // m_joystick.y().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // m_joystick.a().whileTrue(m_mechanism.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // m_joystick.b().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // m_joystick.x().whileTrue(m_mechanism.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   private void operatorBindings() {
@@ -309,8 +293,6 @@ public class RobotContainer {
     m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
     m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
     m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin));
-    // m_opController.button(14).onTrue(
-    //     hubSubCommands.shootBall(drumstickSubsystem, catchupSubsystem, hotDog, positionSubsystem, hoodSubsystem));
     m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
     m_opController.povUp().whileTrue(intakeSpin.intakeSpin(-2000)).onFalse(intakeSpin.intakeSpin(0.0));
   }

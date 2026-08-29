@@ -34,18 +34,6 @@ public class HubSubCommands {
             catchupSubsystem.stopCatchup(),
             myLogf("Stop shoot ball command complete"));
     }
-
-    // Old shoot command, doesn't work:
-
-    // public Command shootCommand(HotDog hotDog, PositionSubsystem position, CatchupSubsystem catchup, DrumstickSubsystem drumstick, HoodSubsystem hood){
-    //     return Commands.runOnce(()->logf("*****Starting shooter command")).andThen(
-    //     drumstick.runToSpeed(position.getShooterRPM())).andThen( 
-    //     Commands.runOnce(()->logf("*****Continuing shooter command"))).andThen(
-    //     hood.setHoodPosition(position.getHoodPosition())).andThen(
-    //     Commands.waitUntil(()->position.readyToShoot(drumstick, hood))).andThen(
-    //     catchup.setCatchupSetpoint(40).alongWith(hotDog.setVelocitySetpoint(40))).andThen(
-    //     Commands.runOnce(()->logf("*****Stopping shooter command")));
-    // }
     
     public Command myLogf(String pattern, Object... args) {
         return new InstantCommand(() -> logf(pattern, args));

@@ -29,7 +29,6 @@ public class DrumstickSubsystem extends SubsystemBase {
     private double targetRPM = 0;
 
     public DrumstickSubsystem() {
-        // Remember to set the motor IDs
         m_velocityLeader = new TalonFX(31);
         m_velocityFollower1 = new TalonFX(32);
         m_velocityFollower2 = new TalonFX(33);
@@ -57,8 +56,7 @@ public class DrumstickSubsystem extends SubsystemBase {
         targetRPM = rpm;
     }
 
-    // This command will run the shooter until it reaches the target speed, then
-    // return.
+    // This command will run the shooter until it reaches the target speed, then return.
     public Command runToSpeed(double rpm) {
         return Commands.run(() -> setVelocityRPM(rpm), this).until(() -> atSpeed(rpm));
     }
@@ -74,29 +72,6 @@ public class DrumstickSubsystem extends SubsystemBase {
     public Command stopShooter() {
         return Commands.runOnce(() -> m_velocityLeader.stopMotor());
     }
-
-    // private SysIdRoutine sysIdRoutine = new SysIdRoutine(
-    // new SysIdRoutine.Config(
-    // null,
-    // Volts.of(4),
-    // null,
-    // (state) -> SignalLogger.writeString("state", state.toString())
-    // ),
-    // new SysIdRoutine.Mechanism(
-    // (volts) ->
-    // m_velocityLeader.setControl(m_voltReq.withOutput(volts.in(Volts))),
-    // null,
-    // this
-    // )
-    // );
-
-    // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    // return sysIdRoutine.quasistatic(direction);
-    // }
-
-    // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    // return sysIdRoutine.dynamic(direction);
-    // }
 
     @Override
     public void periodic() {

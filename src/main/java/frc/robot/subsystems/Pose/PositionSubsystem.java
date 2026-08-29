@@ -1,10 +1,8 @@
 package frc.robot.subsystems.Pose;
 
-import static frc.robot.utilities.Util.logf;
 import static frc.robot.utilities.Util.round2;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.*;

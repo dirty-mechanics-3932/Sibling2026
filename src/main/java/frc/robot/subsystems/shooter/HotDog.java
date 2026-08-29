@@ -15,7 +15,7 @@ public class HotDog extends SubsystemBase {
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0); 
 
     public HotDog() {
-        m_velocityMotor = new TalonFX(60); // Remember to set the motor IDs
+        m_velocityMotor = new TalonFX(60);
         configs.Slot0.kP = 0.01;
         configs.Slot0.kI = 0.00;
         configs.Slot0.kD = 0.00;

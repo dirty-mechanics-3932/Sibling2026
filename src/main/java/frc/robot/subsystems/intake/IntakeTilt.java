@@ -3,7 +3,6 @@ import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-//import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -140,18 +139,6 @@ public class IntakeTilt extends SubsystemBase {
     public boolean isAtTarget() {
         return Math.abs(lastPositionDeg - getPositionMotorDeg()) < toleranceDeg;
     }
-
-    // public Command extendIntake(double degrees) {
-    // lastPosition = degrees;
-    // motorRotations = gearRatio * (degrees/360);
-    // return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
-    // }
-
-    // public Command bounceIntake(double degrees) {
-    // lastPosition = degrees;
-    // motorRotations = gearRatio * (degrees/360);
-    // return Commands.runOnce(()->setIntakeTiltSetpoint(motorRotations));
-    // }
 
     @Override
     public void periodic() {
