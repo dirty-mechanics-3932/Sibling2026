@@ -8,6 +8,8 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CatchupSubsystem extends SubsystemBase {
@@ -18,8 +20,8 @@ public class CatchupSubsystem extends SubsystemBase {
     private final TalonFXConfiguration configs;
     private final VelocityVoltage velocityRequest;
 
+
     public CatchupSubsystem() {
-        // Remember to set the motor IDs
         m_velocityLeader = new TalonFX(41); 
         m_velocityFollower = new TalonFX(40);
 
@@ -40,16 +42,26 @@ public class CatchupSubsystem extends SubsystemBase {
         m_velocityFollower.setControl(new Follower(m_velocityLeader.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public void setCatchupSetpoint(double value) {
-        m_velocityLeader.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
+    public Command setCatchupSetpointCmd(double value) {
+        return Commands.runOnce(()->m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)));
     }
+
+    public void setCatchupSetpoint(double value){
+        m_velocityLeader.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true)); 
+    }
+
 
     public double getVelocity() {
-        return m_velocityLeader.getVelocity().getValueAsDouble();
+        return m_velocityLeader.getVelocity().getValueAsDouble() * 60;
     }
 
-    public void stopCatchup() {
-        m_velocityLeader.stopMotor();
+    public boolean atSpeed(double target) {
+        double tolerance = 1.0;
+        return Math.abs(getVelocity() - target) < tolerance;
+    }
+
+    public Command stopCatchup() {
+        return Commands.runOnce(()->m_velocityLeader.stopMotor());
     }
 
     @Override

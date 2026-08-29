@@ -5,7 +5,7 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
-import static frc.robot.utilities.Util.logf;
+//import static frc.robot.utilities.Util.logf;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -32,18 +32,22 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.subsystems.Pose.FieldConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -61,7 +65,11 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive m_swerveDrive;
+  // private PositionSubsystem m_positionSubsystem;
   private final PIDController headingPID = new PIDController(5.0, 0.0, 0.1);
+  private boolean shootBackward = false; //0 is forward, 1 is backward
+  int targetShootingSide;
+  Rotation2d targetHeading;
   
   Pose2d m_currentRobotPose;
   Pose2d robotPose = new Pose2d();
@@ -76,6 +84,7 @@ public class SwerveSubsystem extends SubsystemBase
       NetworkTableInstance.getDefault().getStructTopic("MyRobotPose", Pose2d.struct).publish();
 
   public SwerveSubsystem(File directory) { 
+    // m_positionSubsystem = new PositionSubsystem(this);
     boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                                                                       Meter.of(4)),
@@ -115,6 +124,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
   {
+    // m_positionSubsystem = new PositionSubsystem(this);
     m_swerveDrive = new SwerveDrive(driveCfg,
                                   controllerCfg,
                                   Constants.MAX_SPEED,
@@ -128,6 +138,10 @@ public class SwerveSubsystem extends SubsystemBase
     robotPose = getPose();
     m_currentRobotPose = m_swerveDrive.field.getRobotPose();
     publisher.set(m_currentRobotPose);
+
+    SmartDashboard.putNumber("robotPose", getPose().getRotation().getDegrees());
+
+    SmartDashboard.putNumber("DeltaAngle (REDHUB)", getHeadingToPose(FieldConstants.HUB_POSE_RED).getDegrees());
   }
 
   @Override
@@ -229,7 +243,7 @@ public class SwerveSubsystem extends SubsystemBase
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
         m_swerveDrive.getMaximumChassisVelocity(), 4.0,
-        m_swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+        Units.degreesToRadians(90), Units.degreesToRadians(720));
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
@@ -676,6 +690,7 @@ public class SwerveSubsystem extends SubsystemBase
    *
    * @return {@link SwerveDrive}
    */
+  // Just make m_swerveDrive public, it does the same thing but less confusing
   public SwerveDrive getM_swerveDrive()
   {
     return m_swerveDrive;
@@ -693,30 +708,61 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   public Rotation2d getHeadingToPose(Pose2d targetPose) {
-    return targetPose.getTranslation()
-                     .minus(getPose().getTranslation())
-                     .getAngle();
+    Rotation2d delta = (targetPose.getTranslation()).minus(getPose().getTranslation()).getAngle();
+
+    if (delta.getDegrees() < 0) {
+        delta = delta.plus(Rotation2d.fromDegrees(180));
+      } else {
+        delta = delta.minus(Rotation2d.fromDegrees(180));
+      }
+
+    return delta;
   }
+
+  public SwerveDrive getSwerveDrive() {
+    return m_swerveDrive;
+  }
+
+  // needs to be tested and reworked
+  public boolean shootBackward(Supplier<Pose2d> targetPose){
+    Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
+    Rotation2d targetHeadingForward = delta.getAngle();
+    Rotation2d targetHeadingBackward = delta.getAngle().plus(new Rotation2d(180));
+    if (((robotPose.getRotation().minus(targetHeadingBackward)).minus(robotPose.getRotation().minus(targetHeadingForward))).getRadians() <= 0 ){
+      shootBackward = true;
+    }
+    return shootBackward; 
+  }  
 
   public Command aimAtPoseCommand(
     DoubleSupplier translationX,
     DoubleSupplier translationY,
-    Supplier<Pose2d> targetPose) {
-
-    logf("Command starting");
+    Supplier<Pose2d> targetPose, 
+    Boolean fixPos,
+    int pos) {
+    
+    targetShootingSide = pos;
 
     return Commands.run(() -> {
-      Translation2d delta = targetPose.get().getTranslation().minus(robotPose.getTranslation());
 
-      Rotation2d targetHeading = delta.getAngle();
-      logf("Target Heading: %.2f degrees", targetHeading.getDegrees());
-      logf("Translations: %,2f", delta);
+      if (!fixPos){
+        if (shootBackward(targetPose)){
+          targetShootingSide = 2;
+        } else{
+          targetShootingSide = 1;
+        }
+      }
+
+      SmartDashboard.putBoolean("Backwards Shooting", shootBackward(targetPose));
+      SmartDashboard.putNumber("Side", targetShootingSide);
+
+      Rotation2d targetHeading = getHeadingToPose(targetPose.get());
+      
+      SmartDashboard.putNumber("Target Heading", targetHeading.getDegrees());
 
       double omega = headingPID.calculate(
-        robotPose.getRotation().getRadians(),
+        getPose().getRotation().getRadians(),
         targetHeading.getRadians());
-
-      logf("Omega: %.2f", omega);
 
       drive(
         SwerveMath.scaleTranslation(

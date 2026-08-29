@@ -6,8 +6,12 @@ package frc.robot;
 
 import static frc.robot.utilities.Util.logf;
 
+import java.io.File;
+
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,7 +21,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,18 +28,20 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+//import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.HubSubCommands;
+import frc.robot.commands.PositionAndShootCommand;
+import frc.robot.subsystems.Indicator.IndicatorSubsystem;
+import frc.robot.subsystems.Pose.PositionSubsystem;
+import frc.robot.subsystems.Pose.VisionSubsystemV2;
+import frc.robot.subsystems.intake.IntakeSpin;
 import frc.robot.subsystems.intake.IntakeTilt;
 import frc.robot.subsystems.shooter.CatchupSubsystem;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.hotDog.HotDog;
-import frc.robot.subsystems.intake.IntakeSpin;
+import frc.robot.subsystems.shooter.HotDog;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.subsystems.vision.FieldConstants;
-import frc.robot.subsystems.vision.VisionSubsystem;
-
-import java.io.File;
 import swervelib.SwerveInputStream;
 
 /**
@@ -56,7 +61,9 @@ public class RobotContainer {
   private final SwerveSubsystem m_drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/Sibling_2026"));
 
-  private VisionSubsystem m_visionFront;
+  private VisionSubsystemV2 m_visionLeft;
+  private VisionSubsystemV2 m_visionRight;
+  private VisionSubsystemV2 m_visionRear;
 
   // Establish a Sendable Chooser that will be able to be sent to the
   // SmartDashboard, allowing selection of desired auto
@@ -66,6 +73,10 @@ public class RobotContainer {
   private final CatchupSubsystem catchupSubsystem;
   private final DrumstickSubsystem drumstickSubsystem;
   private final HoodSubsystem hoodSubsystem;
+  private final PositionSubsystem positionSubsystem;
+  private final HotDog hotDog;
+  private final HubSubCommands hubSubCommands;
+  public final IndicatorSubsystem indicatorSubsystem;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
@@ -77,6 +88,7 @@ public class RobotContainer {
       .withControllerRotationAxis(() -> m_driverController.getRightX() * -1)
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.4)
+      .scaleRotation(0.4)
       .allianceRelativeControl(true);
 
   /**
@@ -128,12 +140,18 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_visionFront = new VisionSubsystem(m_drivebase, "limelight", "Front");
+    m_visionLeft = new VisionSubsystemV2(m_drivebase, "limelight-left", "left");
+    m_visionRight = new VisionSubsystemV2(m_drivebase, "limelight-right", "right");
+    m_visionRear = new VisionSubsystemV2(m_drivebase, "limelight-rear", "rear");
     intakeSpin = new IntakeSpin();
     intakeTilt = new IntakeTilt();
     catchupSubsystem = new CatchupSubsystem();
     drumstickSubsystem = new DrumstickSubsystem();
     hoodSubsystem = new HoodSubsystem();
+    positionSubsystem = new PositionSubsystem(m_drivebase);
+    hotDog = new HotDog();
+    hubSubCommands = new HubSubCommands();
+    indicatorSubsystem = new IndicatorSubsystem(this);
 
     // Configure the trigger bindings
     configureBindings();
@@ -172,15 +190,20 @@ public class RobotContainer {
    * Flight joysticks}.
    */
   private void configureBindings() {
-    Command driveFieldOrientedDirectAngle = m_drivebase.driveFieldOriented(driveDirectAngle);
+    // Command driveFieldOrientedDirectAngle =
+    // m_drivebase.driveFieldOriented(driveDirectAngle);
     Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity = m_drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = m_drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
+    // Command driveRobotOrientedAngularVelocity =
+    // m_drivebase.driveFieldOriented(driveRobotOriented);
+    // Command driveSetpointGen =
+    // m_drivebase.driveWithSetpointGeneratorFieldRelative(
+    // driveDirectAngle);
     Command driveFieldOrientedDirectAngleKeyboard = m_drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = m_drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
+    // Command driveFieldOrientedAnglularVelocityKeyboard =
+    // m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+    // Command driveSetpointGenKeyboard =
+    // m_drivebase.driveWithSetpointGeneratorFieldRelative(
+    // driveDirectAngleKeyboard);
 
     if (RobotBase.isSimulation()) {
       m_drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
@@ -235,60 +258,71 @@ public class RobotContainer {
         .start()
         .onTrue(
             Commands.runOnce(() -> m_drivebase.resetOdometry(getInitPose()))
-                .andThen(myLogf("Reset Pose to 1.2,1.2,180")));
+                .andThen(myLogf("Reset Pose %s", Robot.getAllianceColor())));
 
-    m_driverController.rightTrigger().whileTrue(
+    // Align Robot to target
+    m_driverController.leftTrigger().whileTrue(
         m_drivebase.aimAtPoseCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                ? FieldConstants.HUB_POSE_BLUE
-                : FieldConstants.HUB_POSE_RED)
-            .alongWith(myLogf("Aiming at hub pose:" +
-                (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                    ? "Blue Hub"
-                    : "Red Hub"))));
+            () -> m_driverController.getLeftY(),
+            () -> m_driverController.getLeftX(),
+            () -> positionSubsystem.getTarget(),
+            false, 0)
+            .alongWith(myLogf("Aiming at hub pose:%s", Robot.getAllianceColor())));
+    m_driverController.rightTrigger().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin)).onFalse(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
+    m_driverController.x().onTrue(Commands.runOnce(SignalLogger::start));
+    m_driverController.b().onTrue(Commands.runOnce(SignalLogger::stop));
   }
 
-  private void operatorBindings(){
-    m_opController.button(1).whileTrue(new InstantCommand(() -> drumstickSubsystem.setShooterSetpoint(40)));
-    m_opController.button(2).whileTrue(new InstantCommand(() -> drumstickSubsystem.stopShooter()));
+  private void operatorBindings() {
+    m_opController.button(1).whileTrue(drumstickSubsystem.runToSpeed(3000))
+        .onFalse(drumstickSubsystem.stopShooter());
+    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpointCmd(positionSubsystem.getShooterRPM()))
+        .onFalse(catchupSubsystem.stopCatchup());
 
-    m_opController.button(3).whileTrue(new InstantCommand(() -> catchupSubsystem.setCatchupSetpoint(40)));
-    m_opController.button(4).whileTrue(new InstantCommand(() -> catchupSubsystem.stopCatchup()));
+    m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(5));
+    m_opController.button(4).onTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(-5));
 
-    m_opController.button(5).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodSetpoint(1)));
-    m_opController.button(6).whileTrue(new InstantCommand(() -> hoodSubsystem.setHoodSetpoint(0)));
-    m_opController.button(7).whileTrue(new InstantCommand(() -> hoodSubsystem.zeroEncoder()));
+    m_opController.button(5).whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
+    m_opController.button(6).whileTrue(intakeTilt.extendIntake());
 
-    m_opController.button(8).whileTrue(new InstantCommand(() -> intakeTilt.zeroEncoder())); // To figure out rotations needed for extension
-    m_opController.button(9).whileTrue(new InstantCommand(() -> intakeTilt.extendIntake(90)));
-    m_opController.button(10).whileTrue(new InstantCommand(() -> intakeTilt.setIntakeTiltSetpoint(0)));
+    m_opController.button(7).whileTrue(intakeSpin.intakeSpin(3000)).onFalse(intakeSpin.stopIntake());
 
-    m_opController.button(11).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinIn(-40)))
-        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
-    m_opController.button(12).whileTrue(new InstantCommand(() -> intakeSpin.intakeSpinOut(40)))
-        .whileFalse(new InstantCommand(() -> intakeSpin.stopIntake()));
+    m_opController.button(8).whileTrue(hotDog.setVelocitySetpointCmd(1000)).whileFalse(hotDog.stopHotDog());
+    m_opController.button(9).whileTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(-70).alongWith(intakeSpin.intakeSpin(3000)));
+    m_opController.button(10).onTrue(hoodSubsystem.setHoodPosition(0));
+    m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
+    m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
+    m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem, hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin));
+    m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem, catchupSubsystem, hotDog));
+    m_opController.povUp().whileTrue(intakeSpin.intakeSpin(-2000)).onFalse(intakeSpin.intakeSpin(0.0));
   }
 
   private Pose2d getInitPose() {
     if (Robot.isAllianceBlue()) {
-      return new Pose2d(new Translation2d(1.2, 1.2), Rotation2d.fromDegrees(-180));
+      return new Pose2d(new Translation2d(3.1256, 4.034536), Rotation2d.fromDegrees(-180));
     } else {
-      return new Pose2d(new Translation2d(15.341, 1.2), Rotation2d.fromDegrees(180));
+      return new Pose2d(new Translation2d(13.4154, 4.034536), Rotation2d.fromDegrees(180));
     }
   }
 
   public void switchPipelines(int num) {
-    m_visionFront.switchPipeline(num);
+    m_visionLeft.switchPipeline(num);
+    m_visionRight.switchPipeline(num);
+    m_visionRear.switchPipeline(num);
+
   }
 
   public void setVisionThrottle(int throttle) {
-    m_visionFront.setThrottle(throttle);
+    m_visionLeft.setThrottle(throttle);
+    m_visionRight.setThrottle(throttle);
+    m_visionRear.setThrottle(throttle);
   }
 
+  @SuppressWarnings("unused")
   private void logPoses() {
-    logf("******* Pose: %s %s %s Robot:%s", m_visionFront.getVisionResult());
+    logf("LL ******* Pose: %s %s %s Robot:%s", m_visionLeft.getVisionResult());
+    logf("LRight******* Pose: %s %s %s Robot:%s", m_visionRight.getVisionResult());
+    logf("LRear******* Pose: %s %s %s Robot:%s", m_visionRear.getVisionResult());
   }
 
   /**
@@ -312,5 +346,21 @@ public class RobotContainer {
 
   public void homing() {
     intakeTilt.zeroEncoder();
+    hoodSubsystem.setPositionWithEncoder(0);
   }
+
+  public boolean[] getLimitSwitches() {
+    boolean[] switches = {
+        intakeTilt.getLimitSwitch(),
+        hoodSubsystem.hoodAtPosition(0),
+        hoodSubsystem.hoodAtTarget(),
+        positionSubsystem.readyToShoot(drumstickSubsystem, hoodSubsystem)
+    };
+    return switches;
+  }
+
+  public void setLimitSwitches() {
+    indicatorSubsystem.setStatusIndicators(getLimitSwitches());
+  }
+
 }

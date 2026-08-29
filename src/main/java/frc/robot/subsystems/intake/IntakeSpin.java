@@ -6,6 +6,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSpin extends SubsystemBase {
@@ -24,6 +26,7 @@ public class IntakeSpin extends SubsystemBase {
         config.Slot0.kD = 0.00;
         config.Slot0.kS = 0.25;
         config.Slot0.kV = 0.12;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; 
 
         // configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -31,27 +34,23 @@ public class IntakeSpin extends SubsystemBase {
     }
 
     public void setVelocitySetpoint(double value) {
-        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(value).withEnableFOC(true));
+        m_intakeSpinMotor.setControl(velocityRequest.withVelocity(value/60).withEnableFOC(true));
     }
 
-    public void intakeSpinIn(double value) {
-        setVelocitySetpoint(value);
+    public Command intakeSpin(double value) {
+        return Commands.runOnce(()->setVelocitySetpoint(value));
     }
 
-    public void intakeSpinOut(double value) {
-        setVelocitySetpoint(value);
+    public double getVelocity() {
+        return m_intakeSpinMotor.getVelocity().getValueAsDouble() * 60;
     }
 
-    public double getVelocityMotor() {
-        return m_intakeSpinMotor.getVelocity().getValueAsDouble();
-    }
-
-    public void stopIntake() {
-        m_intakeSpinMotor.stopMotor();
+    public Command stopIntake() {
+        return Commands.runOnce(()->m_intakeSpinMotor.stopMotor());
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("IntakeSpinVel", getVelocityMotor());
+        SmartDashboard.putNumber("IntakeSpinVel", getVelocity());
     }
 }
