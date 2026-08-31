@@ -15,9 +15,8 @@ public class IndicatorSubsystem extends SubsystemBase {
 
   private final int NUM_OF_LEDS = 8;
   private final int PWM_SLOT = 9;
-  private int numberOfStatusIndicators;
+  private int numberOfStatusIndicators = 5;
 
-  @SuppressWarnings("unused")
   private RobotContainer m_RobotContainer;
 
   public IndicatorSubsystem(RobotContainer robotContainer) {
@@ -27,12 +26,13 @@ public class IndicatorSubsystem extends SubsystemBase {
     led.setLength(NUM_OF_LEDS);
     led.start();
     setAllLeds(0, 0, 128); // Set all LEDs to Blue at start up
-    // numberOfLimitsSwitches = robotContainer.getLimitSwitches().length;
-    numberOfStatusIndicators = 4;
   }
 
   @Override
   public void periodic() {
+    if(Robot.count % 5 == 2) {
+        setStatusIndicators(m_RobotContainer.getStatusIndicators());
+    }
     if (Robot.count % 25 == 10) {
       setAllianceColor();
     }
@@ -65,7 +65,7 @@ public class IndicatorSubsystem extends SubsystemBase {
     }
   }
 
-  private void setLedStatusForStatusIndicators(int led, boolean value) {
+  private void setLedStatus(int led, boolean value) {
     if (value) {
       ledBuffer.setRGB(led, 255, 0, 0);
     } else {
@@ -81,7 +81,7 @@ public class IndicatorSubsystem extends SubsystemBase {
     // boolean limits[] = m_RobotContainer.getLimitSwitches();
     int led = 0;
     for (boolean value : limits) {
-      setLedStatusForStatusIndicators(led, value);
+      setLedStatus(led, value);
       led++;
     }
   }

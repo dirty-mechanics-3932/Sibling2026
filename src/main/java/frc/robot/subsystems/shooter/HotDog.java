@@ -41,4 +41,8 @@ public class HotDog extends SubsystemBase {
     public Command stopHotDog() {
         return Commands.runOnce(()->m_velocityMotor.stopMotor());
     }
+
+    public void stopMotor() {
+       m_velocityMotor.stopMotor();
+    }
 }

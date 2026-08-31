@@ -73,6 +73,10 @@ public class DrumstickSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> m_velocityLeader.stopMotor());
     }
 
+    public void stopMotor() {
+        m_velocityLeader.stopMotor();
+    }
+
     @Override
     public void periodic() {
         if (Robot.count % 10 == 0) {

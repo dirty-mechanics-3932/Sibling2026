@@ -23,7 +23,7 @@ public class HoodSubsystem extends SubsystemBase {
     private final MotionMagicVoltage motionMagicVoltage;
     private final CANcoderConfiguration configEncoder;
     private double targetPositionRot;
-    private double toleranceDeg = 2; // degrees
+    private double toleranceDeg = 0.5; // degrees
 
     // Range of motion, in degrees
     public static final double MIN_ANGLE = 0.0;
@@ -61,9 +61,9 @@ public class HoodSubsystem extends SubsystemBase {
         // Units are rotations/sec, rotations/sec^2, rotations/sec^3 (mechanism
         // rotations, since
         // SensorToMechanismRatio = 1 here, i.e. CANcoder rotations).
-        config.MotionMagic.MotionMagicCruiseVelocity = 50.0; // max velocity RPS
-        config.MotionMagic.MotionMagicAcceleration = 50.0; // time to reach cruise velocity rps^2
-        config.MotionMagic.MotionMagicJerk = 100.0; // time to reach max accel (0 = disabled)
+        config.MotionMagic.MotionMagicCruiseVelocity = 100.0; // max velocity RPS
+        config.MotionMagic.MotionMagicAcceleration = 200.0; // time to reach cruise velocity rps^2
+        config.MotionMagic.MotionMagicJerk = 0.0; // time to reach max accel (0 = disabled)
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_ROTATION;

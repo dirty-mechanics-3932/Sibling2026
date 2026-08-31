@@ -64,6 +64,10 @@ public class CatchupSubsystem extends SubsystemBase {
         return Commands.runOnce(()->m_velocityLeader.stopMotor());
     }
 
+    public void stopMotor() {
+        m_velocityLeader.stopMotor();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Catchup Velocity", getVelocity());

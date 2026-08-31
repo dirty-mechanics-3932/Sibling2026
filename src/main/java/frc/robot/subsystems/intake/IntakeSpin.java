@@ -49,6 +49,10 @@ public class IntakeSpin extends SubsystemBase {
         return Commands.runOnce(()->m_intakeSpinMotor.stopMotor());
     }
 
+    public void stopMotor() {
+        m_intakeSpinMotor.stopMotor();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("IntakeSpinVel", getVelocity());

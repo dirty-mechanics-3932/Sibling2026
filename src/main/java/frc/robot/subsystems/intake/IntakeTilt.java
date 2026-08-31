@@ -1,4 +1,5 @@
 package frc.robot.subsystems.intake;
+
 import static frc.robot.utilities.Util.logf;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -20,25 +21,27 @@ public class IntakeTilt extends SubsystemBase {
     public final TalonFX tiltMotor; // gear ratio = 52.5
     private final TalonFXConfiguration config;
     private final MotionMagicVoltage motionMagicVoltage;
-    //private final TorqueCurrentFOC homingCurrent;
+    // private final TorqueCurrentFOC homingCurrent;
     private final DigitalInput limitSwitch = new DigitalInput(9);
     // Range of motion, in degrees
     public static final double MIN_ANGLE = 0.0;
     public static final double MAX_ANGLE = 125.0;
+    private static final double EXTEND_ANGLE = 120.0;
     private double gearRatio = 52.5;
     private double toleranceDeg = 3.0;
 
     // Motion Magic tuning (in motor rotations/sec, rotations/sec^2,
     // rotations/sec^3)
-    private double cruiseVelocityRps = 20.0;
-    private double accelerationRpsPerSec = 40.0;
-    private double jerkRpsPerSec2 = 400.0; // 0 disables jerk limiting (trapezoidal only)
-    //private double bounceIntakeAngle = 80.0; // make method for this later
+    private double cruiseVelocityRps = 100.0;
+    private double accelerationRpsPerSec = 200.0;
+    private double jerkRpsPerSec2 = 0.0; //800.0; // 0 disables jerk limiting (trapezoidal only)
+    // private double bounceIntakeAngle = 80.0; // make method for this later
 
     // Current limiting
     private double statorCurrentLimitAmps = 40.0; // hard safety limit for all motion
     private double supplyCurrentLimitAmps = 30.0; // limits draw from the battery/PDH
-    //private double homingCurrentAmps = 8.0; // 8.0; // gentle, fixed current used while homing
+    // private double homingCurrentAmps = 8.0; // 8.0; // gentle, fixed current used
+    // while homing
 
     double motorRotations;
     private double lastPositionDeg;
@@ -46,10 +49,11 @@ public class IntakeTilt extends SubsystemBase {
     private int zeroEncoderCount = 0;
 
     public IntakeTilt() {
+        zeroEncoderCount = 0;
         tiltMotor = new TalonFX(21); // Remember to set the motor IDs
         config = new TalonFXConfiguration();
         motionMagicVoltage = new MotionMagicVoltage(0);
-        //homingCurrent = new TorqueCurrentFOC(0);
+        // homingCurrent = new TorqueCurrentFOC(0);
 
         config.Slot0.kP = 4.5;
         config.Slot0.kI = 0.00;
@@ -71,6 +75,8 @@ public class IntakeTilt extends SubsystemBase {
         tiltMotor.getConfigurator().apply(config);
         if (getLimitSwitch()) {
             endHoming();
+        } else {
+            homeInPlace();
         }
     }
 
@@ -89,15 +95,19 @@ public class IntakeTilt extends SubsystemBase {
     }
 
     public Command extendIntake() {
-        return setIntakeTiltSetpointDeg(120);
+        return setIntakeTiltSetpointDeg(EXTEND_ANGLE);
     }
 
     public Command moveIntakeTiltDeltaDegCmd(double value) {
         return Commands.runOnce(() -> moveIntakeDeg(lastPositionDeg + value));
     }
 
-    public void moveIntakeTiltDeltaDeg(double value){
+    public void moveIntakeTiltDeltaDeg(double value) {
         moveIntakeDeg(lastPositionDeg + value);
+    }
+
+    public void extend() {
+        moveIntakeDeg(EXTEND_ANGLE);
     }
 
     private void moveIntakeDeg(double degrees) {
@@ -124,6 +134,14 @@ public class IntakeTilt extends SubsystemBase {
         } else {
             endHoming();
         }
+    }
+
+    public void homeInPlace() {
+        logf("**** Home in place");
+        homed = true;
+        homing = false;
+        lastPositionDeg = EXTEND_ANGLE;
+        tiltMotor.setPosition(EXTEND_ANGLE / 360.0);
     }
 
     public void endHoming() {
@@ -153,11 +171,14 @@ public class IntakeTilt extends SubsystemBase {
             SmartDashboard.putNumber("IntakeTiltPos", getPositionMotorDeg());
             SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
             SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
+            SmartDashboard.putBoolean("IntakeHomed", homed);
         }
         if (Robot.count % 100 == 0) {
-            // logf("Intake pos:%.2f  target:%.2f limit:%b atSet:%b homed:%b current:%.2f", getPositionMotorDeg(),
-            //         lastPositionDeg,
-            //         getLimitSwitch(), isAtTarget(), homed, tiltMotor.getSupplyCurrent().getValueAsDouble());
+            // logf("Intake pos:%.2f target:%.2f limit:%b atSet:%b homed:%b current:%.2f",
+            // getPositionMotorDeg(),
+            // lastPositionDeg,
+            // getLimitSwitch(), isAtTarget(), homed,
+            // tiltMotor.getSupplyCurrent().getValueAsDouble());
         }
         if (homing && getLimitSwitch()) {
             endHoming();
