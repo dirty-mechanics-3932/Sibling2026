@@ -136,6 +136,7 @@ public class IntakeTilt extends SubsystemBase {
     public void homeIntake() {
         if (!homing && !getLimitSwitch()) {
             tiltMotor.set(-0.15);
+            tiltMotor.setNeutralMode(NeutralModeValue.Brake);
             homing = true;
             homed = false;
             logf("Starting Intake Homing");
@@ -150,11 +151,13 @@ public class IntakeTilt extends SubsystemBase {
         homing = false;
         lastPositionDeg = EXTEND_ANGLE;
         tiltMotor.setPosition(EXTEND_ANGLE * gearRatio / 360.0);
+        tiltMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     public void endHoming() {
         // limitSwitch get return false when at limit
         tiltMotor.set(0);
+        tiltMotor.setNeutralMode(NeutralModeValue.Coast);
         lastPositionDeg = 0;
         homing = false;
         homed = true;
