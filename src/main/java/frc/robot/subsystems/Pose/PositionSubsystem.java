@@ -1,16 +1,20 @@
 package frc.robot.subsystems.Pose;
 
-import static frc.robot.utilities.Util.round2;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+// import edu.wpi.first.units.measure.Velocity;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.shooter.DrumstickSubsystem;
@@ -20,7 +24,11 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class PositionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem m_drivebase;
-    double tolerance = 100;
+    @Logged(name = "Drum RPM Tolerance")
+    AngularVelocity drumTolerance = RPM.of(100);
+
+    @Logged(name = "Target Heading Tolerance")
+    Angle headingTolerance = Degrees.of(2);
 
     private Pose2d hubPoseBlue = new Pose2d(Meters.of(4.63), Meters.of(4.03), new Rotation2d(Degrees.of(0)));
     private Pose2d hubPoseRed = new Pose2d(Meters.of(11.92), Meters.of(4.03), new Rotation2d(Degrees.of(180)));
@@ -29,17 +37,22 @@ public class PositionSubsystem extends SubsystemBase {
     private Pose2d neutralRedLeft = new Pose2d(Meters.of(14.42), Meters.of(2.01), new Rotation2d(Degrees.of(0)));
     private Pose2d neutralBlueLeft = new Pose2d(Meters.of(2.31), Meters.of(6.01), new Rotation2d(Degrees.of(180)));
     private Pose2d neutralBlueRight = new Pose2d(Meters.of(2.31), Meters.of(2.01), new Rotation2d(Degrees.of(0)));
-
+    @Logged
     private boolean isTargetOverrided = false;
     private Pose2d compensatedPose = new Pose2d(); 
 
+    //This is default blue hub?
     private Pose2d target  = new Pose2d(Meters.of(4.63), Meters.of(4.03), new Rotation2d(Degrees.of(0)));
+    @Logged
     private String targetName = "";
-
-    private double distance;
-    private double targetHeading;
-    private double shooterRPM;
-    private double hoodPosition;
+    @Logged
+    private double distance = 0.0; //Not changing to unit because its used almost exclusivly to read from the double tree map and that would be inefficient
+    @Logged
+    private Angle targetHeading = Degrees.of(0.0);
+    @Logged
+    private AngularVelocity targetShooterRPM = RPM.of(0.0);
+    @Logged
+    private Angle hoodPosition = Degrees.of(0.0);
 
     private final InterpolatingDoubleTreeMap shootData = new InterpolatingDoubleTreeMap();
     private final InterpolatingDoubleTreeMap hoodData = new InterpolatingDoubleTreeMap();
@@ -80,6 +93,7 @@ public class PositionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         updateTarget();
+        //if conditional is impossible since we now default target to one of the hubs
         if (target == null)
             return;
 
@@ -87,16 +101,16 @@ public class PositionSubsystem extends SubsystemBase {
         // 'm_drivebase.getPose()'
         compensatedPose = m_drivebase.getPose();// compensatedPose();
         distance = compensatedPose.getTranslation().getDistance(target.getTranslation());
-        shooterRPM = shootData.get(distance);
-        hoodPosition = hoodData.get(distance);
-        targetHeading = m_drivebase.getHeadingToPose(target).getDegrees();
-        if (Robot.count % 10 == 5) {
-            SmartDashboard.putString("Target Name", targetName);
-            SmartDashboard.putNumber("Dist to Target", round2(distance));
-            SmartDashboard.putNumber("Drum Traget", Math.round(shooterRPM));
-            SmartDashboard.putNumber("Heading to Target", targetHeading);
-            SmartDashboard.putNumber("Hood Target Pos", round2(hoodPosition));
-        }
+        targetShooterRPM = RPM.of(shootData.get(distance));
+        hoodPosition = Degrees.of(hoodData.get(distance));
+        targetHeading = Degrees.of(m_drivebase.getHeadingToPose(target).getDegrees());
+        // if (Robot.count % 10 == 5) {
+        //     SmartDashboard.putString("Target Name", targetName);
+        //     SmartDashboard.putNumber("Dist to Target", round2(distance));
+        //     SmartDashboard.putNumber("Drum Traget", Math.round(shooterRPM));
+        //     SmartDashboard.putNumber("Heading to Target", targetHeading);
+        //     SmartDashboard.putNumber("Hood Target Pos", round2(hoodPosition));
+        // }
     }
 
     // An attempt to compensate for motion so shooting while moving works, does not
@@ -116,7 +130,7 @@ public class PositionSubsystem extends SubsystemBase {
         if (Robot.isAllianceBlue()) {
             target = hubPoseBlue;
             targetName = "hubPoseBlue";
-            if (isInNeutralZone()) {
+            if (isInFeedingZone()) {
                 Pose2d pose = m_drivebase.getPose();
                 if (!isTargetOverrided) {
                     if (pose.getTranslation().getY() < hubPoseBlue.getTranslation().getY()) {
@@ -139,7 +153,7 @@ public class PositionSubsystem extends SubsystemBase {
         } else {
             target = hubPoseRed;
             targetName = "hubPoseRed";
-            if (isInNeutralZone()) {
+            if (isInFeedingZone()) {
                 Pose2d pose = m_drivebase.getPose();
                 if (!isTargetOverrided) {
                     if (pose.getTranslation().getY() < hubPoseRed.getTranslation().getY()) {
@@ -162,22 +176,28 @@ public class PositionSubsystem extends SubsystemBase {
         }
     }
 
-    public double getShooterRPM() {
-        return shootData.get(getDistanceV2());
+    @Logged(name = "getShooterRPM")
+    public AngularVelocity getTargetShooterRPM() {
+        return RPM.of(shootData.get(getDistanceV2()));
     }
 
-    public double getDistance(){
-        return distance; 
+    @Logged(name = "getDistance")
+    public Distance getDistance(){
+        return Meters.of(distance); 
     }
 
+    @Logged(name = "getDistanceV2")
     public double getDistanceV2(){
         return compensatedPose.getTranslation().getDistance(target.getTranslation());
     }
-    public double getHoodPosition() {
-        return hoodData.get(getDistanceV2());
+
+    @Logged(name = "getHoodPos Pose Subsystem")
+    public Angle getHoodPosition() {
+        return Degrees.of(hoodData.get(getDistanceV2()));
     }
 
-    public double getTargetHeading() {
+    @Logged(name = "Target Heading Method")
+    public Angle getTargetHeading() {
         return targetHeading;
     }
 
@@ -185,7 +205,8 @@ public class PositionSubsystem extends SubsystemBase {
         return target;
     }
 
-    public boolean isInNeutralZone() {
+    @Logged(name = "In Feeding Zone") //isInNeutralZone doesnt work anymore as a name because it applpies to op alliance zone as well
+    public boolean isInFeedingZone() {
         if (target == null)
             return false;
         Pose2d pose = m_drivebase.getPose();
@@ -196,20 +217,19 @@ public class PositionSubsystem extends SubsystemBase {
         }
     }
 
-    public Command notOverrided() {
-        return new InstantCommand(() -> isTargetOverrided = false);
-    }
+    // public Command notOverrided() {
+    //     return new InstantCommand(() -> isTargetOverrided = false);
+    // }
 
-    public Command targetOverride() {
-        return new InstantCommand(() -> isTargetOverrided = true);
-    }
+    // public Command targetOverride() {
+    //     return new InstantCommand(() -> isTargetOverrided = true);
+    // }
 
     public boolean atHeading() {
-        double tolerance = 2.0;
-        return Math.abs(m_drivebase.getHeading().minus(Rotation2d.fromDegrees(targetHeading)).getDegrees()) < tolerance;
+        return Degrees.of(m_drivebase.getHeading().getDegrees()).isNear(targetHeading, headingTolerance);
     }
 
     public boolean readyToShoot(DrumstickSubsystem drumstick, HoodSubsystem hood) {
-        return shooterRPM > 0 && Math.abs(drumstick.getVelocityRPM() - shooterRPM) <= tolerance;
+        return targetShooterRPM.gte(drumTolerance) && drumstick.getVelocityRPM().isNear(targetShooterRPM, drumTolerance);
     }
 }

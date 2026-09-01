@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.RPM;
 import static frc.robot.utilities.Util.logf;
 
 import java.io.File;
@@ -278,9 +280,9 @@ public class RobotContainer {
   }
 
   private void operatorBindings() {
-    m_opController.button(1).whileTrue(drumstickSubsystem.runToSpeed(3000))
+    m_opController.button(1).whileTrue(drumstickSubsystem.runToSpeed(RPM.of(3000)))
         .onFalse(drumstickSubsystem.stopShooter());
-    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpointCmd(positionSubsystem.getShooterRPM()))
+    m_opController.button(2).whileTrue(catchupSubsystem.setCatchupSetpointRPMCmd(positionSubsystem.getTargetShooterRPM()))
         .onFalse(catchupSubsystem.stopCatchup());
 
     m_opController.button(3).onTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(5));
@@ -291,12 +293,12 @@ public class RobotContainer {
 
     m_opController.button(7).whileTrue(intakeSpin.intakeSpin(3000)).onFalse(intakeSpin.stopIntake());
 
-    m_opController.button(8).whileTrue(hotDog.setVelocitySetpointCmd(1000)).whileFalse(hotDog.stopHotDog());
+    m_opController.button(8).whileTrue(hotDog.setVelocitySetpointCmd(RPM.of(1000))).whileFalse(hotDog.stopHotDog());
     m_opController.button(9)
         .whileTrue(intakeTilt.moveIntakeTiltDeltaDegCmd(-70).alongWith(intakeSpin.intakeSpin(3000)));
-    m_opController.button(10).onTrue(hoodSubsystem.setHoodPosition(0));
-    m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
-    m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
+    m_opController.button(10).onTrue(hoodSubsystem.setHoodPosition(Degree.of(0.0)));
+    m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(Degree.of(5)));
+    m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(Degree.of(20)));
     m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
         hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin));
     // m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem,
@@ -354,13 +356,13 @@ public class RobotContainer {
 
   public void homing() {
     intakeTilt.zeroEncoder();
-    hoodSubsystem.setPositionWithEncoder(0);
+    hoodSubsystem.setPositionWithEncoder(Degree.of(0.0));
   }
 
   public boolean[] getStatusIndicators() {
     boolean[] switches = {
         intakeTilt.getLimitSwitch(),
-        hoodSubsystem.hoodAtPosition(0),
+        hoodSubsystem.hoodAtPosition(Degree.of(0)),
         hoodSubsystem.hoodAtTarget(),
         positionSubsystem.readyToShoot(drumstickSubsystem, hoodSubsystem)
     };
@@ -373,7 +375,7 @@ public class RobotContainer {
     catchupSubsystem.stopMotor();
     intakeTilt.extend();
     intakeSpin.stopMotor();
-    hoodSubsystem.setPositionWithEncoder(0.0);
+    hoodSubsystem.setPositionWithEncoder(Degree.of(0.0));
     logf("Stop shoot ball command complete");
   }
 
