@@ -14,6 +14,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -54,6 +55,7 @@ import swervelib.SwerveInputStream;
  * Instead, the structure of the robot (including subsystems, commands, and
  * trigger mappings) should be declared here.
  */
+@Logged(name = "RobotContainer")
 public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -69,6 +71,7 @@ public class RobotContainer {
 
   // Establish a Sendable Chooser that will be able to be sent to the
   // SmartDashboard, allowing selection of desired auto
+  @Logged(name = "Auto Chooser")
   private final SendableChooser<Command> autoChooser;
   private final IntakeTilt intakeTilt;
   private final IntakeSpin intakeSpin;
@@ -173,6 +176,7 @@ public class RobotContainer {
     // Add a simple auto option to have the robot drive forward for 1 second then
     // stop
     autoChooser.addOption("Drive Forward", m_drivebase.driveForward().withTimeout(1));
+    autoChooser.addOption("Test Success", Commands.runOnce(() -> myLogf("Test Success")));
 
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -355,7 +359,7 @@ public class RobotContainer {
   }
 
   public void homing() {
-    intakeTilt.zeroEncoder();
+    //intakeTilt.zeroEncoder();
     hoodSubsystem.setPositionWithEncoder(Degree.of(0.0));
   }
 

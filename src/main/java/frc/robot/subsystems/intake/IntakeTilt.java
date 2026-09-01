@@ -32,7 +32,7 @@ public class IntakeTilt extends SubsystemBase {
     @Logged(name = "IntakeTilt Extend Angle")
     private static final double EXTEND_ANGLE = 120.0;
     @Logged(name = "IntakeTilt Gear Ratio")
-    private double gearRatio = 52.5;
+    private static final double GEAR_RATIO = 52.5;
     @Logged(name = "IntakeTilt Tolerance")
     private double toleranceDeg = 3.0;
 
@@ -50,8 +50,10 @@ public class IntakeTilt extends SubsystemBase {
     // while homing
 
     double motorRotations;
-    private double lastPositionDeg;
+    @Logged(name = "Last Pose Deg")
+    private double lastPositionDeg = 0.0;
     private boolean homing = false, homed = false;
+    @Logged
     private int zeroEncoderCount = 0;
 
     public IntakeTilt() {
@@ -95,6 +97,7 @@ public class IntakeTilt extends SubsystemBase {
 
     public void zeroEncoder() {
         tiltMotor.setPosition(0);
+        logf("Zeroed Intake Encoder");
     }
 
     public Command setIntakeTiltSetpointDeg(double value) {
@@ -124,13 +127,13 @@ public class IntakeTilt extends SubsystemBase {
         }
         degrees = MathUtil.clamp(degrees, MIN_ANGLE, MAX_ANGLE);
         lastPositionDeg = degrees;
-        double rots = degrees * gearRatio / 360.0;
+        double rots = degrees * GEAR_RATIO / 360.0;
         tiltMotor.setControl(motionMagicVoltage.withPosition(rots).withEnableFOC(true));
     }
 
     @Logged(name = "IntakeTilt getPositionDeg")
     public double getPositionDeg() {
-        return tiltMotor.getPosition().getValueAsDouble() * 360 / gearRatio;
+        return tiltMotor.getPosition().getValueAsDouble() * 360 / GEAR_RATIO;
     }
 
     public void homeIntake() {
@@ -150,7 +153,7 @@ public class IntakeTilt extends SubsystemBase {
         homed = true;
         homing = false;
         lastPositionDeg = EXTEND_ANGLE;
-        tiltMotor.setPosition(EXTEND_ANGLE * gearRatio / 360.0);
+        tiltMotor.setPosition(EXTEND_ANGLE * GEAR_RATIO / 360.0);
         tiltMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
@@ -175,7 +178,6 @@ public class IntakeTilt extends SubsystemBase {
             zeroEncoderCount--;
             if (zeroEncoderCount == 0) {
                 zeroEncoder();
-                logf("Zeroed Intake Encoder");
             }
         }
         // if (Robot.count % 20 == 5) {

@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -26,9 +27,9 @@ public class HoodSubsystem extends SubsystemBase {
     private final MotionMagicVoltage motionMagicVoltage;
     private final CANcoderConfiguration configEncoder;
     @Logged
-    private Angle targetPositionRot;
+    private Angle targetPositionRot = Rotations.of(0.0);
     @Logged
-    private Angle targetPositionDeg;
+    private Angle targetPositionDeg = Degrees.of(0.0);
     @Logged
     private Angle toleranceDeg = Degrees.of(0.5); // degrees
     @Logged(name = "Hood atTarget")

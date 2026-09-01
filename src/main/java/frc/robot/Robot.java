@@ -53,20 +53,22 @@ public class Robot extends TimedRobot {
       }
 
       // Change the root data path
-      // config.root = "Telemetry";
+      config.root = "Epilogue";
 
       // Only log critical information instead of the default DEBUG level.
       // This can be helpful in a pinch to reduce network bandwidth or log file size
       // while still logging important information.
-      config.minimumImportance = Logged.Importance.CRITICAL;
+      config.minimumImportance = Logged.Importance.DEBUG;
     });
-    Epilogue.bind(this);
+    
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     instance = this;
     SmartDashboard.putString("Alliance", alliance.toString());
+
+    Epilogue.bind(this);
   }
 
   public static Robot getInstance() {
