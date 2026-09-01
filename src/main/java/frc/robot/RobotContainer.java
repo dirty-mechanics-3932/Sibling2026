@@ -160,7 +160,7 @@ public class RobotContainer {
     DriverStation.silenceJoystickConnectionWarning(true);
 
     // Create the NamedCommands that will be used in PathPlanner
-    NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    createNamedCommands();
 
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -376,5 +376,12 @@ public class RobotContainer {
     hoodSubsystem.setPositionWithEncoder(0.0);
     logf("Stop shoot ball command complete");
   }
-
+  public void createNamedCommands() {
+      NamedCommands.registerCommand("Shoot Command", (new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
+            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin)));
+      NamedCommands.registerCommand("Stop Shoot Command", (new InstantCommand(() -> stopShootBall())));
+      NamedCommands.registerCommand("Intake Home",(new InstantCommand(() -> intakeTilt.homeIntake())));
+      NamedCommands.registerCommand("Intake Extend",(intakeTilt.extendIntake()));
+      NamedCommands.registerCommand("Intake Spin",(intakeSpin.intakeSpin(-2000)));
+    }
 }
