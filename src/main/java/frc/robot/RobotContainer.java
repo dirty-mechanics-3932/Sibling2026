@@ -360,6 +360,7 @@ public class RobotContainer {
 
   public void homing() {
     //intakeTilt.zeroEncoder();
+    intakeTilt.homeInPlace();
     hoodSubsystem.setPositionWithEncoder(Degree.of(0.0));
   }
 
