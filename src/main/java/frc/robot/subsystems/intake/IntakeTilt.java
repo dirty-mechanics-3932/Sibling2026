@@ -88,7 +88,7 @@ public class IntakeTilt extends SubsystemBase {
 
     // Returns true if the limit switch is pressed
     // limitSwitch.get() returns false when pressed, so we invert it
-    @Logged(name = "IntakeTilt Limit Switch")
+    @Logged(name = "IntakeTilt Limit Switch Method")
     public boolean getLimitSwitch() {
         return !limitSwitch.get();
     }
