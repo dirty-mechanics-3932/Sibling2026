@@ -83,7 +83,7 @@ public class PositionAndShootCommand extends Command {
             my_count = 0;
             atSpeed = true;
         }
-        if (atSpeed && my_count >= 25) {
+        if (atSpeed && my_count >= 13) {
             m_IntakeTilt.moveIntakeTiltDeltaDeg(-70);
             m_IntakeSpin.setVelocitySetpoint(3000);
             finished = true;

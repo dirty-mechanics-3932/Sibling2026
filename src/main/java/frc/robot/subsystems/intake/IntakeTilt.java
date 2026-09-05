@@ -31,7 +31,7 @@ public class IntakeTilt extends SubsystemBase {
     @Logged(name = "IntakeTilt Max Angle")
     public static final double MAX_ANGLE = 135.0;
     @Logged(name = "IntakeTilt Extend Angle")
-    private static final double EXTEND_ANGLE = 130.0;
+    private static final double EXTEND_ANGLE = 120.0;
     @Logged(name = "IntakeTilt Gear Ratio")
     private static final double GEAR_RATIO = 52.5;
     @Logged(name = "IntakeTilt Tolerance")

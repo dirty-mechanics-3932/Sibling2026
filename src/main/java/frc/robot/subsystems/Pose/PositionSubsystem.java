@@ -25,7 +25,7 @@ public class PositionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem m_drivebase;
     @Logged(name = "Drum RPM Tolerance")
-    AngularVelocity drumTolerance = RPM.of(100);
+    AngularVelocity drumTolerance = RPM.of(50);
 
     @Logged(name = "Target Heading Tolerance")
     Angle headingTolerance = Degrees.of(2);
@@ -62,25 +62,24 @@ public class PositionSubsystem extends SubsystemBase {
 
         shootData.put(1.0, 2700.0);
         shootData.put(2.0, 3070.0);
-        shootData.put(3.0, 3500.0);
-        shootData.put(4.0, 3600.0);
-        shootData.put(5.0, 3800.0);
-        shootData.put(6.0, 4000.0);
-        shootData.put(7.0, 4200.0);
-        // shootData.put(8.0,4800.0);
-        // shootData.put(9.0,4915.0);
-        // shootData.put(10.0,6000.0);
-        // shootData.put(20.0,6000.0);
+        shootData.put(2.5, 3300.0);
+        shootData.put(3.0, 3450.0);
+        shootData.put(3.5, 3625.0);
+        shootData.put(4.0, 3825.0);
+        shootData.put(5.0, 4650.0);
+        shootData.put(6.0, 4700.0);
+        shootData.put(7.0, 5000.0);
         shootData.put(22.0, 4500.0);
 
         hoodData.put(1.0, 0.0);
         hoodData.put(2.0, 0.0);
         hoodData.put(3.0, 9.0);
-        hoodData.put(4.0, 12.0);
-        hoodData.put(5.0, 14.0);
+        hoodData.put(3.5, 8.0);
+        hoodData.put(4.0, 8.0);
+        hoodData.put(5.0, 15.0);
         hoodData.put(6.0, 15.0);
-        hoodData.put(7.0, 16.0);
-        hoodData.put(20.0, 20.0);
+        hoodData.put(7.0, 15.0);
+        hoodData.put(20.0, 15.0);
         logShootTable();
     }
 
