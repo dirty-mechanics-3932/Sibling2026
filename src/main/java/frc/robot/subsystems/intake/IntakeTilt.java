@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,9 +29,9 @@ public class IntakeTilt extends SubsystemBase {
     @Logged(name = "IntakeTilt Min Angle")
     public static final double MIN_ANGLE = 0.0;
     @Logged(name = "IntakeTilt Max Angle")
-    public static final double MAX_ANGLE = 125.0;
+    public static final double MAX_ANGLE = 135.0;
     @Logged(name = "IntakeTilt Extend Angle")
-    private static final double EXTEND_ANGLE = 120.0;
+    private static final double EXTEND_ANGLE = 130.0;
     @Logged(name = "IntakeTilt Gear Ratio")
     private static final double GEAR_RATIO = 52.5;
     @Logged(name = "IntakeTilt Tolerance")
@@ -118,6 +119,7 @@ public class IntakeTilt extends SubsystemBase {
 
     public void extend() {
         moveIntakeDeg(EXTEND_ANGLE);
+        tiltMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     private void moveIntakeDeg(double degrees) {
@@ -160,7 +162,7 @@ public class IntakeTilt extends SubsystemBase {
     public void endHoming() {
         // limitSwitch get return false when at limit
         tiltMotor.set(0);
-        tiltMotor.setNeutralMode(NeutralModeValue.Coast);
+        tiltMotor.setNeutralMode(NeutralModeValue.Brake);
         lastPositionDeg = 0;
         homing = false;
         homed = true;
