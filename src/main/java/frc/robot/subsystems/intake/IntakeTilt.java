@@ -11,10 +11,11 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class IntakeTilt extends SubsystemBase {
 
@@ -28,9 +29,9 @@ public class IntakeTilt extends SubsystemBase {
     @Logged(name = "IntakeTilt Min Angle")
     public static final double MIN_ANGLE = 0.0;
     @Logged(name = "IntakeTilt Max Angle")
-    public static final double MAX_ANGLE = 125.0;
+    public static final double MAX_ANGLE = 140.0;
     @Logged(name = "IntakeTilt Extend Angle")
-    private static final double EXTEND_ANGLE = 120.0;
+    private static final double EXTEND_ANGLE = 135.0;
     @Logged(name = "IntakeTilt Gear Ratio")
     private double gearRatio = 52.5;
     @Logged(name = "IntakeTilt Tolerance")
@@ -178,19 +179,19 @@ public class IntakeTilt extends SubsystemBase {
                 logf("Zeroed Intake Encoder");
             }
         }
-        // if (Robot.count % 20 == 5) {
-        //     SmartDashboard.putNumber("IntakeTiltPos", getPositionDeg());
-        //     SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
-        //     SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
-        //     SmartDashboard.putBoolean("IntakeHomed", homed);
-        // }
-        // if (Robot.count % 100 == 0) {
-            // logf("Intake pos:%.2f target:%.2f limit:%b atSet:%b homed:%b current:%.2f",
-            // getPositionMotorDeg(),
-            // lastPositionDeg,
-            // getLimitSwitch(), isAtTarget(), homed,
-            // tiltMotor.getSupplyCurrent().getValueAsDouble());
-        // }
+        if (Robot.count % 20 == 5) {
+            SmartDashboard.putNumber("IntakeTiltPos", getPositionDeg());
+            SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
+            SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
+            SmartDashboard.putBoolean("IntakeHomed", homed);
+        }
+        if (Robot.count % 100 == 0) {
+            logf("Intake pos:%.2f target:%.2f limit:%b atSet:%b homed:%b current:%.2f",
+            getPositionDeg(),
+            lastPositionDeg,
+            getLimitSwitch(), isAtTarget(), homed,
+            tiltMotor.getSupplyCurrent().getValueAsDouble());
+        }
         if (homing && getLimitSwitch()) {
             endHoming();
         }

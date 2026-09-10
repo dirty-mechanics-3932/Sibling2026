@@ -183,7 +183,7 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.setVisionThrottle(0);
 
-    m_robotContainer.homing();
+    //m_robotContainer.homing();
   }
 
   /**
