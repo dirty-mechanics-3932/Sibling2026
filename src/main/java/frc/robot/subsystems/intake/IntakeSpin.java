@@ -5,6 +5,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,6 +43,7 @@ public class IntakeSpin extends SubsystemBase {
         return Commands.runOnce(()->setVelocitySetpoint(value));
     }
 
+    @Logged (name = "Intake Spin Velocity", importance = Importance.INFO)
     public double getVelocity() {
         return m_intakeSpinMotor.getVelocity().getValueAsDouble() * 60;
     }
@@ -55,6 +58,6 @@ public class IntakeSpin extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("IntakeSpinVel", getVelocity());
+       // SmartDashboard.putNumber("IntakeSpinVel", getVelocity());
     }
 }

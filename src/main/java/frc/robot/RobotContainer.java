@@ -12,6 +12,8 @@ import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -52,6 +54,8 @@ import swervelib.SwerveInputStream;
  * Instead, the structure of the robot (including subsystems, commands, and
  * trigger mappings) should be declared here.
  */
+
+ @Logged (importance = Importance.CRITICAL)
 public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -353,7 +357,7 @@ public class RobotContainer {
   }
 
   public void homing() {
-    intakeTilt.zeroEncoder();
+    //intakeTilt.zeroEncoder();
     hoodSubsystem.setPositionWithEncoder(0);
   }
 

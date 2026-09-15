@@ -8,6 +8,7 @@ import static frc.robot.utilities.Util.logf;
 
 import edu.wpi.first.epilogue.EpilogueConfiguration;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,10 +30,11 @@ import edu.wpi.first.epilogue.Epilogue;
  * class or the package after creating this
  * project, you must also update the build.gradle file in the project.
  */
-@Logged
+@Logged (importance = Importance.CRITICAL)
 public class Robot extends TimedRobot {
   
   public static long count = 0;
+  @Logged (importance = Importance.CRITICAL)
   public static Alliance alliance = Alliance.Blue;
   private static Alliance lastAlliance;
   private static Robot instance;
@@ -66,7 +68,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     instance = this;
-    SmartDashboard.putString("Alliance", alliance.toString());
+   // SmartDashboard.putString("Alliance", alliance.toString());
   }
 
   public static Robot getInstance() {
@@ -183,7 +185,7 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.setVisionThrottle(0);
 
-    //m_robotContainer.homing();
+    m_robotContainer.homing();
   }
 
   /**
@@ -225,10 +227,10 @@ public class Robot extends TimedRobot {
     boolean button = operatorController.button(16).getAsBoolean();
     if (button) {
       alliance = Alliance.Red;
-      SmartDashboard.putString("Alliance", Color.kRed.toHexString());
+      //SmartDashboard.putString("Alliance", Color.kRed.toHexString());
     } else {
       alliance = Alliance.Blue;
-      SmartDashboard.putString("Alliance", Color.kBlue.toHexString());
+     // SmartDashboard.putString("Alliance", Color.kBlue.toHexString());
     }
     if (alliance != lastAlliance || count < 50) {
       logf("********* Got Alliance from Switch: %s DriverStation (FMS):%s***********", alliance, allianceDS);

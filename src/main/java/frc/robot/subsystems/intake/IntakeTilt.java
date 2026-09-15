@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,18 +24,17 @@ public class IntakeTilt extends SubsystemBase {
     private final TalonFXConfiguration config;
     private final MotionMagicVoltage motionMagicVoltage;
     // private final TorqueCurrentFOC homingCurrent;
-    @Logged(name = "IntakeTilt Limit Switch")
     private final DigitalInput limitSwitch = new DigitalInput(9);
     // Range of motion, in degrees
-    @Logged(name = "IntakeTilt Min Angle")
+    @Logged(name = "Min Angle")
     public static final double MIN_ANGLE = 0.0;
-    @Logged(name = "IntakeTilt Max Angle")
+    @Logged(name = "Max Angle")
     public static final double MAX_ANGLE = 140.0;
-    @Logged(name = "IntakeTilt Extend Angle")
+    @Logged(name = "Extend Angle")
     private static final double EXTEND_ANGLE = 135.0;
-    @Logged(name = "IntakeTilt Gear Ratio")
+    @Logged(name = "Gear Ratio")
     private double gearRatio = 52.5;
-    @Logged(name = "IntakeTilt Tolerance")
+    @Logged(name = "Tolerance")
     private double toleranceDeg = 3.0;
 
     // Motion Magic tuning (in motor rotations/sec, rotations/sec^2,
@@ -89,7 +89,7 @@ public class IntakeTilt extends SubsystemBase {
 
     // Returns true if the limit switch is pressed
     // limitSwitch.get() returns false when pressed, so we invert it
-    @Logged(name = "IntakeTilt Limit Switch Method")
+    @Logged(name = "Limit Switch", importance = Importance.INFO)
     public boolean getLimitSwitch() {
         return !limitSwitch.get();
     }
@@ -129,7 +129,7 @@ public class IntakeTilt extends SubsystemBase {
         tiltMotor.setControl(motionMagicVoltage.withPosition(rots).withEnableFOC(true));
     }
 
-    @Logged(name = "IntakeTilt getPositionDeg")
+    @Logged(name = "getPositionDeg", importance = Importance.INFO)
     public double getPositionDeg() {
         return tiltMotor.getPosition().getValueAsDouble() * 360 / gearRatio;
     }
@@ -179,12 +179,12 @@ public class IntakeTilt extends SubsystemBase {
                 logf("Zeroed Intake Encoder");
             }
         }
-        if (Robot.count % 20 == 5) {
-            SmartDashboard.putNumber("IntakeTiltPos", getPositionDeg());
-            SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
-            SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
-            SmartDashboard.putBoolean("IntakeHomed", homed);
-        }
+        // if (Robot.count % 20 == 5) {
+        //     SmartDashboard.putNumber("IntakeTiltPos", getPositionDeg());
+        //     SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
+        //     SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
+        //     SmartDashboard.putBoolean("IntakeHomed", homed);
+        // }
         if (Robot.count % 100 == 0) {
             logf("Intake pos:%.2f target:%.2f limit:%b atSet:%b homed:%b current:%.2f",
             getPositionDeg(),
