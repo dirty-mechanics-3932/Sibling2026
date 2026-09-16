@@ -8,7 +8,7 @@ import static frc.robot.utilities.Util.logf;
 
 import java.io.File;
 
-import com.ctre.phoenix6.SignalLogger;
+// import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -55,7 +55,7 @@ import swervelib.SwerveInputStream;
  * trigger mappings) should be declared here.
  */
 
- @Logged (importance = Importance.CRITICAL)
+ @Logged
 public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -79,7 +79,6 @@ public class RobotContainer {
   private final HoodSubsystem hoodSubsystem;
   private final PositionSubsystem positionSubsystem;
   private final HotDog hotDog;
-  private final HubSubCommands hubSubCommands;
   public final IndicatorSubsystem indicatorSubsystem;
 
   /**
@@ -154,7 +153,6 @@ public class RobotContainer {
     hoodSubsystem = new HoodSubsystem();
     positionSubsystem = new PositionSubsystem(m_drivebase);
     hotDog = new HotDog();
-    hubSubCommands = new HubSubCommands();
     indicatorSubsystem = new IndicatorSubsystem(this);
 
     // Configure the trigger bindings

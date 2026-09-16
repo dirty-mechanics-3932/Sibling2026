@@ -30,11 +30,11 @@ import edu.wpi.first.epilogue.Epilogue;
  * class or the package after creating this
  * project, you must also update the build.gradle file in the project.
  */
-@Logged (importance = Importance.CRITICAL)
+@Logged
 public class Robot extends TimedRobot {
   
   public static long count = 0;
-  @Logged (importance = Importance.CRITICAL)
+  @Logged (importance = Importance.INFO)
   public static Alliance alliance = Alliance.Blue;
   private static Alliance lastAlliance;
   private static Robot instance;
@@ -55,20 +55,20 @@ public class Robot extends TimedRobot {
       }
 
       // Change the root data path
-      // config.root = "Telemetry";
+      config.root = "Epilogue";
 
       // Only log critical information instead of the default DEBUG level.
       // This can be helpful in a pinch to reduce network bandwidth or log file size
       // while still logging important information.
-      config.minimumImportance = Logged.Importance.CRITICAL;
+      config.minimumImportance = Logged.Importance.DEBUG;
     });
-    Epilogue.bind(this);
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     instance = this;
    // SmartDashboard.putString("Alliance", alliance.toString());
+   Epilogue.bind(this);
   }
 
   public static Robot getInstance() {
@@ -239,6 +239,7 @@ public class Robot extends TimedRobot {
     lastAlliance = alliance;
   }
 
+  @Logged
   static String getAllianceColor() {
     return (isAllianceBlue() ? "Blue" : "Red");
   }
