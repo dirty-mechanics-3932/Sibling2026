@@ -386,6 +386,7 @@ public class RobotContainer {
       NamedCommands.registerCommand("Stop Shoot Command", (new InstantCommand(() -> stopShootBall())));
       NamedCommands.registerCommand("Intake Home",(new InstantCommand(() -> intakeTilt.homeIntake())));
       NamedCommands.registerCommand("Intake Extend",(intakeTilt.extendIntake()));
-      NamedCommands.registerCommand("Intake Spin",(intakeSpin.intakeSpin(-2000)));
+      NamedCommands.registerCommand("Intake Spin",(intakeSpin.intakeSpin(4500)));
+      NamedCommands.registerCommand("Intake Stop",(intakeSpin.intakeSpin(0)));
     }
 }
