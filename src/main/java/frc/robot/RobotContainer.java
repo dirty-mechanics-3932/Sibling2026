@@ -359,6 +359,11 @@ public class RobotContainer {
     hoodSubsystem.setPositionWithEncoder(0);
   }
 
+  public void homeAll() {
+    intakeTilt.homeIntake();
+    hoodSubsystem.setPositionWithEncoder(0);
+  }
+
   public boolean[] getStatusIndicators() {
     boolean[] switches = {
         intakeTilt.getLimitSwitch(),
@@ -386,5 +391,10 @@ public class RobotContainer {
       NamedCommands.registerCommand("Intake Extend",(intakeTilt.extendIntake()));
       NamedCommands.registerCommand("Intake Spin",(intakeSpin.intakeSpin(4500)));
       NamedCommands.registerCommand("Intake Stop",(intakeSpin.intakeSpin(0)));
+      NamedCommands.registerCommand("Auto Target", (m_drivebase.aimAtPoseCommand(
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
+            () -> positionSubsystem.getTarget(),
+            false, 0)));
     }
 }

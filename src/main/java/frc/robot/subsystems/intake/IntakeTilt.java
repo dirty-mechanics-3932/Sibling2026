@@ -184,14 +184,15 @@ public class IntakeTilt extends SubsystemBase {
         //     SmartDashboard.putNumber("IntakeTiltDeg", lastPositionDeg);
         //     SmartDashboard.putBoolean("IntakeLimit", !limitSwitch.get());
         //     SmartDashboard.putBoolean("IntakeHomed", homed);
+        // // }
+        // if (Robot.count % 100 == 0) {
+        //     logf("Intake pos:%.2f target:%.2f limit:%b atSet:%b homed:%b current:%.2f",
+        //     getPositionDeg(),
+        //     lastPositionDeg,
+        //     getLimitSwitch(), isAtTarget(), homed,
+        //     tiltMotor.getSupplyCurrent().getValueAsDouble());
         // }
-        if (Robot.count % 100 == 0) {
-            logf("Intake pos:%.2f target:%.2f limit:%b atSet:%b homed:%b current:%.2f",
-            getPositionDeg(),
-            lastPositionDeg,
-            getLimitSwitch(), isAtTarget(), homed,
-            tiltMotor.getSupplyCurrent().getValueAsDouble());
-        }
+        
         if (homing && getLimitSwitch()) {
             endHoming();
         }

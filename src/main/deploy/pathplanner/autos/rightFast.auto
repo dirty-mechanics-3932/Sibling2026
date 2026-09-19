@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Intake Extend"
@@ -48,6 +54,12 @@
                 "type": "wait",
                 "data": {
                   "waitTime": 4.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Target"
                 }
               },
               {
@@ -108,6 +120,12 @@
               {
                 "type": "named",
                 "data": {
+                  "name": "Auto Target"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
                   "name": "Shoot Command"
                 }
               }
@@ -118,12 +136,6 @@
           "type": "named",
           "data": {
             "name": "Stop Shoot Command"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "rightFast.6"
           }
         }
       ]

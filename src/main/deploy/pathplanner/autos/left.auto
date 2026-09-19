@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Intake Extend"
@@ -19,13 +25,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.0"
+            "pathName": "left.0"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.1"
+            "pathName": "left.1"
           }
         },
         {
@@ -37,7 +43,26 @@
         {
           "type": "path",
           "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.2"
+            "pathName": "left.2"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.3
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Target"
+                }
+              }
+            ]
           }
         },
         {
@@ -53,56 +78,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot Command"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Shoot Command"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Spin"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Stop"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.5"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
+                  "name": "Auto Target"
                 }
               },
               {
@@ -123,7 +99,81 @@
         {
           "type": "path",
           "data": {
-            "pathName": "leftNeutralOutpost_bump3pass.6"
+            "pathName": "left.3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Spin"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "left.4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Stop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "left.5"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.3
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Target"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Target"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot Command"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Shoot Command"
           }
         }
       ]

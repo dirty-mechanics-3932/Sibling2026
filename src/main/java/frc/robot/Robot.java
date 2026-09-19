@@ -161,6 +161,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
     m_robotContainer.setVisionThrottle(0);
+    m_robotContainer.homeAll();
   }
 
   /**
@@ -239,7 +240,7 @@ public class Robot extends TimedRobot {
     lastAlliance = alliance;
   }
 
-  @Logged
+  
   static String getAllianceColor() {
     return (isAllianceBlue() ? "Blue" : "Red");
   }
