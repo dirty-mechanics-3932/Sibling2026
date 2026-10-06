@@ -42,7 +42,7 @@ public class HoodSubsystem extends SubsystemBase {
         configEncoder = new CANcoderConfiguration();
         motionMagicVoltage = new MotionMagicVoltage(0);
 
-        configEncoder.MagnetSensor.MagnetOffset = 0.563476;
+        configEncoder.MagnetSensor.MagnetOffset = -0.218994;
 
         config.Slot0.kP = 75.0;
         config.Slot0.kI = 0.0009;
