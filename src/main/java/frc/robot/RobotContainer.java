@@ -272,11 +272,13 @@ public class RobotContainer {
             .alongWith(myLogf("Aiming at hub pose:%s", Robot.getAllianceColor())));
     m_driverController
         .rightTrigger().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
-            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin))
+            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin, false))
         .onFalse(new InstantCommand(() -> stopShootBall()));
     m_driverController.y().whileTrue(intakeTilt.extendIntake());
     m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
     m_driverController.leftTrigger().whileTrue(intakeSpin.intakeSpin(4500)).onFalse((intakeSpin.intakeSpin(0)));
+    m_driverController.b().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
+            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin, true));
   }
 
   private void operatorBindings() {
@@ -300,7 +302,7 @@ public class RobotContainer {
     m_opController.button(11).onTrue(hoodSubsystem.setHoodPosition(5));
     m_opController.button(12).onTrue(hoodSubsystem.setHoodPosition(20));
     m_opController.button(14).onTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
-        hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin));
+        hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin, false));
     // m_opController.button(15).whileTrue(hubSubCommands.stopShootBall(drumstickSubsystem,
     // catchupSubsystem, hotDog));
     m_opController.button(15).whileTrue(new InstantCommand(() -> stopShootBall()));
@@ -385,7 +387,7 @@ public class RobotContainer {
   }
   public void createNamedCommands() {
       NamedCommands.registerCommand("Shoot Command", (new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
-            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin)));
+            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin, false)));
       NamedCommands.registerCommand("Stop Shoot Command", (new InstantCommand(() -> stopShootBall())));
       NamedCommands.registerCommand("Intake Home",(new InstantCommand(() -> intakeTilt.homeIntake())));
       NamedCommands.registerCommand("Intake Extend",(intakeTilt.extendIntake()));

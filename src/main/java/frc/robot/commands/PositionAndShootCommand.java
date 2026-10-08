@@ -35,11 +35,12 @@ public class PositionAndShootCommand extends Command {
     private double distToTarget;
     private boolean atSpeed;
     private boolean finished;
+    private boolean backwardsOverride;
     private int my_count = 0;
 
     public PositionAndShootCommand(PositionSubsystem position, DrumstickSubsystem drumstick, HoodSubsystem hood,
             HotDog hotDog, CatchupSubsystem catchup, SwerveSubsystem swerve, IntakeTilt intakeTilt,
-            IntakeSpin intakeSpin) {
+            IntakeSpin intakeSpin, boolean backwardsOverride) {
         this.m_positionSubsysten = position;
         this.m_drumstickSubsystem = drumstick;
         this.m_hotDog = hotDog;
@@ -48,6 +49,7 @@ public class PositionAndShootCommand extends Command {
         this.m_drivebase = swerve;
         this.m_IntakeTilt = intakeTilt;
         this.m_IntakeSpin = intakeSpin;
+        this.backwardsOverride = backwardsOverride; 
 
         addRequirements(position, catchup, hood, drumstick);
     }
@@ -59,9 +61,14 @@ public class PositionAndShootCommand extends Command {
         atSpeed = false;
         shooterTarget = m_positionSubsysten.getShooterRPM();
         hoodTarget = m_positionSubsysten.getHoodPosition();
-        distToTarget = m_positionSubsysten.getDistanceV2();
-        m_drumstickSubsystem.setVelocityRPM(shooterTarget);
-        m_hoodSubsystem.setPositionWithEncoder(hoodTarget / 360.0);
+        distToTarget = m_positionSubsysten.getDistanceV2(); 
+        if (!backwardsOverride){
+            m_drumstickSubsystem.setVelocityRPM(shooterTarget);
+            m_hoodSubsystem.setPositionWithEncoder(hoodTarget / 360.0);
+        } else if (backwardsOverride){
+            m_drumstickSubsystem.setVelocityRPM(2600.0);
+            m_hoodSubsystem.setPositionWithEncoder(65.0 / 360.0);
+        }
         logf("Start shoot command, Target RPM: %.3f , Target hood %.3f , distance %.3f", shooterTarget, hoodTarget,
                 distToTarget);
         //m_hotDog.setVelocitySetpoint(3000);

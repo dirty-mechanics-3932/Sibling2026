@@ -27,7 +27,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Range of motion, in degrees
     public static final double MIN_ANGLE = 0.0;
-    public static final double MAX_ANGLE = 50.0;
+    public static final double MAX_ANGLE = 70.0;
 
     public static final double MIN_ROTATION = MIN_ANGLE / 360.0;
     public static final double MAX_ROTATION = MAX_ANGLE / 360.0;
