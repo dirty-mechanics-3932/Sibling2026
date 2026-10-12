@@ -265,8 +265,8 @@ public class RobotContainer {
     // Align Robot to target
     m_driverController.a().whileTrue(
         m_drivebase.aimAtPoseCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
+            () -> m_driverController.getLeftY(),
+            () -> m_driverController.getLeftX(),
             () -> positionSubsystem.getTarget(),
             false, 0)
             .alongWith(myLogf("Aiming at hub pose:%s", Robot.getAllianceColor())));
@@ -277,8 +277,8 @@ public class RobotContainer {
     m_driverController.y().whileTrue(intakeTilt.extendIntake());
     m_driverController.x().whileTrue(new InstantCommand(() -> intakeTilt.homeIntake()));
     m_driverController.leftTrigger().whileTrue(intakeSpin.intakeSpin(4500)).onFalse((intakeSpin.intakeSpin(0)));
-    m_driverController.b().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
-            hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin, true));
+    //m_driverController.b().whileTrue(new PositionAndShootCommand(positionSubsystem, drumstickSubsystem, hoodSubsystem,
+    //        hotDog, catchupSubsystem, m_drivebase, intakeTilt, intakeSpin, true));
   }
 
   private void operatorBindings() {

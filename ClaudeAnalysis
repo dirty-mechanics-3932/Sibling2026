@@ -1,0 +1,33 @@
+Our FRC robot swerve drives work correctly when we drive with no load. Once we start to drive fast and hard one of the swerve steer motor is not aligned. Attached is out code.
+
+The command is the same for all four modules, but the error isn't in the command. It's in the feedback, and each module has its own.
+
+Each module is its own small closed-loop system. It has its own SPARK MAX, its own NEO encoder, its own power and CAN wiring, and its own pinion, gears and CANcoder magnet. The roboRIO sends each module a target angle, and that module's SPARK MAX steers until its own encoder reads that angle. If one module's encoder stops matching the real wheel angle, that SPARK MAX will happily "reach" the target while the wheel points somewhere else. The other three still have accurate encoders, so they track correctly even though their commands came from the same place.
+
+So the fact that it's always one module tells you something about that module's hardware. Software alone can't explain it. Some typical one-module causes:
+
+- **A loose or marginal power connection** on that SPARK MAX (Anderson connector, WAGO or breaker). Under hard acceleration, vibration and battery sag cause a brief dropout, and the controller reboots with its encoder reset to 0. The other three have solid connections, so they never reset.
+- **A weak spot in the CAN wiring** at that module. A brief dropout can cause a fault or reset on that controller only.
+- **Mechanical slip** in that module only: a loose set screw on the steering pinion, a worn key or a chipped gear. Hard driving puts much more side load on the wheels, which is when a slip shows up.
+- **A failing SPARK MAX or NEO.**
+
+The auto-sync fix hides the symptom, but the cause is still there. Auto-sync only corrects a module while it is stationary. If the glitch happens in the middle of a long, fast run, that wheel stays wrong until the robot stops, which could hurt you in a match or during auto. It's worth finding the root cause.
+
+To find out which module it is and when it happens, put this in `SwerveSubsystem.periodic()`:
+
+```java
+for (var m : m_swerveDrive.getModules()) {
+  double motorDeg = m.getState().angle.getDegrees();   // from the NEO encoder
+  double absDeg   = m.getAbsolutePosition();          // from the CANcoder
+  double err = edu.wpi.first.math.MathUtil.inputModulus(motorDeg - absDeg, -180, 180);
+  SmartDashboard.putNumber("SteerErr/" + m.moduleNumber, err);
+}
+```
+
+Normally each value stays within a degree or two. When the bad module glitches, its value will jump. A jump to an arbitrary angle all at once points to a controller reset. A slow creep, or small steps during hard pushes, points to mechanical slip.
+
+Then:
+
+1. Check that module's SPARK MAX in the REV Hardware Client for sticky faults. A "Has Reset" or brownout fault confirms a reset.
+2. Re-seat and tug-test that module's power and CAN connectors, and check the pinion set screw.
+3. If it's still unclear, swap that SPARK MAX with one from another module. If the problem moves with the controller, replace the controller. If it stays on the same corner, the cause is the wiring or the mechanics at that corner.
