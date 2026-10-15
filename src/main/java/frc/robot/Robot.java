@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.CANBus;
 
 import edu.wpi.first.epilogue.Epilogue;
 
@@ -45,8 +47,14 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
+  CANcoder encoder;
 
   public Robot() {
+    // Create once, e.g. in your Constants or drivetrain subsystem
+     CANBus rioBus = new CANBus("rio");           // roboRIO's built-in CAN
+     // CANBus canivore = new CANBus("canivore"); // or your CANivore's name
+     encoder = new CANcoder(3, rioBus);
+  
     Epilogue.configure(config -> {
       if (isSimulation()) {
         // If running in simulation, then we'd want to re-throw any errors that
@@ -243,5 +251,9 @@ public class Robot extends TimedRobot {
   
   static String getAllianceColor() {
     return (isAllianceBlue() ? "Blue" : "Red");
+  }
+
+  public double getEncodeVoltage() {
+    return encoder.getSupplyVoltage().getValueAsDouble();
   }
 }

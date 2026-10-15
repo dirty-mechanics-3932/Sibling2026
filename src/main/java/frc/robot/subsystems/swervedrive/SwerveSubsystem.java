@@ -6,6 +6,7 @@ package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
 import static frc.robot.utilities.Util.logf;
+import static frc.robot.utilities.Util.normalizeAngle;
 import frc.robot.Robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -41,7 +42,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.subsystems.Pose.FieldConstants;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -70,9 +70,10 @@ public class SwerveSubsystem extends SubsystemBase {
   private boolean shootBackward = false; // 0 is forward, 1 is backward
   int targetShootingSide;
   Rotation2d targetHeading;
-
   Pose2d m_currentRobotPose;
   Pose2d robotPose = new Pose2d();
+
+  
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -113,9 +114,10 @@ public class SwerveSubsystem extends SubsystemBase {
         true,
         0.1); // Correct for skew that gets worse as angular velocity increases. Start with a
               // coefficient of 0.1.
-    m_swerveDrive.setModuleEncoderAutoSynchronize(true,
-        1); // Enable if you want to resynchronize your absolute encoders and motor encoders
-            // periodically when they are not moving.
+    // Code Added for Auto Synchronization of Absolute Encoders and Motor Encoders
+    m_swerveDrive.setModuleEncoderAutoSynchronize(true, 1); 
+    // Enable if you want to resynchronize your absolute encoders and motor encoders
+    // periodically when they are not moving.
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used
     // over the internal encoder and push the offsets onto it. Throws warning if not
     // possible
@@ -149,22 +151,52 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("robotPose", getPose().getRotation().getDegrees());
 
     SmartDashboard.putNumber("DeltaAngle (REDHUB)", getHeadingToPose(FieldConstants.HUB_POSE_RED).getDegrees());
-    if (Robot.count % 10 == 3) {
-      showAngles();
-    }
+    // if (Robot.count % 10 == 3) {
+    //   showAngles(false);
+    // }
+    //If you need to test drive uncomment above
   }
 
-  private void showAngles() {
-    for (var m : m_swerveDrive.getModules()) {
-      double motorDeg = m.getState().angle.getDegrees(); // from the NEO encoder
-      double absDeg = m.getAbsolutePosition(); // from the CANcoder
-      double err = edu.wpi.first.math.MathUtil.inputModulus(motorDeg - absDeg, -180, 180);
-      if(Math.abs(err) > 1.0) {
-        logf("Module %d: Motor Angle: %.2f, Absolute Angle: %.2f, Error: %.2f", m.moduleNumber, motorDeg, absDeg, err);
+
+  void showAngles(boolean allMotors) {
+    var m0 = m_swerveDrive.getModules()[0];
+    double neo =  m0.getRelativePosition(); 
+    neo = normalizeAngle(neo);
+    double enc = m0.getAbsolutePosition();
+    enc = normalizeAngle(enc);
+    double err0 = edu.wpi.first.math.MathUtil.inputModulus(neo - enc, -180, 180);
+    double voltage0 = m0.getDriveMotor().getVoltage();
+    double supVvoltage = Robot.getInstance().getEncodeVoltage();
+    SmartDashboard.putNumber("SteerNeoDeg/0", neo);
+    SmartDashboard.putNumber("SteerEncDeg/0", enc);
+    SmartDashboard.putNumber("SteerErr/0", err0);
+    SmartDashboard.putNumber("SteerVoltage/0", voltage0);
+    
+    logf("Module 0: Motor Angle: %.2f, Absolute Angle: %.2f, Error: %.2f Voltage:%.2f supplyVoltage:%.2f", 
+      neo, enc, err0, voltage0, supVvoltage);
+
+    if (allMotors) {
+      for (var m : m_swerveDrive.getModules()) {
+        double motorDeg = m.getRelativePosition();   // NEO built-in encoder (SPARK MAX)
+        double absDeg   = m.getAbsolutePosition();   // CANcoder, 0–360
+        double err = edu.wpi.first.math.MathUtil.inputModulus(motorDeg - absDeg, -180, 180);
+        SmartDashboard.putNumber("SteerErr/" + m.moduleNumber, err);
+        SmartDashboard.putNumber("SteerMotorDeg/" + m.moduleNumber, motorDeg);
+        SmartDashboard.putNumber("SteerAbsDeg/" + m.moduleNumber, absDeg);
       }
-      SmartDashboard.putNumber("SteerErr/" + m.moduleNumber, err);
     }
   }
+  // private void showAnglesBad() {
+  //   for (var m : m_swerveDrive.getModules()) {
+  //     double motorDeg = m.getState().angle.getDegrees(); // from the NEO encoder
+  //     double absDeg = m.getAbsolutePosition(); // from the CANcoder
+  //     double err = edu.wpi.first.math.MathUtil.inputModulus(motorDeg - absDeg, -180, 180);
+  //     if(Math.abs(err) > 1.0) {
+  //       logf("Module %d: Motor Angle: %.2f, Absolute Angle: %.2f, Error: %.2f", m.moduleNumber, motorDeg, absDeg, err);
+  //     }
+  //     SmartDashboard.putNumber("SteerErr/" + m.moduleNumber, err);
+  //   }
+  // }
 
   @Override
   public void simulationPeriodic() {
