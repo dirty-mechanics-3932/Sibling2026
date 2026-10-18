@@ -11,6 +11,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -127,6 +128,9 @@ public class IntakeTilt extends SubsystemBase {
         lastPositionDeg = degrees;
         double rots = degrees * gearRatio / 360.0;
         tiltMotor.setControl(motionMagicVoltage.withPosition(rots).withEnableFOC(true));
+        if (DriverStation.isAutonomous()) {
+            logf("INTAKE EXTENDED");
+        }
     }
 
     @Logged(name = "getPositionDeg", importance = Importance.INFO)
