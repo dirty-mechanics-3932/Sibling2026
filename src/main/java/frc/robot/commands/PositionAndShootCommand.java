@@ -62,6 +62,7 @@ public class PositionAndShootCommand extends Command {
         shooterTarget = m_positionSubsysten.getShooterRPM();
         hoodTarget = m_positionSubsysten.getHoodPosition();
         distToTarget = m_positionSubsysten.getDistanceV2(); 
+        m_drivebase.lock();
         if (!backwardsOverride){
             m_drumstickSubsystem.setVelocityRPM(shooterTarget);
             m_hoodSubsystem.setPositionWithEncoder(hoodTarget / 360.0);
