@@ -120,7 +120,7 @@ public class IntakeTilt extends SubsystemBase {
     }
 
     private void moveIntakeDeg(double degrees) {
-        if (!homed) {
+        if (!homed && !getLimitSwitch()) {
             logf("********  Tried to move intake it was not homed");
             return;
         }
@@ -200,5 +200,7 @@ public class IntakeTilt extends SubsystemBase {
         if (homing && getLimitSwitch()) {
             endHoming();
         }
+        SmartDashboard.putBoolean("Intake Limit", !limitSwitch.get());
+        SmartDashboard.putBoolean("Intake Homed", homed);
     }
 }
